@@ -26,7 +26,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpcre3-dev
 
       - name: Build C ccze from source
-        run: testdata/build-c-ccze.sh
+        run: |
+          git clone https://github.com/cornet/ccze.git /tmp/ccze
+          cd /tmp/ccze && ./configure && make
+          sudo cp src/ccze /usr/local/bin/ccze
+          sudo mkdir -p /usr/local/lib/ccze
+          sudo cp src/*.so /usr/local/lib/ccze/
 
       - name: Run benchmarks
         run: testdata/bench-summary.sh
