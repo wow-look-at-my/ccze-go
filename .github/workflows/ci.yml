@@ -11,3 +11,137 @@ jobs:
 
       - name: Build and test
         uses: wow-look-at-my/go-toolchain@v1
+
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install C ccze build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpcre2-dev
+
+      - name: Build C ccze from source
+        run: |
+          git clone https://github.com/cornet/ccze.git /tmp/ccze
+          cd /tmp/ccze
+
+          # Create PCRE1-to-PCRE2 compatibility shim
+          cat > src/pcre_compat.h << 'SHIMEOF'
+          #ifndef PCRE_COMPAT_H
+          #define PCRE_COMPAT_H
+          #define PCRE2_CODE_UNIT_WIDTH 8
+          #include <pcre2.h>
+          #include <stdlib.h>
+          #include <string.h>
+          typedef pcre2_code pcre;
+          typedef struct { int dummy; } pcre_extra;
+          #define PCRE_CASELESS PCRE2_CASELESS
+          static inline pcre *pcre_compile(const char *pattern, int options,
+                                            const char **errptr, int *erroffset,
+                                            const void *tableptr) {
+              int errorcode; PCRE2_SIZE eoffset; (void)tableptr;
+              pcre2_code *re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED,
+                                              (uint32_t)options, &errorcode, &eoffset, NULL);
+              if (!re && errptr) {
+                  static char errbuf[256];
+                  pcre2_get_error_message(errorcode, (PCRE2_UCHAR *)errbuf, sizeof(errbuf));
+                  *errptr = errbuf;
+              }
+              if (erroffset) *erroffset = (int)eoffset;
+              return re;
+          }
+          static inline pcre_extra *pcre_study(pcre *re, int options, const char **errptr) {
+              (void)re; (void)options; (void)errptr; return NULL;
+          }
+          static inline int pcre_exec(const pcre *re, const pcre_extra *extra,
+                                       const char *subject, int length, int startoffset,
+                                       int options, int *ovector, int ovecsize) {
+              (void)extra;
+              pcre2_match_data *md = pcre2_match_data_create(ovecsize / 3, NULL);
+              if (!md) return -1;
+              int rc = pcre2_match(re, (PCRE2_SPTR)subject, (PCRE2_SIZE)length,
+                                    (PCRE2_SIZE)startoffset, (uint32_t)options, md, NULL);
+              if (rc > 0) {
+                  PCRE2_SIZE *ov = pcre2_get_ovector_pointer(md);
+                  int pairs = rc * 2;
+                  if (pairs > ovecsize) pairs = ovecsize;
+                  for (int i = 0; i < pairs; i++) ovector[i] = (int)ov[i];
+              }
+              pcre2_match_data_free(md);
+              return rc;
+          }
+          static inline int pcre_get_substring(const char *subject, int *ovector,
+                                                int stringcount, int stringnumber,
+                                                const char **stringptr) {
+              (void)stringcount;
+              int start = ovector[2 * stringnumber];
+              int end = ovector[2 * stringnumber + 1];
+              if (start < 0) { *stringptr = NULL; return -1; }
+              int len = end - start;
+              char *buf = malloc(len + 1);
+              if (!buf) return -1;
+              memcpy(buf, subject + start, len);
+              buf[len] = '\0';
+              *stringptr = buf;
+              return len;
+          }
+          static inline void pcre_free_substring(const char *str) { free((void *)str); }
+          static inline void pcre_free(void *ptr) { pcre2_code_free((pcre2_code *)ptr); }
+          #endif
+          SHIMEOF
+
+          sed -i 's|#include <pcre.h>|#include "pcre_compat.h"|' src/ccze.h
+
+          # Create pcre-config shim for configure
+          cat > pcre-config << 'PCREEOF'
+          #!/bin/sh
+          case "$1" in
+            --cflags) echo "-DPCRE2_CODE_UNIT_WIDTH=8" ;;
+            --libs) echo "-lpcre2-8" ;;
+            --version) echo "8.45" ;;
+          esac
+          PCREEOF
+          chmod +x pcre-config
+          export PATH="/tmp/ccze:$PATH"
+
+          ./configure && make
+          sudo cp src/ccze /usr/local/bin/ccze
+          sudo mkdir -p /usr/local/lib/ccze
+          sudo cp src/*.so /usr/local/lib/ccze/
+
+      - name: Run benchmarks
+        run: |
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Go Component Benchmarks" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          go test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=2s -count=1 2>&1 | grep -E '^(Benchmark|goos|goarch|pkg|cpu)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Go vs C Throughput Comparison" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          go test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | grep -E '^(Benchmark|goos|goarch|pkg|cpu)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Calculate speedup and add summary table
+          GO_NS=$(go test -bench='BenchmarkVsCThroughput/Go' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/Go' | awk '{print $3}')
+          C_NS=$(go test -bench='BenchmarkVsCThroughput/C' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/C' | awk '{print $3}')
+
+          if [ -n "$GO_NS" ] && [ -n "$C_NS" ] && [ "$GO_NS" -gt 0 ]; then
+            SPEEDUP=$(echo "scale=1; $C_NS / $GO_NS" | bc)
+            echo "### Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Go | C |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-----|---|" >> $GITHUB_STEP_SUMMARY
+            echo "| ns/op (37 lines) | ${GO_NS} | ${C_NS} |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Speedup** | **${SPEEDUP}x faster** | baseline |" >> $GITHUB_STEP_SUMMARY
+          fi

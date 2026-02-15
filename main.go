@@ -201,28 +201,29 @@ func convertColorOverride(s string) string {
 	return strings.Join(parts, " ")
 }
 
-// registerAllPlugins registers all 20 plugins in the canonical order.
+// registerAllPlugins registers all 20 plugins in alphabetical order,
+// matching the C ccze's scandir/alphasort plugin loading behavior.
 func registerAllPlugins(r *plugin.Registry, w *bufio.Writer, ct *color.Table, wc *wordcolor.Processor, convdate bool) {
-	r.Register(plugin.NewSyslogPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewHTTPDPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewSquidPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewPostfixPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewEximPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewDpkgPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewProcmailPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewPHPPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewProFTPDPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewVsftpdPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewFetchmailPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewApmPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewDistccPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewDpkgPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewEximPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewFetchmailPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewFtpstatsPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewHTTPDPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewIcecastPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewOopsPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewXferlogPlugin(w, ct, wc, convdate))
-	r.Register(plugin.NewFtpstatsPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewPHPPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewPostfixPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewProcmailPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewProFTPDPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewSquidPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewSulogPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewSuperPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewSyslogPlugin(w, ct, wc, convdate))
 	r.Register(plugin.NewUlogdPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewVsftpdPlugin(w, ct, wc, convdate))
+	r.Register(plugin.NewXferlogPlugin(w, ct, wc, convdate))
 }
 
 // filterPlugins removes plugins not in the given name list from the registry.

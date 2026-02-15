@@ -1,0 +1,37 @@
+Sep 14 11:45:00 webhost sshd[1234]: Connection closed by 192.168.1.100 port 52431
+Sep 14 11:45:01 webhost sshd[1234]: Accepted publickey for admin from 10.0.0.5 port 22
+Sep 14 11:45:02 webhost CRON[5678]: (root) CMD (/usr/local/bin/cleanup.sh)
+Sep 14 11:45:03 webhost kernel: [12345.678901] TCP: request_sock_TCP: Possible SYN flooding on port 80
+Sep 14 11:45:04 webhost postfix/smtp[9012]: ABC123: to=<user@example.com>,relay=smtp.example.com[93.184.216.34]:25,delay=0.5,delays=0.01/0.01/0.4/0.08,dsn=2.0.0,status=sent (250 OK)
+Sep 14 11:45:05 webhost postfix/qmgr[9013]: ABC123: removed
+Sep 14 11:45:06 webhost dovecot[3456]: imap(admin): Disconnected: Logged out bytes=123/456
+Sep 14 11:45:07 webhost named[7890]: client 10.0.0.1#12345: query: example.com IN A +
+Sep 14 11:45:08 webhost dhcpd[2345]: DHCPACK on 192.168.1.50 to aa:bb:cc:dd:ee:ff via eth0
+Sep 14 11:45:09 webhost ntpd[6789]: Listen normally on 2 eth0 192.168.1.1 UDP 123
+Oct 12 22:40:12 iluvatar last message repeated 10 times
+Oct 12 22:40:12 iluvatar -- MARK --
+192.168.1.1 - frank [10/Oct/2000:13:55:36 -0700] "GET /index.html HTTP/1.0" 200 2326
+192.168.1.1 - frank [10/Oct/2000:13:55:37 -0700] "GET /style.css HTTP/1.0" 200 1234
+10.0.0.5 - admin [10/Oct/2000:13:55:38 -0700] "POST /api/login HTTP/1.1" 302 0
+10.0.0.5 - admin [10/Oct/2000:13:55:39 -0700] "PUT /api/data HTTP/1.1" 200 4096
+10.0.0.5 - admin [10/Oct/2000:13:55:40 -0700] "HEAD /health HTTP/1.1" 200 0
+10.0.0.5 - - [10/Oct/2000:13:55:41 -0700] "GET /favicon.ico HTTP/1.1" 404 512
+example.com 10.0.0.1 - admin [10/Oct/2000:13:55:42 -0700] "POST /api/data HTTP/1.1" 201 512
+[Sun Oct 12 15:30:00 2003] [error] client denied by server configuration: /var/www/secret
+[Sun Oct 12 15:30:01 2003] [warn] long lost header found
+[Sun Oct 12 15:30:02 2003] [notice] Apache/2.4.41 configured -- resuming normal operations
+[Sun Oct 12 15:30:03 2003] [debug] mod_rewrite: applying pattern '^/old' to uri '/old/page'
+[Sun Oct 12 15:30:04 2003] [crit] disk quota exceeded
+2023-10-15 14:30:22 status installed libfoo:amd64 1.2.3
+2023-10-15 14:30:23 install libbar:amd64 <none> 2.0.0
+2023-10-15 14:30:24 conffile /etc/foo.conf install
+1234567890.123      5 192.168.1.1 TCP_MISS/200 1234 GET http://example.com/page user DIRECT/93.184.216.34 text/html
+1234567890.124     10 10.0.0.5 TCP_HIT/200 5678 GET http://cached.example.com/style.css user2 NONE/- text/css
+1234567890.125      1 10.0.0.6 TCP_DENIED/403 789 CONNECT https://blocked.example.com:443 user3 NONE/- -
+SU 10/15 14:30 + pts/0 root-admin
+something failed with error at 0x1234abcd
+linux kernel booting: version 6.1.0 initialized
+connection from 192.168.0.1 reading /var/log/syslog done
+service started successfully at 12:30:45 with sigterm handler
+mail from user@example.com size 150mb delivered via http://mail.example.com/api
+device aa:bb:cc:dd:ee:ff connected to 10.0.0.1 port 22
