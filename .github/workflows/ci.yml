@@ -116,17 +116,38 @@ jobs:
 
       - name: Run benchmarks
         run: |
+          human_ns() {
+            awk "BEGIN {
+              v = $1 + 0
+              if (v < 1000)        printf \"%.1f ns\", v
+              else if (v < 1000000)     printf \"%.1f µs\", v/1000
+              else if (v < 1000000000)  printf \"%.1f ms\", v/1000000
+              else                      printf \"%.2f s\",  v/1000000000
+            }"
+          }
+
+          human_bytes() {
+            awk "BEGIN {
+              v = $1 + 0
+              if (v < 1024)          printf \"%d B\", v
+              else if (v < 1048576)  printf \"%.1f KB\", v/1024
+              else                   printf \"%.1f MB\", v/1048576
+            }"
+          }
+
           bench_to_table() {
-            echo "| Benchmark | Iterations | ns/op | B/op | allocs/op |"
-            echo "|-----------|------------|-------|------|-----------|"
+            echo "| Benchmark | Iterations | Time | Memory | Allocs |"
+            echo "|-----------|------------|------|--------|--------|"
             while IFS= read -r line; do
               if [[ "$line" =~ ^Benchmark ]]; then
-                name=$(echo "$line" | awk '{print $1}')
+                name=$(echo "$line" | awk '{print $1}' | sed 's/-[0-9]*$//')
                 iters=$(echo "$line" | awk '{print $2}')
                 nsop=$(echo "$line" | awk '{print $3}')
                 bop=$(echo "$line" | awk '{print $5}')
                 aop=$(echo "$line" | awk '{print $7}')
-                echo "| ${name} | ${iters} | ${nsop} | ${bop} | ${aop} |"
+                time_h=$(human_ns "$nsop")
+                mem_h=$(human_bytes "$bop")
+                echo "| ${name} | ${iters} | ${time_h} | ${mem_h} | ${aop} |"
               fi
             done
           }
@@ -157,10 +178,12 @@ jobs:
 
           if [ -n "$GO_NS" ] && [ -n "$C_NS" ] && [ "$GO_NS" -gt 0 ]; then
             SPEEDUP=$(echo "scale=1; $C_NS / $GO_NS" | bc)
+            GO_H=$(human_ns "$GO_NS")
+            C_H=$(human_ns "$C_NS")
             echo "### Summary" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Metric | Go | C |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----|---|" >> $GITHUB_STEP_SUMMARY
-            echo "| ns/op (37 lines) | ${GO_NS} | ${C_NS} |" >> $GITHUB_STEP_SUMMARY
+            echo "| Time (37 lines) | ${GO_H} | ${C_H} |" >> $GITHUB_STEP_SUMMARY
             echo "| **Speedup** | **${SPEEDUP}x faster** | baseline |" >> $GITHUB_STEP_SUMMARY
           fi
