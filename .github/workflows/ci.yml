@@ -28,7 +28,7 @@ jobs:
       - name: Build C ccze from source
         run: |
           git clone https://github.com/cornet/ccze.git /tmp/ccze
-          cd /tmp/ccze && ./configure && make
+          cd /tmp/ccze && ./configure CFLAGS="-O3" && make
           sudo cp src/ccze /usr/local/bin/ccze
           sudo mkdir -p /usr/local/lib/ccze
           sudo cp src/*.so /usr/local/lib/ccze/
