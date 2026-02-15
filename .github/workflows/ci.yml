@@ -23,7 +23,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Install C ccze build dependencies
-        run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpcre2-dev
+        run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpcre3-dev
 
       - name: Build C ccze from source
         run: testdata/build-c-ccze.sh

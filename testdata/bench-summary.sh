@@ -57,6 +57,7 @@ go test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | bench_to_t
 echo "" >> "$OUT"
 
 # Calculate speedup
+LINES=$(wc -l < testdata/mixed.log)
 GO_NS=$(go test -bench='BenchmarkVsCThroughput/Go' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/Go' | awk '{print $3}')
 C_NS=$(go test -bench='BenchmarkVsCThroughput/C' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/C' | awk '{print $3}')
 
@@ -68,6 +69,6 @@ if [ -n "$GO_NS" ] && [ -n "$C_NS" ] && [ "$GO_NS" -gt 0 ]; then
   echo "" >> "$OUT"
   echo "| Metric | Go | C |" >> "$OUT"
   echo "|--------|-----|---|" >> "$OUT"
-  echo "| ms/op (37 lines) | ${GO_H} | ${C_H} |" >> "$OUT"
+  echo "| ms/op (${LINES} lines) | ${GO_H} | ${C_H} |" >> "$OUT"
   echo "| **Speedup** | **${SPEEDUP}x faster** | baseline |" >> "$OUT"
 fi
