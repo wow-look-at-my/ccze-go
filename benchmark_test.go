@@ -13,6 +13,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -277,12 +278,12 @@ func BenchmarkVsCThroughput(b *testing.B) {
 	})
 
 	b.Run("C", func(b *testing.B) {
-		ccze, err := exec.LookPath("ccze")
+		cczePath, err := exec.LookPath("ccze")
 		if err != nil {
 			b.Skip("C ccze binary not found; skipping. Install with: apt install ccze")
 		}
 
-		input := string(data)
+		input := []byte(string(data))
 		var totalBytes int64
 		for _, l := range lines {
 			totalBytes += int64(len(l))
@@ -291,13 +292,25 @@ func BenchmarkVsCThroughput(b *testing.B) {
 		b.ResetTimer()
 		b.SetBytes(totalBytes)
 
+		cmd := exec.Command(cczePath, "-A")
+		stdin, err := cmd.StdinPipe()
+		if err != nil {
+			b.Fatalf("failed to create stdin pipe: %v", err)
+		}
+		cmd.Stdout = io.Discard
+		if err := cmd.Start(); err != nil {
+			b.Fatalf("failed to start C ccze: %v", err)
+		}
+
 		for i := 0; i < b.N; i++ {
-			cmd := exec.Command(ccze, "-A")
-			cmd.Stdin = strings.NewReader(input)
-			cmd.Stdout = &bytes.Buffer{}
-			if err := cmd.Run(); err != nil {
-				b.Fatalf("C ccze failed: %v", err)
+			if _, err := stdin.Write(input); err != nil {
+				b.Fatalf("failed to write to C ccze: %v", err)
 			}
+		}
+
+		stdin.Close()
+		if err := cmd.Wait(); err != nil {
+			b.Fatalf("C ccze failed: %v", err)
 		}
 	})
 }
@@ -357,21 +370,34 @@ func BenchmarkVsCLargeFile(b *testing.B) {
 	})
 
 	b.Run("C_1000lines", func(b *testing.B) {
-		ccze, err := exec.LookPath("ccze")
+		cczePath, err := exec.LookPath("ccze")
 		if err != nil {
 			b.Skip("C ccze binary not found; skipping. Install with: apt install ccze")
 		}
 
+		input := []byte(largeInput)
 		b.SetBytes(totalBytes)
 		b.ResetTimer()
 
+		cmd := exec.Command(cczePath, "-A")
+		stdin, err := cmd.StdinPipe()
+		if err != nil {
+			b.Fatalf("failed to create stdin pipe: %v", err)
+		}
+		cmd.Stdout = io.Discard
+		if err := cmd.Start(); err != nil {
+			b.Fatalf("failed to start C ccze: %v", err)
+		}
+
 		for i := 0; i < b.N; i++ {
-			cmd := exec.Command(ccze, "-A")
-			cmd.Stdin = strings.NewReader(largeInput)
-			cmd.Stdout = &bytes.Buffer{}
-			if err := cmd.Run(); err != nil {
-				b.Fatalf("C ccze failed: %v", err)
+			if _, err := stdin.Write(input); err != nil {
+				b.Fatalf("failed to write to C ccze: %v", err)
 			}
+		}
+
+		stdin.Close()
+		if err := cmd.Wait(); err != nil {
+			b.Fatalf("C ccze failed: %v", err)
 		}
 	})
 }
@@ -440,13 +466,18 @@ func TestBenchmarkSummary(t *testing.T) {
 	}
 
 	cResult := testing.Benchmark(func(b *testing.B) {
-		input := string(data)
+		input := data
+		cmd := exec.Command(ccze, "-A")
+		stdin, _ := cmd.StdinPipe()
+		cmd.Stdout = io.Discard
+		cmd.Start()
+
 		for i := 0; i < b.N; i++ {
-			cmd := exec.Command(ccze, "-A")
-			cmd.Stdin = strings.NewReader(input)
-			cmd.Stdout = &bytes.Buffer{}
-			cmd.Run()
+			stdin.Write(input)
 		}
+
+		stdin.Close()
+		cmd.Wait()
 	})
 
 	cNsPerOp := cResult.NsPerOp()
