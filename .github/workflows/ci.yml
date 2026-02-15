@@ -25,7 +25,8 @@ jobs:
       - name: Install C ccze build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libncurses-dev libpcre3-dev hyperfine linux-tools-common linux-tools-azure
+          sudo apt-get install -y libncurses-dev libpcre3-dev hyperfine
+          sudo apt-get install -y "linux-tools-$(uname -r)" || sudo apt-get install -y linux-tools-azure || true
 
       - name: Build C ccze from source
         run: |
@@ -55,16 +56,22 @@ jobs:
 
       - name: CPU profile — C ccze (perf)
         run: |
+          # Find the real perf binary (the wrapper script fails on kernel mismatch)
+          PERF=$(find /usr/lib/linux-tools -name perf -type f 2>/dev/null | head -1)
+          if [ -z "$PERF" ]; then
+            echo "### CPU Profile — C ccze (perf)" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "_perf not available for this kernel — skipped_" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           sudo sysctl -w kernel.perf_event_paranoid=-1
-          # Run C ccze under perf with the same input
           INPUT=testdata/mixed.log
-          # Repeat input to give perf enough samples
           for i in $(seq 50); do cat "$INPUT"; done > /tmp/perf-input.log
-          perf record -g -o perf.data -- ccze -A < /tmp/perf-input.log > /dev/null
+          "$PERF" record -g -o perf.data -- ccze -A < /tmp/perf-input.log > /dev/null
           echo "### CPU Profile — C ccze (perf top 20)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          perf report -n --stdio --no-children -i perf.data 2>&1 | head -40 | tee -a "$GITHUB_STEP_SUMMARY"
+          "$PERF" report -n --stdio --no-children -i perf.data 2>&1 | head -40 | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload profiles
