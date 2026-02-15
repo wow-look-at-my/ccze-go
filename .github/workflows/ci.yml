@@ -56,8 +56,8 @@ jobs:
       - name: CPU profile — C ccze (callgrind)
         run: |
           set -x
-          valgrind --tool=callgrind --callgrind-out-file=callgrind.out \
-            ccze -A < testdata/mixed.log > /dev/null
+          cat testdata/mixed.log | valgrind --tool=callgrind --callgrind-out-file=callgrind.out \
+            ccze -A > /dev/null
           echo "### CPU Profile — C ccze (callgrind top functions)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
