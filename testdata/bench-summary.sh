@@ -48,12 +48,12 @@ fi
 
 echo "### Go Component Benchmarks" >> "$OUT"
 echo "" >> "$OUT"
-go test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=2s -count=1 2>&1 | bench_to_table >> "$OUT"
+go test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=500ms -count=1 2>&1 | bench_to_table >> "$OUT"
 echo "" >> "$OUT"
 
 echo "### Go vs C Throughput (go test)" >> "$OUT"
 echo "" >> "$OUT"
-go test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | bench_to_table >> "$OUT"
+go test -bench='BenchmarkVsC' -benchmem -benchtime=1s -count=1 2>&1 | bench_to_table >> "$OUT"
 echo "" >> "$OUT"
 
 # --------------------------------------------------------------------------
@@ -69,7 +69,7 @@ SMALL_LINES=$(wc -l < "$SMALL_FILE")
 echo "### Hyperfine: Mixed Log (${SMALL_LINES} lines, includes startup)" >> "$OUT"
 echo "" >> "$OUT"
 echo '```' >> "$OUT"
-hyperfine --warmup 3 --min-runs 20 \
+hyperfine --warmup 2 --min-runs 5 \
   --command-name "ccze-go" "/tmp/ccze-go -A < $SMALL_FILE > /dev/null" \
   --command-name "ccze (C)" "ccze -A < $SMALL_FILE > /dev/null" \
   2>&1 | tee -a "$OUT"
