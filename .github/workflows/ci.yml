@@ -35,3 +35,24 @@ jobs:
 
       - name: Run benchmarks
         run: testdata/bench-summary.sh
+
+      - name: CPU profile (top functions)
+        run: |
+          go test -bench='BenchmarkFullPipeline' -benchtime=5s -cpuprofile=cpu.prof -count=1 .
+          echo "### CPU Profile: Top 20 Functions" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          go tool pprof -top -nodecount=20 cpu.prof 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### CPU Profile: Top 10 Cumulative" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          go tool pprof -top -cum -nodecount=10 cpu.prof 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload CPU profile
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-profile
+          path: cpu.prof
