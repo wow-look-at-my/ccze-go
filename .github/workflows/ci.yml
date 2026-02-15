@@ -23,12 +23,14 @@ jobs:
           go-version-file: go.mod
 
       - name: Install C ccze build dependencies
-        run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpcre3-dev hyperfine
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libncurses-dev libpcre3-dev hyperfine linux-tools-$(uname -r) linux-tools-common
 
       - name: Build C ccze from source
         run: |
           git clone https://github.com/cornet/ccze.git /tmp/ccze
-          cd /tmp/ccze && ./configure CFLAGS="-O3" && make
+          cd /tmp/ccze && ./configure CFLAGS="-O3 -g" && make
           sudo cp src/ccze /usr/local/bin/ccze
           sudo mkdir -p /usr/local/lib/ccze
           sudo cp src/*.so /usr/local/lib/ccze/
@@ -36,23 +38,39 @@ jobs:
       - name: Run benchmarks
         run: testdata/bench-summary.sh
 
-      - name: CPU profile (top functions)
+      - name: CPU profile — Go (pprof)
         run: |
           go test -bench='BenchmarkFullPipeline' -benchtime=5s -cpuprofile=cpu.prof -count=1 .
-          echo "### CPU Profile: Top 20 Functions" >> "$GITHUB_STEP_SUMMARY"
+          echo "### CPU Profile — Go (pprof top 20)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           go tool pprof -top -nodecount=20 cpu.prof 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### CPU Profile: Top 10 Cumulative" >> "$GITHUB_STEP_SUMMARY"
+          echo "### CPU Profile — Go (pprof top 10 cumulative)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           go tool pprof -top -cum -nodecount=10 cpu.prof 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload CPU profile
+      - name: CPU profile — C ccze (perf)
+        run: |
+          sudo sysctl -w kernel.perf_event_paranoid=-1
+          # Run C ccze under perf with the same input
+          INPUT=testdata/mixed.log
+          # Repeat input to give perf enough samples
+          for i in $(seq 50); do cat "$INPUT"; done > /tmp/perf-input.log
+          perf record -g -o perf.data -- ccze -A < /tmp/perf-input.log > /dev/null
+          echo "### CPU Profile — C ccze (perf top 20)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          perf report -n --stdio --no-children -i perf.data 2>&1 | head -40 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload profiles
         uses: actions/upload-artifact@v4
         with:
-          name: cpu-profile
-          path: cpu.prof
+          name: cpu-profiles
+          path: |
+            cpu.prof
+            perf.data
