@@ -9,25 +9,28 @@ import (
 	"ccze-go/color"
 )
 
-// Processor holds precompiled regular expressions and a color table for
-// performing word-level colorization of log messages.
+var (
+	regPre    = regexp.MustCompile("^([`'\".,!?:;(\\[{<]+)([^`'\".,!?:;(\\[{<]\\S*)$")
+	regPost   = regexp.MustCompile("^(\\S*[^`'\".,!?:;)\\]}>])([`'\".,!?:;)\\]}>]+)$")
+	regHost   = regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_]+\\.)+[a-z]{2,3})|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)$")
+	regHostIP = regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_\\.]+)+)|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)\\[")
+	regMAC    = regexp.MustCompile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
+	regEmail  = regexp.MustCompile("^[a-z0-9-_=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]{2,4})+")
+	regEmail2 = regexp.MustCompile("(\\.[a-z]{2,4})+$")
+	regMsgID  = regexp.MustCompile("^[a-z0-9-_\\.\\$=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]+)+")
+	regURI    = regexp.MustCompile("^\\w{2,}:\\/\\/(\\S+\\/?)+$")
+	regSize   = regexp.MustCompile("^\\d+(\\.\\d+)?[kmgt]i?b?(ytes?)?")
+	regVer    = regexp.MustCompile("^v?(\\d+\\.){1}((\\d|[a-z])+\\.)*(\\d|[a-z])+$")
+	regTime   = regexp.MustCompile("\\d{1,2}:\\d{1,2}(:\\d{1,2})?")
+	regAddr   = regexp.MustCompile("^0x(\\d|[a-f])+$")
+	regNum    = regexp.MustCompile("^[+-]?\\d+$")
+	regSig    = regexp.MustCompile("^sig(hup|int|quit|ill|abrt|fpe|kill|segv|pipe|alrm|term|usr1|usr2|chld|cont|stop|tstp|tin|tout|bus|poll|prof|sys|trap|urg|vtalrm|xcpu|xfsz|iot|emt|stkflt|io|cld|pwr|info|lost|winch|unused)")
+)
+
+// Processor holds a color table for performing word-level colorization
+// of log messages.
 type Processor struct {
-	ct        *color.Table
-	regPre    *regexp.Regexp // punctuation prefix
-	regPost   *regexp.Regexp // punctuation suffix
-	regHost   *regexp.Regexp
-	regHostIP *regexp.Regexp
-	regMAC    *regexp.Regexp
-	regEmail  *regexp.Regexp
-	regEmail2 *regexp.Regexp
-	regMsgID  *regexp.Regexp
-	regURI    *regexp.Regexp
-	regSize   *regexp.Regexp
-	regVer    *regexp.Regexp
-	regTime   *regexp.Regexp
-	regAddr   *regexp.Regexp
-	regNum    *regexp.Regexp
-	regSig    *regexp.Regexp
+	ct *color.Table
 }
 
 var wordsBad = []string{
@@ -53,26 +56,10 @@ var wordsSystem = []string{
 	"bios", "cpu", "fpu", "discharging", "resume",
 }
 
-// New creates a new Processor with all regular expressions compiled and
-// the given color table.
+// New creates a new Processor with the given color table.
 func New(ct *color.Table) *Processor {
 	return &Processor{
-		ct:        ct,
-		regPre:    regexp.MustCompile("^([`'\".,!?:;(\\[{<]+)([^`'\".,!?:;(\\[{<]\\S*)$"),
-		regPost:   regexp.MustCompile("^(\\S*[^`'\".,!?:;)\\]}>])([`'\".,!?:;)\\]}>]+)$"),
-		regHost:   regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_]+\\.)+[a-z]{2,3})|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)$"),
-		regHostIP: regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_\\.]+)+)|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)\\["),
-		regMAC:    regexp.MustCompile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$"),
-		regEmail:  regexp.MustCompile("^[a-z0-9-_=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]{2,4})+"),
-		regEmail2: regexp.MustCompile("(\\.[a-z]{2,4})+$"),
-		regMsgID:  regexp.MustCompile("^[a-z0-9-_\\.\\$=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]+)+"),
-		regURI:    regexp.MustCompile("^\\w{2,}:\\/\\/(\\S+\\/?)+$"),
-		regSize:   regexp.MustCompile("^\\d+(\\.\\d+)?[kmgt]i?b?(ytes?)?"),
-		regVer:    regexp.MustCompile("^v?(\\d+\\.){1}((\\d|[a-z])+\\.)*(\\d|[a-z])+$"),
-		regTime:   regexp.MustCompile("\\d{1,2}:\\d{1,2}(:\\d{1,2})?"),
-		regAddr:   regexp.MustCompile("^0x(\\d|[a-f])+$"),
-		regNum:    regexp.MustCompile("^[+-]?\\d+$"),
-		regSig:    regexp.MustCompile("^sig(hup|int|quit|ill|abrt|fpe|kill|segv|pipe|alrm|term|usr1|usr2|chld|cont|stop|tstp|tin|tout|bus|poll|prof|sys|trap|urg|vtalrm|xcpu|xfsz|iot|emt|stkflt|io|cld|pwr|info|lost|winch|unused)"),
+		ct: ct,
 	}
 }
 
@@ -119,14 +106,14 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 
 	// Extract punctuation prefix
 	var pre string
-	if m := p.regPre.FindStringSubmatch(word); m != nil {
+	if m := regPre.FindStringSubmatch(word); m != nil {
 		pre = m[1]
 		word = m[2]
 	}
 
 	// Extract punctuation suffix
 	var post string
-	if m := p.regPost.FindStringSubmatch(word); m != nil {
+	if m := regPost.FindStringSubmatch(word); m != nil {
 		post = m[2]
 		word = m[1]
 	}
@@ -135,31 +122,31 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 
 	// Pattern cascade - order matters, first match wins (except hostip)
 	switch {
-	case p.regHost.MatchString(lword):
+	case regHost.MatchString(lword):
 		col = color.Host
-	case p.regMAC.MatchString(lword):
+	case regMAC.MatchString(lword):
 		col = color.MAC
 	case len(lword) > 0 && lword[0] == '/':
 		col = color.Dir
-	case p.regEmail.MatchString(lword) && p.regEmail2.MatchString(lword):
+	case regEmail.MatchString(lword) && regEmail2.MatchString(lword):
 		col = color.Email
-	case p.regMsgID.MatchString(lword):
+	case regMsgID.MatchString(lword):
 		col = color.Email
-	case p.regURI.MatchString(lword):
+	case regURI.MatchString(lword):
 		col = color.URI
-	case p.regSize.MatchString(lword):
+	case regSize.MatchString(lword):
 		col = color.Size
-	case p.regVer.MatchString(lword):
+	case regVer.MatchString(lword):
 		col = color.Version
-	case p.regTime.MatchString(lword):
+	case regTime.MatchString(lword):
 		col = color.Date
-	case p.regAddr.MatchString(lword):
+	case regAddr.MatchString(lword):
 		col = color.Address
-	case p.regNum.MatchString(lword):
+	case regNum.MatchString(lword):
 		col = color.Numbers
-	case p.regSig.MatchString(lword):
+	case regSig.MatchString(lword):
 		col = color.Signal
-	case p.regHostIP.MatchString(lword):
+	case regHostIP.MatchString(lword):
 		// Special handling: split at '[', output host and IP separately.
 		// By this point the regPost has already stripped any trailing ']',
 		// so the word looks like "hostname[192.168.1.1".
