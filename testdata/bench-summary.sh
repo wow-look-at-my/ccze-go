@@ -66,29 +66,11 @@ go build -o /tmp/ccze-go .
 SMALL_FILE="testdata/mixed.log"
 SMALL_LINES=$(wc -l < "$SMALL_FILE")
 
-# Generate a large log file (~14k lines) for throughput testing
-LARGE_FILE=$(mktemp)
-trap "rm -f $LARGE_FILE" EXIT
-for _ in $(seq 10); do
-  cat "$SMALL_FILE"
-done > "$LARGE_FILE"
-LARGE_LINES=$(wc -l < "$LARGE_FILE")
-
-echo "### Hyperfine: Small File (${SMALL_LINES} lines, includes startup)" >> "$OUT"
+echo "### Hyperfine: Mixed Log (${SMALL_LINES} lines, includes startup)" >> "$OUT"
 echo "" >> "$OUT"
 echo '```' >> "$OUT"
 hyperfine --warmup 3 --min-runs 20 \
   --command-name "ccze-go" "/tmp/ccze-go -A < $SMALL_FILE > /dev/null" \
   --command-name "ccze (C)" "ccze -A < $SMALL_FILE > /dev/null" \
-  2>&1 | tee -a "$OUT"
-echo '```' >> "$OUT"
-echo "" >> "$OUT"
-
-echo "### Hyperfine: Large File (${LARGE_LINES} lines, throughput)" >> "$OUT"
-echo "" >> "$OUT"
-echo '```' >> "$OUT"
-hyperfine --warmup 1 --min-runs 3 --max-runs 5 \
-  --command-name "ccze-go" "/tmp/ccze-go -A < $LARGE_FILE > /dev/null" \
-  --command-name "ccze (C)" "ccze -A < $LARGE_FILE > /dev/null" \
   2>&1 | tee -a "$OUT"
 echo '```' >> "$OUT"
