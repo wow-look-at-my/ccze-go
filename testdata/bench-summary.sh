@@ -87,7 +87,7 @@ echo "" >> "$OUT"
 echo "### Hyperfine: Large File (${LARGE_LINES} lines, throughput)" >> "$OUT"
 echo "" >> "$OUT"
 echo '```' >> "$OUT"
-hyperfine --warmup 2 --min-runs 10 \
+hyperfine --warmup 1 --min-runs 3 \
   --command-name "ccze-go" "/tmp/ccze-go -A < $LARGE_FILE > /dev/null" \
   --command-name "ccze (C)" "ccze -A < $LARGE_FILE > /dev/null" \
   2>&1 | tee -a "$OUT"
