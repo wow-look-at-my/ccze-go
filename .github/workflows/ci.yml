@@ -55,10 +55,12 @@ jobs:
 
       - name: CPU profile — C ccze (callgrind)
         run: |
+          set -x
           INPUT=testdata/mixed.log
           for i in $(seq 20); do cat "$INPUT"; done > /tmp/cg-input.log
+          wc -l /tmp/cg-input.log
           valgrind --tool=callgrind --callgrind-out-file=callgrind.out \
-            ccze -A < /tmp/cg-input.log > /dev/null 2>/dev/null
+            ccze -A < /tmp/cg-input.log > /dev/null
           echo "### CPU Profile — C ccze (callgrind top functions)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
