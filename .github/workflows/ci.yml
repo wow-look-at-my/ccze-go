@@ -116,23 +116,42 @@ jobs:
 
       - name: Run benchmarks
         run: |
+          bench_to_table() {
+            echo "| Benchmark | Iterations | ns/op | B/op | allocs/op |"
+            echo "|-----------|------------|-------|------|-----------|"
+            while IFS= read -r line; do
+              if [[ "$line" =~ ^Benchmark ]]; then
+                name=$(echo "$line" | awk '{print $1}')
+                iters=$(echo "$line" | awk '{print $2}')
+                nsop=$(echo "$line" | awk '{print $3}')
+                bop=$(echo "$line" | awk '{print $5}')
+                aop=$(echo "$line" | awk '{print $7}')
+                echo "| ${name} | ${iters} | ${nsop} | ${bop} | ${aop} |"
+              fi
+            done
+          }
+
           echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          # System info
+          CPULINE=$(go test -bench='BenchmarkColorTableInit' -benchtime=100ms -count=1 2>&1 | grep '^cpu:' | sed 's/^cpu: //')
+          if [ -n "$CPULINE" ]; then
+            echo "> **CPU:** ${CPULINE}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "### Go Component Benchmarks" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          go test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=2s -count=1 2>&1 | grep -E '^(Benchmark|goos|goarch|pkg|cpu)' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          go test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=2s -count=1 2>&1 | bench_to_table >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Go vs C Throughput Comparison" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          go test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | grep -E '^(Benchmark|goos|goarch|pkg|cpu)' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          go test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | bench_to_table >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Calculate speedup and add summary table
+          # Calculate speedup
           GO_NS=$(go test -bench='BenchmarkVsCThroughput/Go' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/Go' | awk '{print $3}')
           C_NS=$(go test -bench='BenchmarkVsCThroughput/C' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/C' | awk '{print $3}')
 
