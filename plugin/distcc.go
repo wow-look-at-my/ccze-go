@@ -8,6 +8,8 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var distccRe = regexp.MustCompile(`^distccd\[(\d+)\] (\([^\)]+\))? ?(.*)`)
+
 // DistccPlugin is a FULL plugin.
 // Coloriser for distcc(1) logs.
 type DistccPlugin struct {
@@ -15,7 +17,6 @@ type DistccPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewDistccPlugin creates a new DistccPlugin.
@@ -25,17 +26,16 @@ func NewDistccPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^distccd\[(\d+)\] (\([^\)]+\))? ?(.*)`),
 	}
 }
 
 func (p *DistccPlugin) Name() string        { return "distcc" }
-func (p *DistccPlugin) Type() Type           { return TypeFull }
-func (p *DistccPlugin) Description() string  { return "Coloriser for distcc(1) logs." }
+func (p *DistccPlugin) Type() Type          { return TypeFull }
+func (p *DistccPlugin) Description() string { return "Coloriser for distcc(1) logs." }
 
 // Handle attempts to match and colorize a distcc log line.
 func (p *DistccPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := distccRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

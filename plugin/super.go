@@ -8,6 +8,10 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var superRe = regexp.MustCompile(
+	`^(\S+)\s(\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)(\s+)(\S+)\s\(([^\)]+)\)`,
+)
+
 // SuperPlugin is a FULL plugin.
 // Coloriser for super(1) logs.
 type SuperPlugin struct {
@@ -15,7 +19,6 @@ type SuperPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewSuperPlugin creates a new SuperPlugin.
@@ -25,19 +28,16 @@ func NewSuperPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re: regexp.MustCompile(
-			`^(\S+)\s(\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)(\s+)(\S+)\s\(([^\)]+)\)`,
-		),
 	}
 }
 
 func (p *SuperPlugin) Name() string        { return "super" }
-func (p *SuperPlugin) Type() Type           { return TypeFull }
-func (p *SuperPlugin) Description() string  { return "Coloriser for super(1) logs." }
+func (p *SuperPlugin) Type() Type          { return TypeFull }
+func (p *SuperPlugin) Description() string { return "Coloriser for super(1) logs." }
 
 // Handle attempts to match and colorize a super log line.
 func (p *SuperPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := superRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

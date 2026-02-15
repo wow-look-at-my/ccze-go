@@ -9,14 +9,17 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var (
+	httpdReAccess = regexp.MustCompile(`^(\S*)\s(\S*)?\s?-\s(\S+)\s(\[\d{1,2}/\S*/\d{4}:\d{2}:\d{2}:\d{2}.{0,6}[^\]]*\])\s("([^ "]+)\s*[^"]*")\s(\d{3})\s(\d+|-)\s*(.*)$`)
+	httpdReError  = regexp.MustCompile(`^(\[\w{3}\s\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}\])\s(\[\w*\])\s(.*)$`)
+)
+
 // HTTPDPlugin colorizes generic HTTPD access and error log lines.
 type HTTPDPlugin struct {
-	w         io.Writer
-	ct        *color.Table
-	wc        *wordcolor.Processor
-	convdate  bool
-	reAccess  *regexp.Regexp
-	reError   *regexp.Regexp
+	w        io.Writer
+	ct       *color.Table
+	wc       *wordcolor.Processor
+	convdate bool
 }
 
 // NewHTTPDPlugin creates a new HTTPDPlugin.
@@ -26,14 +29,14 @@ func NewHTTPDPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		reAccess: regexp.MustCompile(`^(\S*)\s(\S*)?\s?-\s(\S+)\s(\[\d{1,2}/\S*/\d{4}:\d{2}:\d{2}:\d{2}.{0,6}[^\]]*\])\s("([^ "]+)\s*[^"]*")\s(\d{3})\s(\d+|-)\s*(.*)$`),
-		reError:  regexp.MustCompile(`^(\[\w{3}\s\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}\])\s(\[\w*\])\s(.*)$`),
 	}
 }
 
-func (p *HTTPDPlugin) Name() string        { return "httpd" }
-func (p *HTTPDPlugin) Type() Type           { return TypeFull }
-func (p *HTTPDPlugin) Description() string  { return "Coloriser for generic HTTPD access and error logs." }
+func (p *HTTPDPlugin) Name() string { return "httpd" }
+func (p *HTTPDPlugin) Type() Type   { return TypeFull }
+func (p *HTTPDPlugin) Description() string {
+	return "Coloriser for generic HTTPD access and error logs."
+}
 
 // httpdErrorColor returns the color for an HTTP error log level.
 func httpdErrorColor(level string) color.Color {
@@ -53,7 +56,7 @@ func httpdErrorColor(level string) color.Color {
 
 func (p *HTTPDPlugin) Handle(line string) (bool, string) {
 	// Try access log first
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	if m := httpdReAccess.FindStringSubmatch(line); m != nil {
 		vhost := m[1]
 		host := m[2]
 		user := m[3]
@@ -95,7 +98,7 @@ func (p *HTTPDPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try error log
-	if m := p.reError.FindStringSubmatch(line); m != nil {
+	if m := httpdReError.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		level := m[2]
 		msg := m[3]

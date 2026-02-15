@@ -9,13 +9,14 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var postfixRe = regexp.MustCompile(`^([\dA-F]+): ((client|to|message-id|uid|resent-message-id|from)(=.*))`)
+
 // PostfixPlugin colorizes postfix(1) sub-log lines.
 type PostfixPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewPostfixPlugin creates a new PostfixPlugin.
@@ -25,13 +26,12 @@ func NewPostfixPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, con
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^([\dA-F]+): ((client|to|message-id|uid|resent-message-id|from)(=.*))`),
 	}
 }
 
 func (p *PostfixPlugin) Name() string        { return "postfix" }
-func (p *PostfixPlugin) Type() Type           { return TypePartial }
-func (p *PostfixPlugin) Description() string  { return "Coloriser for postfix(1) sub-logs." }
+func (p *PostfixPlugin) Type() Type          { return TypePartial }
+func (p *PostfixPlugin) Description() string { return "Coloriser for postfix(1) sub-logs." }
 
 // postfixProcessOne processes a single field=value segment. Returns true if
 // the segment did not contain '=' (was not a field=value pair).
@@ -52,7 +52,7 @@ func (p *PostfixPlugin) postfixProcessOne(s string) bool {
 }
 
 func (p *PostfixPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := postfixRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

@@ -9,15 +9,18 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var (
+	squidReAccess = regexp.MustCompile(`^(\d{9,10}\.\d{3})(\s+)(\d+)\s(\S+)\s(\w+)/(\d{3})\s(\d+)\s(\w+)\s(\S+)\s(\S+)\s(\w+)/([\d\.]+|-)\s(.*)`)
+	squidReStore  = regexp.MustCompile(`^([\d\.]+)\s(\w+)\s(-?[\dA-F]+)\s+(\S+)\s([\dA-F]+)(\s+)(\d{3}|\?)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)\s(\S+)\s(-?[\d|\?]+)/(-?[\d|\?]+)\s(\S+)\s(.*)`)
+	squidReCache  = regexp.MustCompile(`^(\d{4}/\d{2}/\d{2}\s(\d{2}:){2}\d{2}\|)\s(.*)$`)
+)
+
 // SquidPlugin colorizes squid access, store and cache log lines.
 type SquidPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	reAccess *regexp.Regexp
-	reStore  *regexp.Regexp
-	reCache  *regexp.Regexp
 }
 
 // NewSquidPlugin creates a new SquidPlugin.
@@ -27,15 +30,14 @@ func NewSquidPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		reAccess: regexp.MustCompile(`^(\d{9,10}\.\d{3})(\s+)(\d+)\s(\S+)\s(\w+)/(\d{3})\s(\d+)\s(\w+)\s(\S+)\s(\S+)\s(\w+)/([\d\.]+|-)\s(.*)`),
-		reStore:  regexp.MustCompile(`^([\d\.]+)\s(\w+)\s(-?[\dA-F]+)\s+(\S+)\s([\dA-F]+)(\s+)(\d{3}|\?)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)\s(\S+)\s(-?[\d|\?]+)/(-?[\d|\?]+)\s(\S+)\s(.*)`),
-		reCache:  regexp.MustCompile(`^(\d{4}/\d{2}/\d{2}\s(\d{2}:){2}\d{2}\|)\s(.*)$`),
 	}
 }
 
-func (p *SquidPlugin) Name() string        { return "squid" }
-func (p *SquidPlugin) Type() Type           { return TypeFull }
-func (p *SquidPlugin) Description() string  { return "Coloriser for squid access, store and cache logs." }
+func (p *SquidPlugin) Name() string { return "squid" }
+func (p *SquidPlugin) Type() Type   { return TypeFull }
+func (p *SquidPlugin) Description() string {
+	return "Coloriser for squid access, store and cache logs."
+}
 
 // proxyAction returns the color for a squid proxy action string.
 func proxyAction(action string) color.Color {
@@ -99,7 +101,7 @@ func proxyTag(tag string) color.Color {
 
 func (p *SquidPlugin) Handle(line string) (bool, string) {
 	// Try access log
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	if m := squidReAccess.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		espace := m[2]
 		elaps := m[3]
@@ -152,7 +154,7 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try store log
-	if m := p.reStore.FindStringSubmatch(line); m != nil {
+	if m := squidReStore.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		tag := m[2]
 		swapnum := m[3]
@@ -206,7 +208,7 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try cache log
-	if m := p.reCache.FindStringSubmatch(line); m != nil {
+	if m := squidReCache.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		other := m[3]
 

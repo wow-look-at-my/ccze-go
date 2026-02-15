@@ -8,37 +8,37 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var (
+	dpkgReStatus   = regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\sstatus\s(\S+)\s(\S+)\s(\S+)$`)
+	dpkgReAction   = regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\s(install|upgrade|remove|purge)\s(\S+)\s(\S+)\s(\S+)$`)
+	dpkgReConffile = regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\sconffile\s(\S+)\s(install|keep)$`)
+)
+
 // DpkgPlugin colorizes dpkg log lines.
 type DpkgPlugin struct {
-	w          io.Writer
-	ct         *color.Table
-	wc         *wordcolor.Processor
-	convdate   bool
-	reStatus   *regexp.Regexp
-	reAction   *regexp.Regexp
-	reConffile *regexp.Regexp
+	w        io.Writer
+	ct       *color.Table
+	wc       *wordcolor.Processor
+	convdate bool
 }
 
 // NewDpkgPlugin creates a new DpkgPlugin.
 func NewDpkgPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convdate bool) *DpkgPlugin {
 	return &DpkgPlugin{
-		w:          w,
-		ct:         ct,
-		wc:         wc,
-		convdate:   convdate,
-		reStatus:   regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\sstatus\s(\S+)\s(\S+)\s(\S+)$`),
-		reAction:   regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\s(install|upgrade|remove|purge)\s(\S+)\s(\S+)\s(\S+)$`),
-		reConffile: regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\sconffile\s(\S+)\s(install|keep)$`),
+		w:        w,
+		ct:       ct,
+		wc:       wc,
+		convdate: convdate,
 	}
 }
 
 func (p *DpkgPlugin) Name() string        { return "dpkg" }
-func (p *DpkgPlugin) Type() Type           { return TypeFull }
-func (p *DpkgPlugin) Description() string  { return "Coloriser for dpkg logs." }
+func (p *DpkgPlugin) Type() Type          { return TypeFull }
+func (p *DpkgPlugin) Description() string { return "Coloriser for dpkg logs." }
 
 func (p *DpkgPlugin) Handle(line string) (bool, string) {
 	// Try status line
-	if m := p.reStatus.FindStringSubmatch(line); m != nil {
+	if m := dpkgReStatus.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		state := m[2]
 		pkg := m[3]
@@ -59,7 +59,7 @@ func (p *DpkgPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try action line
-	if m := p.reAction.FindStringSubmatch(line); m != nil {
+	if m := dpkgReAction.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		action := m[2]
 		pkg := m[3]
@@ -81,7 +81,7 @@ func (p *DpkgPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try conffile line
-	if m := p.reConffile.FindStringSubmatch(line); m != nil {
+	if m := dpkgReConffile.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		filename := m[2]
 		decision := m[3]

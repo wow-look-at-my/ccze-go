@@ -8,6 +8,8 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var apmRe = regexp.MustCompile(`Battery: (-?\d*)%, ((.*)charging) \((-?\d*)% ([^ ]*) (\d*:\d*:\d*)\), (\d*:\d*:\d*) (.*)`)
+
 // ApmPlugin is a PARTIAL plugin.
 // Coloriser for APM sub-logs.
 type ApmPlugin struct {
@@ -15,7 +17,6 @@ type ApmPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewApmPlugin creates a new ApmPlugin.
@@ -25,17 +26,16 @@ func NewApmPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convdat
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`Battery: (-?\d*)%, ((.*)charging) \((-?\d*)% ([^ ]*) (\d*:\d*:\d*)\), (\d*:\d*:\d*) (.*)`),
 	}
 }
 
 func (p *ApmPlugin) Name() string        { return "apm" }
-func (p *ApmPlugin) Type() Type           { return TypePartial }
-func (p *ApmPlugin) Description() string  { return "Coloriser for APM sub-logs." }
+func (p *ApmPlugin) Type() Type          { return TypePartial }
+func (p *ApmPlugin) Description() string { return "Coloriser for APM sub-logs." }
 
 // Handle attempts to match and colorize an APM log line.
 func (p *ApmPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := apmRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

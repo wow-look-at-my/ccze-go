@@ -9,6 +9,8 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var ulogdRe = regexp.MustCompile(`(IN|OUT|MAC|TTL|SRC|TOS|PREC|SPT)=`)
+
 // UlogdPlugin is a PARTIAL plugin.
 // Coloriser for ulogd sub-logs.
 type UlogdPlugin struct {
@@ -16,7 +18,6 @@ type UlogdPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewUlogdPlugin creates a new UlogdPlugin.
@@ -26,19 +27,18 @@ func NewUlogdPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`(IN|OUT|MAC|TTL|SRC|TOS|PREC|SPT)=`),
 	}
 }
 
 func (p *UlogdPlugin) Name() string        { return "ulogd" }
-func (p *UlogdPlugin) Type() Type           { return TypePartial }
-func (p *UlogdPlugin) Description() string  { return "Coloriser for ulogd sub-logs." }
+func (p *UlogdPlugin) Type() Type          { return TypePartial }
+func (p *UlogdPlugin) Description() string { return "Coloriser for ulogd sub-logs." }
 
 // Handle attempts to match and colorize a ulogd log line.
 // If the line contains netfilter keywords, it splits on spaces and
 // colorizes field=value pairs individually.
 func (p *UlogdPlugin) Handle(line string) (bool, string) {
-	if !p.re.MatchString(line) {
+	if !ulogdRe.MatchString(line) {
 		return false, ""
 	}
 

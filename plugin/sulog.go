@@ -8,6 +8,10 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var sulogRe = regexp.MustCompile(
+	`^SU (\d{2}/\d{2} \d{2}:\d{2}) ([+\-]) (\S+) ([^\-]+)-(.*)$`,
+)
+
 // SulogPlugin is a FULL plugin.
 // Coloriser for su(1) logs.
 type SulogPlugin struct {
@@ -15,7 +19,6 @@ type SulogPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewSulogPlugin creates a new SulogPlugin.
@@ -25,19 +28,16 @@ func NewSulogPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re: regexp.MustCompile(
-			`^SU (\d{2}/\d{2} \d{2}:\d{2}) ([+\-]) (\S+) ([^\-]+)-(.*)$`,
-		),
 	}
 }
 
 func (p *SulogPlugin) Name() string        { return "sulog" }
-func (p *SulogPlugin) Type() Type           { return TypeFull }
-func (p *SulogPlugin) Description() string  { return "Coloriser for su(1) logs." }
+func (p *SulogPlugin) Type() Type          { return TypeFull }
+func (p *SulogPlugin) Description() string { return "Coloriser for su(1) logs." }
 
 // Handle attempts to match and colorize a sulog line.
 func (p *SulogPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := sulogRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

@@ -9,13 +9,14 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var procmailRe = regexp.MustCompile(`^(\s*)(>?From|Subject:|Folder:)?\s(\S+)(\s+)?(.*)`)
+
 // ProcmailPlugin colorizes procmail(1) log lines.
 type ProcmailPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewProcmailPlugin creates a new ProcmailPlugin.
@@ -25,16 +26,15 @@ func NewProcmailPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, co
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^(\s*)(>?From|Subject:|Folder:)?\s(\S+)(\s+)?(.*)`),
 	}
 }
 
 func (p *ProcmailPlugin) Name() string        { return "procmail" }
-func (p *ProcmailPlugin) Type() Type           { return TypeFull }
-func (p *ProcmailPlugin) Description() string  { return "Coloriser for procmail(1) logs." }
+func (p *ProcmailPlugin) Type() Type          { return TypeFull }
+func (p *ProcmailPlugin) Description() string { return "Coloriser for procmail(1) logs." }
 
 func (p *ProcmailPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := procmailRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

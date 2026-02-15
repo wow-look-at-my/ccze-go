@@ -8,13 +8,14 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var phpRe = regexp.MustCompile(`^(\[\d+-...-\d+ \d+:\d+:\d+\]) PHP (.*)$`)
+
 // PHPPlugin colorizes PHP log lines.
 type PHPPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewPHPPlugin creates a new PHPPlugin.
@@ -24,16 +25,15 @@ func NewPHPPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convdat
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^(\[\d+-...-\d+ \d+:\d+:\d+\]) PHP (.*)$`),
 	}
 }
 
 func (p *PHPPlugin) Name() string        { return "php" }
-func (p *PHPPlugin) Type() Type           { return TypeFull }
-func (p *PHPPlugin) Description() string  { return "Coloriser for PHP logs." }
+func (p *PHPPlugin) Type() Type          { return TypeFull }
+func (p *PHPPlugin) Description() string { return "Coloriser for PHP logs." }
 
 func (p *PHPPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := phpRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

@@ -8,13 +8,14 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var vsftpdRe = regexp.MustCompile(`^(\S+\s+\S+\s+\d{1,2}\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\d+)(\s+)\[pid (\d+)\]\s+(\[(\S+)\])?\s*(.*)$`)
+
 // VsftpdPlugin colorizes vsftpd log lines.
 type VsftpdPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewVsftpdPlugin creates a new VsftpdPlugin.
@@ -24,16 +25,15 @@ func NewVsftpdPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^(\S+\s+\S+\s+\d{1,2}\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\d+)(\s+)\[pid (\d+)\]\s+(\[(\S+)\])?\s*(.*)$`),
 	}
 }
 
 func (p *VsftpdPlugin) Name() string        { return "vsftpd" }
-func (p *VsftpdPlugin) Type() Type           { return TypeFull }
-func (p *VsftpdPlugin) Description() string  { return "Coloriser for vsftpd logs." }
+func (p *VsftpdPlugin) Type() Type          { return TypeFull }
+func (p *VsftpdPlugin) Description() string { return "Coloriser for vsftpd logs." }
 
 func (p *VsftpdPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := vsftpdRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

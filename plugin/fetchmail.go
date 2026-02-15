@@ -8,6 +8,8 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var fetchmailRe = regexp.MustCompile(`(reading message) ([^@]*@[^:]*):([0-9]*) of ([0-9]*) (.*)`)
+
 // FetchmailPlugin is a PARTIAL plugin.
 // Coloriser for fetchmail(1) sub-logs.
 type FetchmailPlugin struct {
@@ -15,7 +17,6 @@ type FetchmailPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewFetchmailPlugin creates a new FetchmailPlugin.
@@ -25,17 +26,16 @@ func NewFetchmailPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, c
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`(reading message) ([^@]*@[^:]*):([0-9]*) of ([0-9]*) (.*)`),
 	}
 }
 
 func (p *FetchmailPlugin) Name() string        { return "fetchmail" }
-func (p *FetchmailPlugin) Type() Type           { return TypePartial }
-func (p *FetchmailPlugin) Description() string  { return "Coloriser for fetchmail(1) sub-logs." }
+func (p *FetchmailPlugin) Type() Type          { return TypePartial }
+func (p *FetchmailPlugin) Description() string { return "Coloriser for fetchmail(1) sub-logs." }
 
 // Handle attempts to match and colorize a fetchmail log line.
 func (p *FetchmailPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := fetchmailRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

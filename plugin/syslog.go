@@ -9,13 +9,14 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var syslogRe = regexp.MustCompile(`^(\S*\s{1,2}\d{1,2}\s\d\d:\d\d:\d\d)\s(\S+)\s+((\S+:?)\s(.*))$`)
+
 // SyslogPlugin colorizes generic syslog(8) log lines.
 type SyslogPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewSyslogPlugin creates a new SyslogPlugin.
@@ -25,16 +26,15 @@ func NewSyslogPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^(\S*\s{1,2}\d{1,2}\s\d\d:\d\d:\d\d)\s(\S+)\s+((\S+:?)\s(.*))$`),
 	}
 }
 
 func (p *SyslogPlugin) Name() string        { return "syslog" }
-func (p *SyslogPlugin) Type() Type           { return TypeFull }
-func (p *SyslogPlugin) Description() string  { return "Generic syslog(8) log coloriser." }
+func (p *SyslogPlugin) Type() Type          { return TypeFull }
+func (p *SyslogPlugin) Description() string { return "Generic syslog(8) log coloriser." }
 
 func (p *SyslogPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := syslogRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

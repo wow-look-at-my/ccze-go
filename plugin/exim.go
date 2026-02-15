@@ -8,36 +8,36 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var (
+	eximRe           = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s(.*)$`)
+	eximReActionType = regexp.MustCompile(`^(\S{16})\s([<=\*][=>\*])\s(\S+.*)$`)
+	eximReUniqn      = regexp.MustCompile(`^(\S{16})\s(.*)$`)
+)
+
 // EximPlugin colorizes exim log lines.
 type EximPlugin struct {
-	w              io.Writer
-	ct             *color.Table
-	wc             *wordcolor.Processor
-	convdate       bool
-	re             *regexp.Regexp
-	reActionType   *regexp.Regexp
-	reUniqn        *regexp.Regexp
+	w        io.Writer
+	ct       *color.Table
+	wc       *wordcolor.Processor
+	convdate bool
 }
 
 // NewEximPlugin creates a new EximPlugin.
 func NewEximPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convdate bool) *EximPlugin {
 	return &EximPlugin{
-		w:            w,
-		ct:           ct,
-		wc:           wc,
-		convdate:     convdate,
-		re:           regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s(.*)$`),
-		reActionType: regexp.MustCompile(`^(\S{16})\s([<=\*][=>\*])\s(\S+.*)$`),
-		reUniqn:      regexp.MustCompile(`^(\S{16})\s(.*)$`),
+		w:        w,
+		ct:       ct,
+		wc:       wc,
+		convdate: convdate,
 	}
 }
 
 func (p *EximPlugin) Name() string        { return "exim" }
-func (p *EximPlugin) Type() Type           { return TypeFull }
-func (p *EximPlugin) Description() string  { return "Coloriser for exim logs." }
+func (p *EximPlugin) Type() Type          { return TypeFull }
+func (p *EximPlugin) Description() string { return "Coloriser for exim logs." }
 
 func (p *EximPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := eximRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}
@@ -49,7 +49,7 @@ func (p *EximPlugin) Handle(line string) (bool, string) {
 	var actionColor color.Color
 
 	// Try action type sub-regex first
-	if m2 := p.reActionType.FindStringSubmatch(msgfull); m2 != nil {
+	if m2 := eximReActionType.FindStringSubmatch(msgfull); m2 != nil {
 		uniqn = m2[1]
 		action = m2[2]
 		msg = m2[3]
@@ -63,7 +63,7 @@ func (p *EximPlugin) Handle(line string) (bool, string) {
 		} else {
 			actionColor = color.Unknown
 		}
-	} else if m2 := p.reUniqn.FindStringSubmatch(msgfull); m2 != nil {
+	} else if m2 := eximReUniqn.FindStringSubmatch(msgfull); m2 != nil {
 		// Try unique ID sub-regex
 		uniqn = m2[1]
 		msg = m2[2]
