@@ -51,24 +51,44 @@ echo "" >> "$OUT"
 go test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=2s -count=1 2>&1 | bench_to_table >> "$OUT"
 echo "" >> "$OUT"
 
-echo "### Go vs C Throughput Comparison" >> "$OUT"
+echo "### Go vs C Throughput (go test)" >> "$OUT"
 echo "" >> "$OUT"
 go test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | bench_to_table >> "$OUT"
 echo "" >> "$OUT"
 
-# Calculate speedup
-LINES=$(wc -l < testdata/mixed.log)
-GO_NS=$(go test -bench='BenchmarkVsCThroughput/Go' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/Go' | awk '{print $3}')
-C_NS=$(go test -bench='BenchmarkVsCThroughput/C' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/C' | awk '{print $3}')
+# --------------------------------------------------------------------------
+# Hyperfine: real-world shell-out comparison
+# --------------------------------------------------------------------------
 
-if [ -n "$GO_NS" ] && [ -n "$C_NS" ] && [ "$GO_NS" -gt 0 ]; then
-  SPEEDUP=$(echo "scale=1; $C_NS / $GO_NS" | bc)
-  GO_H=$(ns_to_ms "$GO_NS")
-  C_H=$(ns_to_ms "$C_NS")
-  echo "### Summary" >> "$OUT"
-  echo "" >> "$OUT"
-  echo "| Metric | Go | C |" >> "$OUT"
-  echo "|--------|-----|---|" >> "$OUT"
-  echo "| ms/op (${LINES} lines) | ${GO_H} | ${C_H} |" >> "$OUT"
-  echo "| **Speedup** | **${SPEEDUP}x faster** | baseline |" >> "$OUT"
-fi
+# Build the Go binary
+go build -o /tmp/ccze-go .
+
+SMALL_FILE="testdata/mixed.log"
+SMALL_LINES=$(wc -l < "$SMALL_FILE")
+
+# Generate a large log file (~10k lines) for throughput testing
+LARGE_FILE=$(mktemp)
+trap "rm -f $LARGE_FILE" EXIT
+for _ in $(seq 270); do
+  cat "$SMALL_FILE"
+done > "$LARGE_FILE"
+LARGE_LINES=$(wc -l < "$LARGE_FILE")
+
+echo "### Hyperfine: Small File (${SMALL_LINES} lines, includes startup)" >> "$OUT"
+echo "" >> "$OUT"
+echo '```' >> "$OUT"
+hyperfine --warmup 3 --min-runs 20 \
+  --command-name "ccze-go" "/tmp/ccze-go -A < $SMALL_FILE > /dev/null" \
+  --command-name "ccze (C)" "ccze -A < $SMALL_FILE > /dev/null" \
+  2>&1 | tee -a "$OUT"
+echo '```' >> "$OUT"
+echo "" >> "$OUT"
+
+echo "### Hyperfine: Large File (${LARGE_LINES} lines, throughput)" >> "$OUT"
+echo "" >> "$OUT"
+echo '```' >> "$OUT"
+hyperfine --warmup 2 --min-runs 10 \
+  --command-name "ccze-go" "/tmp/ccze-go -A < $LARGE_FILE > /dev/null" \
+  --command-name "ccze (C)" "ccze -A < $LARGE_FILE > /dev/null" \
+  2>&1 | tee -a "$OUT"
+echo '```' >> "$OUT"

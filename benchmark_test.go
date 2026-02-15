@@ -233,21 +233,64 @@ func BenchmarkFullPipelineMixed(b *testing.B) {
 // Throughput benchmark: Go vs C ccze
 // --------------------------------------------------------------------------
 
+// benchPipe is a shared helper for the shell-out benchmarks.
+// It launches the given binary with "-A", pipes input b.N times, and waits.
+func benchPipe(b *testing.B, binPath string, input []byte, totalBytes int64) {
+	b.Helper()
+	b.SetBytes(totalBytes)
+	b.ResetTimer()
+
+	cmd := exec.Command(binPath, "-A")
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		b.Fatalf("failed to create stdin pipe: %v", err)
+	}
+	cmd.Stdout = io.Discard
+	if err := cmd.Start(); err != nil {
+		b.Fatalf("failed to start %s: %v", binPath, err)
+	}
+
+	for i := 0; i < b.N; i++ {
+		if _, err := stdin.Write(input); err != nil {
+			b.Fatalf("failed to write to %s: %v", binPath, err)
+		}
+	}
+
+	stdin.Close()
+	if err := cmd.Wait(); err != nil {
+		b.Fatalf("%s failed: %v", binPath, err)
+	}
+}
+
+// buildGoBinary builds the ccze-go binary into a temp dir and returns its path.
+func buildGoBinary(b *testing.B) string {
+	b.Helper()
+	tmp := b.TempDir()
+	binPath := tmp + "/ccze-go"
+	cmd := exec.Command("go", "build", "-o", binPath, ".")
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		b.Fatalf("failed to build ccze-go: %v", err)
+	}
+	return binPath
+}
+
 func BenchmarkVsCThroughput(b *testing.B) {
 	data, err := os.ReadFile("testdata/mixed.log")
 	if err != nil {
 		b.Fatalf("failed to read testdata/mixed.log: %v", err)
 	}
 	lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
+	input := data
 
-	b.Run("Go", func(b *testing.B) {
-		var totalBytes int64
-		for _, l := range lines {
-			totalBytes += int64(len(l))
-		}
+	var totalBytes int64
+	for _, l := range lines {
+		totalBytes += int64(len(l))
+	}
 
-		b.ResetTimer()
+	b.Run("InProcess", func(b *testing.B) {
 		b.SetBytes(totalBytes)
+		b.ResetTimer()
 
 		for i := 0; i < b.N; i++ {
 			var buf bytes.Buffer
@@ -277,47 +320,22 @@ func BenchmarkVsCThroughput(b *testing.B) {
 		}
 	})
 
+	b.Run("Go", func(b *testing.B) {
+		binPath := buildGoBinary(b)
+		benchPipe(b, binPath, input, totalBytes)
+	})
+
 	b.Run("C", func(b *testing.B) {
 		cczePath, err := exec.LookPath("ccze")
 		if err != nil {
 			b.Skip("C ccze binary not found; skipping. Install with: apt install ccze")
 		}
-
-		input := []byte(string(data))
-		var totalBytes int64
-		for _, l := range lines {
-			totalBytes += int64(len(l))
-		}
-
-		b.ResetTimer()
-		b.SetBytes(totalBytes)
-
-		cmd := exec.Command(cczePath, "-A")
-		stdin, err := cmd.StdinPipe()
-		if err != nil {
-			b.Fatalf("failed to create stdin pipe: %v", err)
-		}
-		cmd.Stdout = io.Discard
-		if err := cmd.Start(); err != nil {
-			b.Fatalf("failed to start C ccze: %v", err)
-		}
-
-		for i := 0; i < b.N; i++ {
-			if _, err := stdin.Write(input); err != nil {
-				b.Fatalf("failed to write to C ccze: %v", err)
-			}
-		}
-
-		stdin.Close()
-		if err := cmd.Wait(); err != nil {
-			b.Fatalf("C ccze failed: %v", err)
-		}
+		benchPipe(b, cczePath, input, totalBytes)
 	})
 }
 
 // BenchmarkVsCLargeFile benchmarks processing a larger synthetic log file.
 func BenchmarkVsCLargeFile(b *testing.B) {
-	// Generate a large synthetic log: repeat the testdata lines
 	data, err := os.ReadFile("testdata/mixed.log")
 	if err != nil {
 		b.Fatalf("failed to read testdata/mixed.log: %v", err)
@@ -331,13 +349,14 @@ func BenchmarkVsCLargeFile(b *testing.B) {
 	}
 	largeLines = largeLines[:1000]
 	largeInput := strings.Join(largeLines, "\n") + "\n"
+	input := []byte(largeInput)
 
 	var totalBytes int64
 	for _, l := range largeLines {
 		totalBytes += int64(len(l))
 	}
 
-	b.Run("Go_1000lines", func(b *testing.B) {
+	b.Run("InProcess_1000lines", func(b *testing.B) {
 		b.SetBytes(totalBytes)
 		b.ResetTimer()
 
@@ -369,36 +388,17 @@ func BenchmarkVsCLargeFile(b *testing.B) {
 		}
 	})
 
+	b.Run("Go_1000lines", func(b *testing.B) {
+		binPath := buildGoBinary(b)
+		benchPipe(b, binPath, input, totalBytes)
+	})
+
 	b.Run("C_1000lines", func(b *testing.B) {
 		cczePath, err := exec.LookPath("ccze")
 		if err != nil {
 			b.Skip("C ccze binary not found; skipping. Install with: apt install ccze")
 		}
-
-		input := []byte(largeInput)
-		b.SetBytes(totalBytes)
-		b.ResetTimer()
-
-		cmd := exec.Command(cczePath, "-A")
-		stdin, err := cmd.StdinPipe()
-		if err != nil {
-			b.Fatalf("failed to create stdin pipe: %v", err)
-		}
-		cmd.Stdout = io.Discard
-		if err := cmd.Start(); err != nil {
-			b.Fatalf("failed to start C ccze: %v", err)
-		}
-
-		for i := 0; i < b.N; i++ {
-			if _, err := stdin.Write(input); err != nil {
-				b.Fatalf("failed to write to C ccze: %v", err)
-			}
-		}
-
-		stdin.Close()
-		if err := cmd.Wait(); err != nil {
-			b.Fatalf("C ccze failed: %v", err)
-		}
+		benchPipe(b, cczePath, input, totalBytes)
 	})
 }
 
@@ -418,9 +418,24 @@ func TestBenchmarkSummary(t *testing.T) {
 		t.Fatalf("failed to read testdata/mixed.log: %v", err)
 	}
 	lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
+	input := data
 
-	// Benchmark Go pipeline
-	goResult := testing.Benchmark(func(b *testing.B) {
+	var totalBytes int64
+	for _, l := range lines {
+		totalBytes += int64(len(l))
+	}
+
+	// Build the Go binary once
+	tmp := t.TempDir()
+	goBin := tmp + "/ccze-go"
+	cmd := exec.Command("go", "build", "-o", goBin, ".")
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("failed to build ccze-go: %v", err)
+	}
+
+	// In-process benchmark
+	inProcResult := testing.Benchmark(func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			var buf bytes.Buffer
 			w := bufio.NewWriter(&buf)
@@ -448,43 +463,44 @@ func TestBenchmarkSummary(t *testing.T) {
 		}
 	})
 
-	goNsPerOp := goResult.NsPerOp()
-	goLinesPerSec := float64(len(lines)) / (float64(goNsPerOp) / 1e9)
-
-	fmt.Printf("## Benchmark Results\n\n")
-	fmt.Printf("| Metric | Go | C |\n")
-	fmt.Printf("|--------|-----|---|\n")
-	fmt.Printf("| Lines processed | %d | %d |\n", len(lines), len(lines))
-	fmt.Printf("| Go ns/iteration | %d | - |\n", goNsPerOp)
-	fmt.Printf("| Go lines/sec | %.0f | ", goLinesPerSec)
-
-	// Try C benchmark
-	ccze, err := exec.LookPath("ccze")
-	if err != nil {
-		fmt.Printf("N/A (not installed) |\n")
-		return
-	}
-
-	cResult := testing.Benchmark(func(b *testing.B) {
-		input := data
-		cmd := exec.Command(ccze, "-A")
+	// Shell-out to ccze-go
+	goShellResult := testing.Benchmark(func(b *testing.B) {
+		cmd := exec.Command(goBin, "-A")
 		stdin, _ := cmd.StdinPipe()
 		cmd.Stdout = io.Discard
 		cmd.Start()
-
 		for i := 0; i < b.N; i++ {
 			stdin.Write(input)
 		}
-
 		stdin.Close()
 		cmd.Wait()
 	})
 
-	cNsPerOp := cResult.NsPerOp()
-	cLinesPerSec := float64(len(lines)) / (float64(cNsPerOp) / 1e9)
-	speedup := float64(cNsPerOp) / float64(goNsPerOp)
+	fmt.Printf("## Benchmark Results (%d lines)\n\n", len(lines))
+	fmt.Printf("| Metric | In-process | ccze-go | ccze (C) |\n")
+	fmt.Printf("|--------|------------|---------|----------|\n")
+	fmt.Printf("| ns/op | %d | %d | ", inProcResult.NsPerOp(), goShellResult.NsPerOp())
 
-	fmt.Printf("%.0f |\n", cLinesPerSec)
-	fmt.Printf("| C ns/iteration | - | %d |\n", cNsPerOp)
-	fmt.Printf("| **Speedup** | **%.1fx faster** | baseline |\n", speedup)
+	// Shell-out to C ccze
+	cczePath, err := exec.LookPath("ccze")
+	if err != nil {
+		fmt.Printf("N/A |\n")
+		return
+	}
+
+	cShellResult := testing.Benchmark(func(b *testing.B) {
+		cmd := exec.Command(cczePath, "-A")
+		stdin, _ := cmd.StdinPipe()
+		cmd.Stdout = io.Discard
+		cmd.Start()
+		for i := 0; i < b.N; i++ {
+			stdin.Write(input)
+		}
+		stdin.Close()
+		cmd.Wait()
+	})
+
+	fmt.Printf("%d |\n", cShellResult.NsPerOp())
+	speedup := float64(cShellResult.NsPerOp()) / float64(goShellResult.NsPerOp())
+	fmt.Printf("| **Speedup** | - | **%.1fx faster** | baseline |\n", speedup)
 }
