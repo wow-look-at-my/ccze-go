@@ -2,16 +2,10 @@ package plugin
 
 import (
 	"io"
-	"regexp"
+	"strings"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-)
-
-var (
-	dpkgReStatus   = regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\sstatus\s(\S+)\s(\S+)\s(\S+)$`)
-	dpkgReAction   = regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\s(install|upgrade|remove|purge)\s(\S+)\s(\S+)\s(\S+)$`)
-	dpkgReConffile = regexp.MustCompile(`^([-\d]{10}\s[:\d]{8})\sconffile\s(\S+)\s(install|keep)$`)
 )
 
 // DpkgPlugin colorizes dpkg log lines.
@@ -33,16 +27,75 @@ func NewDpkgPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convda
 }
 
 func (p *DpkgPlugin) Name() string        { return "dpkg" }
-func (p *DpkgPlugin) Type() Type          { return TypeFull }
-func (p *DpkgPlugin) Description() string { return "Coloriser for dpkg logs." }
+func (p *DpkgPlugin) Type() Type           { return TypeFull }
+func (p *DpkgPlugin) Description() string  { return "Coloriser for dpkg logs." }
+
+// parseDpkgDate extracts the date prefix from a dpkg log line.
+// Format: [-\d]{10}\s[:\d]{8}  (e.g. "2023-10-15 14:30:22")
+// Returns the date, the remainder after the space, and whether parsing succeeded.
+func parseDpkgDate(line string) (date, rest string, ok bool) {
+	// Need at least 20 chars: 10 (date) + 1 (space) + 8 (time) + 1 (space)
+	if len(line) < 20 {
+		return
+	}
+	for i := 0; i < 10; i++ {
+		c := line[i]
+		if c != '-' && (c < '0' || c > '9') {
+			return
+		}
+	}
+	if line[10] != ' ' {
+		return
+	}
+	for i := 11; i < 19; i++ {
+		c := line[i]
+		if c != ':' && (c < '0' || c > '9') {
+			return
+		}
+	}
+	if line[19] != ' ' {
+		return
+	}
+	date = line[:19]
+	rest = line[20:]
+	ok = true
+	return
+}
+
+// splitSpaceFields splits s into up to n space-delimited fields.
+// Returns the fields and whether exactly n were found.
+func splitSpaceFields(s string, n int) ([]string, bool) {
+	fields := make([]string, 0, n)
+	for i := 0; i < n-1; i++ {
+		idx := strings.Index(s, " ")
+		if idx < 0 {
+			return nil, false
+		}
+		fields = append(fields, s[:idx])
+		s = s[idx+1:]
+	}
+	fields = append(fields, s)
+	return fields, true
+}
 
 func (p *DpkgPlugin) Handle(line string) (bool, string) {
-	// Try status line
-	if m := dpkgReStatus.FindStringSubmatch(line); m != nil {
-		date := m[1]
-		state := m[2]
-		pkg := m[3]
-		installedVersion := m[4]
+	date, rest, ok := parseDpkgDate(line)
+	if !ok {
+		return false, ""
+	}
+
+	// Branch on keyword after date
+	if strings.HasPrefix(rest, "status ") {
+		// Status line: status <state> <pkg> <version>
+		fields, ok := splitSpaceFields(rest[7:], 3)
+		if !ok {
+			return false, ""
+		}
+		state, pkg, ver := fields[0], fields[1], fields[2]
+		// Reject if any field contains spaces (i.e. final field shouldn't have extra)
+		if strings.Contains(ver, " ") {
+			return false, ""
+		}
 
 		PrintDate(p.w, p.ct, date, p.convdate)
 		p.ct.WriteSpace(p.w)
@@ -52,39 +105,21 @@ func (p *DpkgPlugin) Handle(line string) (bool, string) {
 		p.ct.WriteSpace(p.w)
 		p.ct.WriteColored(p.w, color.Pkg, pkg)
 		p.ct.WriteSpace(p.w)
-		p.ct.WriteColored(p.w, color.Default, installedVersion)
+		p.ct.WriteColored(p.w, color.Default, ver)
 		p.ct.WriteNewline(p.w)
-
 		return true, ""
 	}
 
-	// Try action line
-	if m := dpkgReAction.FindStringSubmatch(line); m != nil {
-		date := m[1]
-		action := m[2]
-		pkg := m[3]
-		installedVersion := m[4]
-		availableVersion := m[5]
-
-		PrintDate(p.w, p.ct, date, p.convdate)
-		p.ct.WriteSpace(p.w)
-		p.ct.WriteColored(p.w, color.Keyword, action)
-		p.ct.WriteSpace(p.w)
-		p.ct.WriteColored(p.w, color.Pkg, pkg)
-		p.ct.WriteSpace(p.w)
-		p.ct.WriteColored(p.w, color.Default, installedVersion)
-		p.ct.WriteSpace(p.w)
-		p.ct.WriteColored(p.w, color.Default, availableVersion)
-		p.ct.WriteNewline(p.w)
-
-		return true, ""
-	}
-
-	// Try conffile line
-	if m := dpkgReConffile.FindStringSubmatch(line); m != nil {
-		date := m[1]
-		filename := m[2]
-		decision := m[3]
+	if strings.HasPrefix(rest, "conffile ") {
+		// Conffile line: conffile <filename> <install|keep>
+		fields, ok := splitSpaceFields(rest[9:], 2)
+		if !ok {
+			return false, ""
+		}
+		filename, decision := fields[0], fields[1]
+		if decision != "install" && decision != "keep" {
+			return false, ""
+		}
 
 		PrintDate(p.w, p.ct, date, p.convdate)
 		p.ct.WriteSpace(p.w)
@@ -94,8 +129,35 @@ func (p *DpkgPlugin) Handle(line string) (bool, string) {
 		p.ct.WriteSpace(p.w)
 		p.ct.WriteColored(p.w, color.Keyword, decision)
 		p.ct.WriteNewline(p.w)
-
 		return true, ""
+	}
+
+	// Action line: <action> <pkg> <installed_ver> <available_ver>
+	// Actions: install, upgrade, remove, purge
+	for _, action := range []string{"install", "upgrade", "remove", "purge"} {
+		prefix := action + " "
+		if strings.HasPrefix(rest, prefix) {
+			fields, ok := splitSpaceFields(rest[len(prefix):], 3)
+			if !ok {
+				continue
+			}
+			pkg, installedVer, availableVer := fields[0], fields[1], fields[2]
+			if strings.Contains(availableVer, " ") {
+				continue
+			}
+
+			PrintDate(p.w, p.ct, date, p.convdate)
+			p.ct.WriteSpace(p.w)
+			p.ct.WriteColored(p.w, color.Keyword, action)
+			p.ct.WriteSpace(p.w)
+			p.ct.WriteColored(p.w, color.Pkg, pkg)
+			p.ct.WriteSpace(p.w)
+			p.ct.WriteColored(p.w, color.Default, installedVer)
+			p.ct.WriteSpace(p.w)
+			p.ct.WriteColored(p.w, color.Default, availableVer)
+			p.ct.WriteNewline(p.w)
+			return true, ""
+		}
 	}
 
 	return false, ""

@@ -9,18 +9,14 @@ import (
 	"ccze-go/wordcolor"
 )
 
-var (
-	squidReAccess = regexp.MustCompile(`^(\d{9,10}\.\d{3})(\s+)(\d+)\s(\S+)\s(\w+)/(\d{3})\s(\d+)\s(\w+)\s(\S+)\s(\S+)\s(\w+)/([\d\.]+|-)\s(.*)`)
-	squidReStore  = regexp.MustCompile(`^([\d\.]+)\s(\w+)\s(-?[\dA-F]+)\s+(\S+)\s([\dA-F]+)(\s+)(\d{3}|\?)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)\s(\S+)\s(-?[\d|\?]+)/(-?[\d|\?]+)\s(\S+)\s(.*)`)
-	squidReCache  = regexp.MustCompile(`^(\d{4}/\d{2}/\d{2}\s(\d{2}:){2}\d{2}\|)\s(.*)$`)
-)
-
 // SquidPlugin colorizes squid access, store and cache log lines.
 type SquidPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
+	reAccess *regexp.Regexp // kept: 13 capture groups, complex
+	reStore  *regexp.Regexp // kept: 18 capture groups, complex
 }
 
 // NewSquidPlugin creates a new SquidPlugin.
@@ -30,14 +26,14 @@ func NewSquidPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
+		reAccess: regexp.MustCompile(`^(\d{9,10}\.\d{3})(\s+)(\d+)\s(\S+)\s(\w+)/(\d{3})\s(\d+)\s(\w+)\s(\S+)\s(\S+)\s(\w+)/([\d\.]+|-)\s(.*)`),
+		reStore:  regexp.MustCompile(`^([\d\.]+)\s(\w+)\s(-?[\dA-F]+)\s+(\S+)\s([\dA-F]+)(\s+)(\d{3}|\?)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)(\s+)(-?[\d\?]+)\s(\S+)\s(-?[\d|\?]+)/(-?[\d|\?]+)\s(\S+)\s(.*)`),
 	}
 }
 
-func (p *SquidPlugin) Name() string { return "squid" }
-func (p *SquidPlugin) Type() Type   { return TypeFull }
-func (p *SquidPlugin) Description() string {
-	return "Coloriser for squid access, store and cache logs."
-}
+func (p *SquidPlugin) Name() string        { return "squid" }
+func (p *SquidPlugin) Type() Type           { return TypeFull }
+func (p *SquidPlugin) Description() string  { return "Coloriser for squid access, store and cache logs." }
 
 // proxyAction returns the color for a squid proxy action string.
 func proxyAction(action string) color.Color {
@@ -99,9 +95,49 @@ func proxyTag(tag string) color.Color {
 	return color.Unknown
 }
 
+// parseSquidCache hand-parses a squid cache log line.
+// Format: ^(\d{4}/\d{2}/\d{2}\s(\d{2}:){2}\d{2}\|)\s(.*)$
+// e.g. "2023/10/15 14:30:22| Starting Squid Cache"
+func parseSquidCache(line string) (date, other string, ok bool) {
+	// Minimum: "YYYY/MM/DD HH:MM:SS| X"  = 21 chars
+	if len(line) < 21 {
+		return
+	}
+	// YYYY/MM/DD
+	d := line[:10]
+	if !(d[0] >= '0' && d[0] <= '9' && d[1] >= '0' && d[1] <= '9' &&
+		d[2] >= '0' && d[2] <= '9' && d[3] >= '0' && d[3] <= '9' && d[4] == '/' &&
+		d[5] >= '0' && d[5] <= '9' && d[6] >= '0' && d[6] <= '9' && d[7] == '/' &&
+		d[8] >= '0' && d[8] <= '9' && d[9] >= '0' && d[9] <= '9') {
+		return
+	}
+	if line[10] != ' ' {
+		return
+	}
+	// HH:MM:SS
+	t := line[11:19]
+	if !(t[0] >= '0' && t[0] <= '9' && t[1] >= '0' && t[1] <= '9' && t[2] == ':' &&
+		t[3] >= '0' && t[3] <= '9' && t[4] >= '0' && t[4] <= '9' && t[5] == ':' &&
+		t[6] >= '0' && t[6] <= '9' && t[7] >= '0' && t[7] <= '9') {
+		return
+	}
+	// |
+	if line[19] != '|' {
+		return
+	}
+	date = line[:20] // includes the |
+	// space
+	if len(line) < 22 || line[20] != ' ' {
+		return
+	}
+	other = line[21:]
+	ok = true
+	return
+}
+
 func (p *SquidPlugin) Handle(line string) (bool, string) {
-	// Try access log
-	if m := squidReAccess.FindStringSubmatch(line); m != nil {
+	// Try access log (kept as regex — 13 capture groups)
+	if m := p.reAccess.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		espace := m[2]
 		elaps := m[3]
@@ -153,8 +189,8 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 		return true, ""
 	}
 
-	// Try store log
-	if m := squidReStore.FindStringSubmatch(line); m != nil {
+	// Try store log (kept as regex — 18 capture groups)
+	if m := p.reStore.FindStringSubmatch(line); m != nil {
 		date := m[1]
 		tag := m[2]
 		swapnum := m[3]
@@ -207,11 +243,8 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 		return true, ""
 	}
 
-	// Try cache log
-	if m := squidReCache.FindStringSubmatch(line); m != nil {
-		date := m[1]
-		other := m[3]
-
+	// Try cache log (hand-parsed — fixed date format with | delimiter)
+	if date, other, ok := parseSquidCache(line); ok {
 		p.ct.WriteColored(p.w, color.Date, date)
 		p.ct.WriteSpace(p.w)
 
