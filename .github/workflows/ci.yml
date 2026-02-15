@@ -11,3 +11,63 @@ jobs:
 
       - name: Build and test
         uses: wow-look-at-my/go-toolchain@v1
+
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install C ccze build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libncurses-dev libpcre3-dev hyperfine valgrind
+
+      - name: Build C ccze from source
+        run: |
+          git clone https://github.com/cornet/ccze.git /tmp/ccze
+          cd /tmp/ccze && ./configure CFLAGS="-O3 -g" && make
+          sudo cp src/ccze /usr/local/bin/ccze
+          sudo mkdir -p /usr/local/lib/ccze
+          sudo cp src/*.so /usr/local/lib/ccze/
+
+      - name: Run benchmarks
+        run: testdata/bench-summary.sh
+
+      - name: CPU profile — Go (pprof)
+        run: |
+          go test -bench='BenchmarkFullPipeline' -benchtime=5s -cpuprofile=cpu.prof -count=1 .
+          echo "### CPU Profile — Go (pprof top 20)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          go tool pprof -top -nodecount=20 cpu.prof 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### CPU Profile — Go (pprof top 10 cumulative)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          go tool pprof -top -cum -nodecount=10 cpu.prof 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: CPU profile — C ccze (callgrind)
+        run: |
+          set -x
+          cat testdata/mixed.log | valgrind --tool=callgrind --callgrind-out-file=callgrind.out \
+            ccze -A > /dev/null
+          echo "### CPU Profile — C ccze (callgrind top functions)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          callgrind_annotate callgrind.out | head -60 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload profiles
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-profiles
+          path: |
+            cpu.prof
+            callgrind.out
