@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 	"strings"
 
 	"ccze-go/color"
@@ -15,7 +14,6 @@ type SyslogPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewSyslogPlugin creates a new SyslogPlugin.
@@ -25,7 +23,6 @@ func NewSyslogPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^(\S*\s{1,2}\d{1,2}\s\d\d:\d\d:\d\d)\s(\S+)\s+((\S+:?)\s(.*))$`),
 	}
 }
 
@@ -33,17 +30,106 @@ func (p *SyslogPlugin) Name() string        { return "syslog" }
 func (p *SyslogPlugin) Type() Type           { return TypeFull }
 func (p *SyslogPlugin) Description() string  { return "Generic syslog(8) log coloriser." }
 
-func (p *SyslogPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
-	if m == nil {
-		return false, ""
+// parseSyslog hand-parses a syslog line.
+// Format: ^(\S*\s{1,2}\d{1,2}\s\d\d:\d\d:\d\d)\s(\S+)\s+((\S+:?)\s(.*))$
+func parseSyslog(line string) (date, host, send, process, msg string, ok bool) {
+	n := len(line)
+
+	// Month: \S* (non-space characters)
+	i := 0
+	for i < n && line[i] != ' ' {
+		i++
+	}
+	if i == 0 || i >= n {
+		return
 	}
 
-	date := m[1]
-	host := m[2]
-	send := m[3]
-	process := m[4]
-	msg := m[5]
+	// 1-2 spaces: \s{1,2}
+	spStart := i
+	for i < n && line[i] == ' ' {
+		i++
+	}
+	if i-spStart < 1 || i-spStart > 2 {
+		return
+	}
+
+	// Day: \d{1,2}
+	dStart := i
+	for i < n && line[i] >= '0' && line[i] <= '9' {
+		i++
+	}
+	if i-dStart < 1 || i-dStart > 2 {
+		return
+	}
+
+	// Space before time
+	if i >= n || line[i] != ' ' {
+		return
+	}
+	i++
+
+	// HH:MM:SS — exactly dd:dd:dd (8 chars)
+	if i+8 > n {
+		return
+	}
+	t := line[i : i+8]
+	if !(t[0] >= '0' && t[0] <= '9' && t[1] >= '0' && t[1] <= '9' && t[2] == ':' &&
+		t[3] >= '0' && t[3] <= '9' && t[4] >= '0' && t[4] <= '9' && t[5] == ':' &&
+		t[6] >= '0' && t[6] <= '9' && t[7] >= '0' && t[7] <= '9') {
+		return
+	}
+	i += 8
+	date = line[:i]
+
+	// \s (single space)
+	if i >= n || line[i] != ' ' {
+		return
+	}
+	i++
+
+	// Host: \S+ (non-space)
+	hStart := i
+	for i < n && line[i] != ' ' {
+		i++
+	}
+	if i == hStart {
+		return
+	}
+	host = line[hStart:i]
+
+	// \s+ (one or more spaces)
+	if i >= n || line[i] != ' ' {
+		return
+	}
+	for i < n && line[i] == ' ' {
+		i++
+	}
+
+	// Rest is send = process + space + msg
+	if i >= n {
+		return
+	}
+	send = line[i:]
+
+	// Split send into process (first non-space token) and msg
+	j := 0
+	for j < len(send) && send[j] != ' ' {
+		j++
+	}
+	process = send[:j]
+	if j < len(send) && send[j] == ' ' {
+		msg = send[j+1:]
+	}
+
+	ok = true
+	return
+}
+
+func (p *SyslogPlugin) Handle(line string) (bool, string) {
+	date, host, send, process, msg, ok := parseSyslog(line)
+	if !ok {
+		return false, ""
+	}
 
 	// Check for "last message repeated ... times" or "-- MARK --"
 	if (strings.Contains(send, "last message repeated") && strings.Contains(send, "times")) ||
