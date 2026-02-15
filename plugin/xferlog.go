@@ -8,6 +8,10 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var xferlogRe = regexp.MustCompile(
+	`^(... ... +\d{1,2} +\d{1,2}:\d{1,2}:\d{1,2} \d+) (\d+) ([^ ]+) (\d+) (\S+) (a|b) (C|U|T|_) (o|i) (a|g|r) ([^ ]+) ([^ ]+) (0|1) ([^ ]+) (c|i)`,
+)
+
 // XferlogPlugin is a FULL plugin.
 // Coloriser for xferlog(5) logs.
 type XferlogPlugin struct {
@@ -15,7 +19,6 @@ type XferlogPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewXferlogPlugin creates a new XferlogPlugin.
@@ -25,19 +28,16 @@ func NewXferlogPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, con
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re: regexp.MustCompile(
-			`^(... ... +\d{1,2} +\d{1,2}:\d{1,2}:\d{1,2} \d+) (\d+) ([^ ]+) (\d+) (\S+) (a|b) (C|U|T|_) (o|i) (a|g|r) ([^ ]+) ([^ ]+) (0|1) ([^ ]+) (c|i)`,
-		),
 	}
 }
 
 func (p *XferlogPlugin) Name() string        { return "xferlog" }
-func (p *XferlogPlugin) Type() Type           { return TypeFull }
-func (p *XferlogPlugin) Description() string  { return "Generic xferlog coloriser." }
+func (p *XferlogPlugin) Type() Type          { return TypeFull }
+func (p *XferlogPlugin) Description() string { return "Generic xferlog coloriser." }
 
 // Handle attempts to match and colorize an xferlog line.
 func (p *XferlogPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := xferlogRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

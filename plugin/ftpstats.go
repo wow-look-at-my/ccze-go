@@ -8,6 +8,10 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var ftpstatsRe = regexp.MustCompile(
+	`^(\d{9,10})\s([\da-f]+\.[\da-f]+)\s([^\s]+)\s([^\s]+)\s(U|D)\s(\d+)\s(\d+)\s(.*)$`,
+)
+
 // FtpstatsPlugin is a FULL plugin.
 // Coloriser for ftpstats (pure-ftpd) logs.
 type FtpstatsPlugin struct {
@@ -15,7 +19,6 @@ type FtpstatsPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewFtpstatsPlugin creates a new FtpstatsPlugin.
@@ -25,19 +28,16 @@ func NewFtpstatsPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, co
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re: regexp.MustCompile(
-			`^(\d{9,10})\s([\da-f]+\.[\da-f]+)\s([^\s]+)\s([^\s]+)\s(U|D)\s(\d+)\s(\d+)\s(.*)$`,
-		),
 	}
 }
 
 func (p *FtpstatsPlugin) Name() string        { return "ftpstats" }
-func (p *FtpstatsPlugin) Type() Type           { return TypeFull }
-func (p *FtpstatsPlugin) Description() string  { return "Coloriser for ftpstats (pure-ftpd) logs." }
+func (p *FtpstatsPlugin) Type() Type          { return TypeFull }
+func (p *FtpstatsPlugin) Description() string { return "Coloriser for ftpstats (pure-ftpd) logs." }
 
 // Handle attempts to match and colorize an ftpstats log line.
 func (p *FtpstatsPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := ftpstatsRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}
