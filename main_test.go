@@ -1,0 +1,78 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"testing"
+
+	"ccze-go/color"
+	"ccze-go/plugin"
+	"ccze-go/wordcolor"
+)
+
+func TestConvertColorOverride(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"date=boldcyan", "date bold cyan"},
+		{"error=red", "error red"},
+		{"host=underlinegreen", "host underline green"},
+		{"warning=yellow", "warning yellow"},
+		{"noequals", "noequals"},
+		{"date=boldredon_blue", "date bold red on_blue"},
+		{"date=reversewhite", "date reverse white"},
+		{"date=blinkmagenta", "date blink magenta"},
+	}
+	for _, tt := range tests {
+		got := convertColorOverride(tt.input)
+		if got != tt.want {
+			t.Errorf("convertColorOverride(%q) = %q, want %q", tt.input, got, tt.want)
+		}
+	}
+}
+
+func TestRegisterAllPlugins(t *testing.T) {
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	ct := color.NewTable(true)
+	wc := wordcolor.New(ct)
+	r := plugin.NewRegistry()
+
+	registerAllPlugins(r, w, ct, wc, false)
+
+	plugins := r.Plugins()
+	if len(plugins) != 20 {
+		t.Errorf("expected 20 plugins, got %d", len(plugins))
+	}
+}
+
+func TestFilterPlugins(t *testing.T) {
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	ct := color.NewTable(true)
+	wc := wordcolor.New(ct)
+	r := plugin.NewRegistry()
+
+	registerAllPlugins(r, w, ct, wc, false)
+	filterPlugins(r, []string{"syslog", "httpd"})
+
+	plugins := r.Plugins()
+	if len(plugins) != 2 {
+		t.Errorf("expected 2 plugins after filter, got %d", len(plugins))
+	}
+}
+
+func TestListAllPlugins(t *testing.T) {
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	ct := color.NewTable(true)
+	wc := wordcolor.New(ct)
+	r := plugin.NewRegistry()
+
+	registerAllPlugins(r, w, ct, wc, false)
+
+	// listAllPlugins writes to stdout; just verify it doesn't panic
+	// We can't easily capture stdout in a test, but at least exercise the code
+	listAllPlugins(r)
+}
