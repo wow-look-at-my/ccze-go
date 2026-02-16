@@ -2,10 +2,10 @@ package plugin
 
 import (
 	"io"
+	"regexp"
 	"strings"
 
 	"ccze-go/color"
-	"ccze-go/plugin/matchers"
 	"ccze-go/wordcolor"
 )
 
@@ -16,6 +16,7 @@ type UlogdPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
+	re       *regexp.Regexp
 }
 
 // NewUlogdPlugin creates a new UlogdPlugin.
@@ -25,6 +26,7 @@ func NewUlogdPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
+		re:       regexp.MustCompile(`(IN|OUT|MAC|TTL|SRC|TOS|PREC|SPT)=`),
 	}
 }
 
@@ -36,7 +38,7 @@ func (p *UlogdPlugin) Description() string  { return "Coloriser for ulogd sub-lo
 // If the line contains netfilter keywords, it splits on spaces and
 // colorizes field=value pairs individually.
 func (p *UlogdPlugin) Handle(line string) (bool, string) {
-	if !matchers.MatchUlogd(line) {
+	if !p.re.MatchString(line) {
 		return false, ""
 	}
 

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"ccze-go/color"
-	"ccze-go/plugin/matchers"
 	"ccze-go/wordcolor"
 )
 
@@ -53,71 +52,67 @@ func httpdErrorColor(level string) color.Color {
 }
 
 func (p *HTTPDPlugin) Handle(line string) (bool, string) {
-	// Try access log first (DFA pre-filter for fast rejection)
-	if matchers.MatchHttpdAccess(line) {
-		if m := p.reAccess.FindStringSubmatch(line); m != nil {
-			vhost := m[1]
-			host := m[2]
-			user := m[3]
-			date := m[4]
-			fullAction := m[5]
-			method := m[6]
-			httpCode := m[7]
-			gsize := m[8]
-			other := m[9]
+	// Try access log first
+	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+		vhost := m[1]
+		host := m[2]
+		user := m[3]
+		date := m[4]
+		fullAction := m[5]
+		method := m[6]
+		httpCode := m[7]
+		gsize := m[8]
+		other := m[9]
 
-			p.ct.WriteColored(p.w, color.Host, vhost)
+		p.ct.WriteColored(p.w, color.Host, vhost)
+		p.ct.WriteSpace(p.w)
+		p.ct.WriteColored(p.w, color.Host, host)
+		if host != "" {
 			p.ct.WriteSpace(p.w)
-			p.ct.WriteColored(p.w, color.Host, host)
-			if host != "" {
-				p.ct.WriteSpace(p.w)
-			}
-			p.ct.WriteColored(p.w, color.Default, "-")
-			p.ct.WriteSpace(p.w)
-
-			p.ct.WriteColored(p.w, color.User, user)
-			p.ct.WriteSpace(p.w)
-
-			p.ct.WriteColored(p.w, color.Date, date)
-			p.ct.WriteSpace(p.w)
-
-			p.ct.WriteColored(p.w, HTTPAction(method), fullAction)
-			p.ct.WriteSpace(p.w)
-
-			p.ct.WriteColored(p.w, color.HTTPCodes, httpCode)
-			p.ct.WriteSpace(p.w)
-
-			p.ct.WriteColored(p.w, color.GetSize, gsize)
-			p.ct.WriteSpace(p.w)
-
-			p.ct.WriteColored(p.w, color.Default, other)
-			p.ct.WriteNewline(p.w)
-
-			return true, ""
 		}
+		p.ct.WriteColored(p.w, color.Default, "-")
+		p.ct.WriteSpace(p.w)
+
+		p.ct.WriteColored(p.w, color.User, user)
+		p.ct.WriteSpace(p.w)
+
+		p.ct.WriteColored(p.w, color.Date, date)
+		p.ct.WriteSpace(p.w)
+
+		p.ct.WriteColored(p.w, HTTPAction(method), fullAction)
+		p.ct.WriteSpace(p.w)
+
+		p.ct.WriteColored(p.w, color.HTTPCodes, httpCode)
+		p.ct.WriteSpace(p.w)
+
+		p.ct.WriteColored(p.w, color.GetSize, gsize)
+		p.ct.WriteSpace(p.w)
+
+		p.ct.WriteColored(p.w, color.Default, other)
+		p.ct.WriteNewline(p.w)
+
+		return true, ""
 	}
 
-	// Try error log (DFA pre-filter for fast rejection)
-	if matchers.MatchHttpdError(line) {
-		if m := p.reError.FindStringSubmatch(line); m != nil {
-			date := m[1]
-			level := m[2]
-			msg := m[3]
+	// Try error log
+	if m := p.reError.FindStringSubmatch(line); m != nil {
+		date := m[1]
+		level := m[2]
+		msg := m[3]
 
-			lcol := httpdErrorColor(level)
+		lcol := httpdErrorColor(level)
 
-			p.ct.WriteColored(p.w, color.Date, date)
-			p.ct.WriteSpace(p.w)
+		p.ct.WriteColored(p.w, color.Date, date)
+		p.ct.WriteSpace(p.w)
 
-			p.ct.WriteColored(p.w, lcol, level)
-			p.ct.WriteSpace(p.w)
+		p.ct.WriteColored(p.w, lcol, level)
+		p.ct.WriteSpace(p.w)
 
-			p.ct.WriteColored(p.w, lcol, msg)
+		p.ct.WriteColored(p.w, lcol, msg)
 
-			p.ct.WriteNewline(p.w)
+		p.ct.WriteNewline(p.w)
 
-			return true, ""
-		}
+		return true, ""
 	}
 
 	return false, ""

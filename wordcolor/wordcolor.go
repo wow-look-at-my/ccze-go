@@ -7,19 +7,27 @@ import (
 	"strings"
 
 	"ccze-go/color"
-	"ccze-go/wordcolor/matchers"
 )
 
 // Processor holds precompiled regular expressions and a color table for
 // performing word-level colorization of log messages.
-//
-// Most match-only patterns have been replaced with generated DFA matchers
-// from go-regex-compiler. Only regPre and regPost remain as *regexp.Regexp
-// because they require capture group extraction (FindStringSubmatch).
 type Processor struct {
-	ct      *color.Table
-	regPre  *regexp.Regexp // punctuation prefix  (needs capture groups)
-	regPost *regexp.Regexp // punctuation suffix  (needs capture groups)
+	ct        *color.Table
+	regPre    *regexp.Regexp // punctuation prefix
+	regPost   *regexp.Regexp // punctuation suffix
+	regHost   *regexp.Regexp
+	regHostIP *regexp.Regexp
+	regMAC    *regexp.Regexp
+	regEmail  *regexp.Regexp
+	regEmail2 *regexp.Regexp
+	regMsgID  *regexp.Regexp
+	regURI    *regexp.Regexp
+	regSize   *regexp.Regexp
+	regVer    *regexp.Regexp
+	regTime   *regexp.Regexp
+	regAddr   *regexp.Regexp
+	regNum    *regexp.Regexp
+	regSig    *regexp.Regexp
 }
 
 var wordsBad = []string{
@@ -49,50 +57,24 @@ var wordsSystem = []string{
 // the given color table.
 func New(ct *color.Table) *Processor {
 	return &Processor{
-		ct:      ct,
-		regPre:  regexp.MustCompile("^([`'\".,!?:;(\\[{<]+)([^`'\".,!?:;(\\[{<]\\S*)$"),
-		regPost: regexp.MustCompile("^(\\S*[^`'\".,!?:;)\\]}>])([`'\".,!?:;)\\]}>]+)$"),
+		ct:        ct,
+		regPre:    regexp.MustCompile("^([`'\".,!?:;(\\[{<]+)([^`'\".,!?:;(\\[{<]\\S*)$"),
+		regPost:   regexp.MustCompile("^(\\S*[^`'\".,!?:;)\\]}>])([`'\".,!?:;)\\]}>]+)$"),
+		regHost:   regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_]+\\.)+[a-z]{2,3})|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)$"),
+		regHostIP: regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_\\.]+)+)|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)\\["),
+		regMAC:    regexp.MustCompile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$"),
+		regEmail:  regexp.MustCompile("^[a-z0-9-_=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]{2,4})+"),
+		regEmail2: regexp.MustCompile("(\\.[a-z]{2,4})+$"),
+		regMsgID:  regexp.MustCompile("^[a-z0-9-_\\.\\$=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]+)+"),
+		regURI:    regexp.MustCompile("^\\w{2,}:\\/\\/(\\S+\\/?)+$"),
+		regSize:   regexp.MustCompile("^\\d+(\\.\\d+)?[kmgt]i?b?(ytes?)?"),
+		regVer:    regexp.MustCompile("^v?(\\d+\\.){1}((\\d|[a-z])+\\.)*(\\d|[a-z])+$"),
+		regTime:   regexp.MustCompile("\\d{1,2}:\\d{1,2}(:\\d{1,2})?"),
+		regAddr:   regexp.MustCompile("^0x(\\d|[a-f])+$"),
+		regNum:    regexp.MustCompile("^[+-]?\\d+$"),
+		regSig:    regexp.MustCompile("^sig(hup|int|quit|ill|abrt|fpe|kill|segv|pipe|alrm|term|usr1|usr2|chld|cont|stop|tstp|tin|tout|bus|poll|prof|sys|trap|urg|vtalrm|xcpu|xfsz|iot|emt|stkflt|io|cld|pwr|info|lost|winch|unused)"),
 	}
 }
-
-// matchHost uses the generated DFA matcher for host patterns.
-func matchHost(s string) bool { return matchers.MatchHost(s) }
-
-// matchHostIP uses the generated DFA matcher for host[IP] patterns.
-func matchHostIP(s string) bool { return matchers.MatchHostIP(s) }
-
-// matchMAC uses the generated DFA matcher for MAC address patterns.
-func matchMAC(s string) bool { return matchers.MatchMAC(s) }
-
-// matchEmail uses the generated DFA matcher for email patterns.
-func matchEmail(s string) bool { return matchers.MatchEmail(s) }
-
-// matchEmail2 uses the generated DFA matcher for email domain suffix patterns.
-func matchEmail2(s string) bool { return matchers.MatchEmail2(s) }
-
-// matchMsgID uses the generated DFA matcher for message ID patterns.
-func matchMsgID(s string) bool { return matchers.MatchMsgID(s) }
-
-// matchURI uses the generated DFA matcher for URI patterns.
-func matchURI(s string) bool { return matchers.MatchURI(s) }
-
-// matchSize uses the generated DFA matcher for file size patterns.
-func matchSize(s string) bool { return matchers.MatchSize(s) }
-
-// matchVer uses the generated DFA matcher for version number patterns.
-func matchVer(s string) bool { return matchers.MatchVer(s) }
-
-// matchTime uses the generated DFA matcher for time patterns.
-func matchTime(s string) bool { return matchers.MatchTime(s) }
-
-// matchAddr uses the generated DFA matcher for hex address patterns.
-func matchAddr(s string) bool { return matchers.MatchAddr(s) }
-
-// matchNum uses the generated DFA matcher for number patterns.
-func matchNum(s string) bool { return matchers.MatchNum(s) }
-
-// matchSig uses the generated DFA matcher for signal name patterns.
-func matchSig(s string) bool { return matchers.MatchSig(s) }
 
 // Process colorizes an entire message string, writing the result to w.
 // If wcol is false, the message is written with the Default color.
@@ -152,33 +134,32 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 	lword := strings.ToLower(word)
 
 	// Pattern cascade - order matters, first match wins (except hostip)
-	// All match-only patterns use generated DFA matchers from go-regex-compiler.
 	switch {
-	case matchHost(lword):
+	case p.regHost.MatchString(lword):
 		col = color.Host
-	case matchMAC(lword):
+	case p.regMAC.MatchString(lword):
 		col = color.MAC
 	case len(lword) > 0 && lword[0] == '/':
 		col = color.Dir
-	case matchEmail(lword) && matchEmail2(lword):
+	case p.regEmail.MatchString(lword) && p.regEmail2.MatchString(lword):
 		col = color.Email
-	case matchMsgID(lword):
+	case p.regMsgID.MatchString(lword):
 		col = color.Email
-	case matchURI(lword):
+	case p.regURI.MatchString(lword):
 		col = color.URI
-	case matchSize(lword):
+	case p.regSize.MatchString(lword):
 		col = color.Size
-	case matchVer(lword):
+	case p.regVer.MatchString(lword):
 		col = color.Version
-	case matchTime(lword):
+	case p.regTime.MatchString(lword):
 		col = color.Date
-	case matchAddr(lword):
+	case p.regAddr.MatchString(lword):
 		col = color.Address
-	case matchNum(lword):
+	case p.regNum.MatchString(lword):
 		col = color.Numbers
-	case matchSig(lword):
+	case p.regSig.MatchString(lword):
 		col = color.Signal
-	case matchHostIP(lword):
+	case p.regHostIP.MatchString(lword):
 		// Special handling: split at '[', output host and IP separately.
 		// By this point the regPost has already stripped any trailing ']',
 		// so the word looks like "hostname[192.168.1.1".
