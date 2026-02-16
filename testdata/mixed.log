@@ -1,0 +1,1370 @@
+2026-02-15T07:29:32.5348246Z Current runner version: '2.331.0'
+2026-02-15T07:29:32.5371643Z ##[group]Runner Image Provisioner
+2026-02-15T07:29:32.5372584Z Hosted Compute Agent
+2026-02-15T07:29:32.5373124Z Version: 20260123.484
+2026-02-15T07:29:32.5373721Z Commit: 6bd6555ca37d84114959e1c76d2c01448ff61c5d
+2026-02-15T07:29:32.5374473Z Build Date: 2026-01-23T19:41:17Z
+2026-02-15T07:29:32.5375157Z Worker ID: {986cb378-f3e8-40ba-b0ac-4fde731c0e8c}
+2026-02-15T07:29:32.5375808Z Azure Region: eastus2
+2026-02-15T07:29:32.5376560Z ##[endgroup]
+2026-02-15T07:29:32.5377914Z ##[group]Operating System
+2026-02-15T07:29:32.5378536Z Ubuntu
+2026-02-15T07:29:32.5379310Z 24.04.3
+2026-02-15T07:29:32.5379838Z LTS
+2026-02-15T07:29:32.5380601Z ##[endgroup]
+2026-02-15T07:29:32.5381538Z ##[group]Runner Image
+2026-02-15T07:29:32.5382445Z Image: ubuntu-24.04
+2026-02-15T07:29:32.5383224Z Version: 20260209.23.1
+2026-02-15T07:29:32.5385211Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260209.23/images/ubuntu/Ubuntu2404-Readme.md
+2026-02-15T07:29:32.5387622Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260209.23
+2026-02-15T07:29:32.5389584Z ##[endgroup]
+2026-02-15T07:29:32.5391283Z ##[group]GITHUB_TOKEN Permissions
+2026-02-15T07:29:32.5393706Z Contents: read
+2026-02-15T07:29:32.5394705Z Metadata: read
+2026-02-15T07:29:32.5395484Z Packages: read
+2026-02-15T07:29:32.5396365Z ##[endgroup]
+2026-02-15T07:29:32.5399937Z Secret source: Actions
+2026-02-15T07:29:32.5401307Z Prepare workflow directory
+2026-02-15T07:29:32.5852450Z Prepare all required actions
+2026-02-15T07:29:32.5907763Z Getting action download info
+2026-02-15T07:29:32.8696898Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-02-15T07:29:33.0068208Z Download action repository 'actions/setup-go@v5' (SHA:40f1582b2485089dde7abd97c1529aa768e1baff)
+2026-02-15T07:29:33.3814958Z Complete job name: benchmark
+2026-02-15T07:29:33.4499489Z ##[group]Run actions/checkout@v4
+2026-02-15T07:29:33.4500355Z with:
+2026-02-15T07:29:33.4500772Z   repository: wow-look-at-my/ccze-go
+2026-02-15T07:29:33.4501441Z   token: ***
+2026-02-15T07:29:33.4501822Z   ssh-strict: true
+2026-02-15T07:29:33.4502202Z   ssh-user: git
+2026-02-15T07:29:33.4502597Z   persist-credentials: true
+2026-02-15T07:29:33.4503030Z   clean: true
+2026-02-15T07:29:33.4503426Z   sparse-checkout-cone-mode: true
+2026-02-15T07:29:33.4503901Z   fetch-depth: 1
+2026-02-15T07:29:33.4504285Z   fetch-tags: false
+2026-02-15T07:29:33.4504679Z   show-progress: true
+2026-02-15T07:29:33.4505085Z   lfs: false
+2026-02-15T07:29:33.4505453Z   submodules: false
+2026-02-15T07:29:33.4505861Z   set-safe-directory: true
+2026-02-15T07:29:33.4506490Z ##[endgroup]
+2026-02-15T07:29:33.5611630Z Syncing repository: wow-look-at-my/ccze-go
+2026-02-15T07:29:33.5614444Z ##[group]Getting Git version info
+2026-02-15T07:29:33.5615487Z Working directory is '/home/runner/work/ccze-go/ccze-go'
+2026-02-15T07:29:33.5617128Z [command]/usr/bin/git version
+2026-02-15T07:29:33.5617980Z git version 2.52.0
+2026-02-15T07:29:33.5626280Z ##[endgroup]
+2026-02-15T07:29:33.5651528Z Temporarily overriding HOME='/home/runner/work/_temp/037d848b-3bb1-424d-8a19-85509721047a' before making global git config changes
+2026-02-15T07:29:33.5653937Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-15T07:29:33.5656554Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ccze-go/ccze-go
+2026-02-15T07:29:33.5701248Z Deleting the contents of '/home/runner/work/ccze-go/ccze-go'
+2026-02-15T07:29:33.5704861Z ##[group]Initializing the repository
+2026-02-15T07:29:33.5709003Z [command]/usr/bin/git init /home/runner/work/ccze-go/ccze-go
+2026-02-15T07:29:33.5825460Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-02-15T07:29:33.5827879Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-02-15T07:29:33.5829678Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-02-15T07:29:33.5831209Z hint: call:
+2026-02-15T07:29:33.5831797Z hint:
+2026-02-15T07:29:33.5832614Z hint: 	git config --global init.defaultBranch <name>
+2026-02-15T07:29:33.5833506Z hint:
+2026-02-15T07:29:33.5834187Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-02-15T07:29:33.5835157Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-02-15T07:29:33.5836323Z hint:
+2026-02-15T07:29:33.5836966Z hint: 	git branch -m <name>
+2026-02-15T07:29:33.5837883Z hint:
+2026-02-15T07:29:33.5839889Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-02-15T07:29:33.5841876Z Initialized empty Git repository in /home/runner/work/ccze-go/ccze-go/.git/
+2026-02-15T07:29:33.5849619Z [command]/usr/bin/git remote add origin https://github.com/wow-look-at-my/ccze-go
+2026-02-15T07:29:33.5893304Z ##[endgroup]
+2026-02-15T07:29:33.5894491Z ##[group]Disabling automatic garbage collection
+2026-02-15T07:29:33.5898952Z [command]/usr/bin/git config --local gc.auto 0
+2026-02-15T07:29:33.5929709Z ##[endgroup]
+2026-02-15T07:29:33.5930912Z ##[group]Setting up auth
+2026-02-15T07:29:33.5937315Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-02-15T07:29:33.5969895Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-02-15T07:29:33.6351342Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-15T07:29:33.6385320Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-02-15T07:29:33.6615811Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-15T07:29:33.6648485Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-02-15T07:29:33.6882942Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-02-15T07:29:33.6917657Z ##[endgroup]
+2026-02-15T07:29:33.6919205Z ##[group]Fetching the repository
+2026-02-15T07:29:33.6928128Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d46a071f3c139cf509184c6ece206212110d9713:refs/remotes/origin/claude/go-tests-benchmarks-RImBD
+2026-02-15T07:29:33.8637791Z From https://github.com/wow-look-at-my/ccze-go
+2026-02-15T07:29:33.8639723Z  * [new ref]         d46a071f3c139cf509184c6ece206212110d9713 -> origin/claude/go-tests-benchmarks-RImBD
+2026-02-15T07:29:33.8674414Z ##[endgroup]
+2026-02-15T07:29:33.8675615Z ##[group]Determining the checkout info
+2026-02-15T07:29:33.8677035Z ##[endgroup]
+2026-02-15T07:29:33.8682236Z [command]/usr/bin/git sparse-checkout disable
+2026-02-15T07:29:33.8725162Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-02-15T07:29:33.8752132Z ##[group]Checking out the ref
+2026-02-15T07:29:33.8757256Z [command]/usr/bin/git checkout --progress --force -B claude/go-tests-benchmarks-RImBD refs/remotes/origin/claude/go-tests-benchmarks-RImBD
+2026-02-15T07:29:33.8835596Z Switched to a new branch 'claude/go-tests-benchmarks-RImBD'
+2026-02-15T07:29:33.8838227Z branch 'claude/go-tests-benchmarks-RImBD' set up to track 'origin/claude/go-tests-benchmarks-RImBD'.
+2026-02-15T07:29:33.8845086Z ##[endgroup]
+2026-02-15T07:29:33.8881000Z [command]/usr/bin/git log -1 --format=%H
+2026-02-15T07:29:33.8904045Z d46a071f3c139cf509184c6ece206212110d9713
+2026-02-15T07:29:33.9133937Z ##[group]Run actions/setup-go@v5
+2026-02-15T07:29:33.9134437Z with:
+2026-02-15T07:29:33.9134798Z   go-version-file: go.mod
+2026-02-15T07:29:33.9135224Z   check-latest: false
+2026-02-15T07:29:33.9135782Z   token: ***
+2026-02-15T07:29:33.9136136Z   cache: true
+2026-02-15T07:29:33.9136498Z ##[endgroup]
+2026-02-15T07:29:34.0764392Z Setup go version spec 1.24.7
+2026-02-15T07:29:34.0776918Z Attempting to download 1.24.7...
+2026-02-15T07:29:34.4207792Z matching 1.24.7...
+2026-02-15T07:29:34.4259163Z Acquiring 1.24.7 from https://github.com/actions/go-versions/releases/download/1.24.7-17451178159/go-1.24.7-linux-x64.tar.gz
+2026-02-15T07:29:35.0672412Z Extracting Go...
+2026-02-15T07:29:35.0779029Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/2ed8d649-4e4d-4e9b-92a7-e95ae08f7432 -f /home/runner/work/_temp/d42f1a5c-c409-4dc3-b98c-f35d14e06f3a
+2026-02-15T07:29:36.8432649Z Successfully extracted go to /home/runner/work/_temp/2ed8d649-4e4d-4e9b-92a7-e95ae08f7432
+2026-02-15T07:29:36.8433929Z Adding to the cache ...
+2026-02-15T07:29:41.4597546Z Successfully cached go to /opt/hostedtoolcache/go/1.24.7/x64
+2026-02-15T07:29:41.4600038Z Added go to the path
+2026-02-15T07:29:41.4602873Z Successfully set up Go version 1.24.7
+2026-02-15T07:29:41.4807781Z [command]/opt/hostedtoolcache/go/1.24.7/x64/bin/go env GOMODCACHE
+2026-02-15T07:29:41.4839175Z [command]/opt/hostedtoolcache/go/1.24.7/x64/bin/go env GOCACHE
+2026-02-15T07:29:41.4875913Z /home/runner/go/pkg/mod
+2026-02-15T07:29:41.4891519Z /home/runner/.cache/go-build
+2026-02-15T07:29:41.4925131Z ##[warning]Restore cache failed: Dependencies file is not found in /home/runner/work/ccze-go/ccze-go. Supported file pattern: go.sum
+2026-02-15T07:29:41.4949307Z go version go1.24.7 linux/amd64
+2026-02-15T07:29:41.4949539Z 
+2026-02-15T07:29:41.4949932Z ##[group]go env
+2026-02-15T07:29:42.0340607Z AR='ar'
+2026-02-15T07:29:42.0342511Z CC='gcc'
+2026-02-15T07:29:42.0342890Z CGO_CFLAGS='-O2 -g'
+2026-02-15T07:29:42.0343310Z CGO_CPPFLAGS=''
+2026-02-15T07:29:42.0343638Z CGO_CXXFLAGS='-O2 -g'
+2026-02-15T07:29:42.0343973Z CGO_ENABLED='1'
+2026-02-15T07:29:42.0344278Z CGO_FFLAGS='-O2 -g'
+2026-02-15T07:29:42.0344599Z CGO_LDFLAGS='-O2 -g'
+2026-02-15T07:29:42.0344913Z CXX='g++'
+2026-02-15T07:29:42.0345214Z GCCGO='gccgo'
+2026-02-15T07:29:42.0345513Z GO111MODULE=''
+2026-02-15T07:29:42.0345857Z GOAMD64='v1'
+2026-02-15T07:29:42.0346155Z GOARCH='amd64'
+2026-02-15T07:29:42.0346443Z GOAUTH='netrc'
+2026-02-15T07:29:42.0346782Z GOBIN=''
+2026-02-15T07:29:42.0347132Z GOCACHE='/home/runner/.cache/go-build'
+2026-02-15T07:29:42.0347551Z GOCACHEPROG=''
+2026-02-15T07:29:42.0347838Z GODEBUG=''
+2026-02-15T07:29:42.0348164Z GOENV='/home/runner/.config/go/env'
+2026-02-15T07:29:42.0348583Z GOEXE=''
+2026-02-15T07:29:42.0349041Z GOEXPERIMENT=''
+2026-02-15T07:29:42.0349350Z GOFIPS140='off'
+2026-02-15T07:29:42.0349641Z GOFLAGS=''
+2026-02-15T07:29:42.0350758Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build367211343=/tmp/go-build -gno-record-gcc-switches'
+2026-02-15T07:29:42.0351878Z GOHOSTARCH='amd64'
+2026-02-15T07:29:42.0352190Z GOHOSTOS='linux'
+2026-02-15T07:29:42.0352498Z GOINSECURE=''
+2026-02-15T07:29:42.0352894Z GOMOD='/home/runner/work/ccze-go/ccze-go/go.mod'
+2026-02-15T07:29:42.0353396Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-02-15T07:29:42.0353822Z GONOPROXY=''
+2026-02-15T07:29:42.0354144Z GONOSUMDB=''
+2026-02-15T07:29:42.0354424Z GOOS='linux'
+2026-02-15T07:29:42.0354722Z GOPATH='/home/runner/go'
+2026-02-15T07:29:42.0355065Z GOPRIVATE=''
+2026-02-15T07:29:42.0355442Z GOPROXY='https://proxy.golang.org,direct'
+2026-02-15T07:29:42.0355959Z GOROOT='/opt/hostedtoolcache/go/1.24.7/x64'
+2026-02-15T07:29:42.0356413Z GOSUMDB='sum.golang.org'
+2026-02-15T07:29:42.0356766Z GOTELEMETRY='local'
+2026-02-15T07:29:42.0357170Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-02-15T07:29:42.0357646Z GOTMPDIR=''
+2026-02-15T07:29:42.0357939Z GOTOOLCHAIN='auto'
+2026-02-15T07:29:42.0358927Z GOTOOLDIR='/opt/hostedtoolcache/go/1.24.7/x64/pkg/tool/linux_amd64'
+2026-02-15T07:29:42.0359534Z GOVCS=''
+2026-02-15T07:29:42.0359817Z GOVERSION='go1.24.7'
+2026-02-15T07:29:42.0360135Z GOWORK=''
+2026-02-15T07:29:42.0360433Z PKG_CONFIG='pkg-config'
+2026-02-15T07:29:42.0360664Z 
+2026-02-15T07:29:42.0361152Z ##[endgroup]
+2026-02-15T07:29:42.0650006Z ##[group]Run sudo apt-get update && sudo apt-get install -y libncurses-dev libpcre2-dev
+2026-02-15T07:29:42.0651253Z [36;1msudo apt-get update && sudo apt-get install -y libncurses-dev libpcre2-dev[0m
+2026-02-15T07:29:42.0723648Z shell: /usr/bin/bash -e {0}
+2026-02-15T07:29:42.0724022Z ##[endgroup]
+2026-02-15T07:29:42.1634626Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-02-15T07:29:42.2512764Z Get:6 https://packages.microsoft.com/repos/azure-cli noble InRelease [3564 B]
+2026-02-15T07:29:42.2612036Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-02-15T07:29:42.2799378Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-02-15T07:29:42.2814086Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-02-15T07:29:42.2842656Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-02-15T07:29:42.2873640Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-02-15T07:29:42.3327506Z Get:8 https://packages.microsoft.com/repos/azure-cli noble/main amd64 Packages [2129 B]
+2026-02-15T07:29:42.3786465Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main all Packages [643 B]
+2026-02-15T07:29:42.3859603Z Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [11.4 kB]
+2026-02-15T07:29:42.3940444Z Get:11 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [89.5 kB]
+2026-02-15T07:29:42.4095399Z Get:12 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [69.0 kB]
+2026-02-15T07:29:42.4831556Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1742 kB]
+2026-02-15T07:29:42.4950414Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [325 kB]
+2026-02-15T07:29:42.5022531Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [175 kB]
+2026-02-15T07:29:42.5035803Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 c-n-f Metadata [16.5 kB]
+2026-02-15T07:29:42.5047128Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1529 kB]
+2026-02-15T07:29:42.5155115Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [313 kB]
+2026-02-15T07:29:42.5209837Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [386 kB]
+2026-02-15T07:29:42.5231309Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 c-n-f Metadata [31.9 kB]
+2026-02-15T07:29:42.5243189Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2594 kB]
+2026-02-15T07:29:42.5407425Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [595 kB]
+2026-02-15T07:29:42.5899573Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Components [212 B]
+2026-02-15T07:29:42.5909492Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2026-02-15T07:29:42.5918421Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [7316 B]
+2026-02-15T07:29:42.5925823Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [10.5 kB]
+2026-02-15T07:29:42.5949548Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [212 B]
+2026-02-15T07:29:42.5962929Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+2026-02-15T07:29:42.6174229Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1448 kB]
+2026-02-15T07:29:42.6256454Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+2026-02-15T07:29:42.6280020Z Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [21.6 kB]
+2026-02-15T07:29:42.6289641Z Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 c-n-f Metadata [9892 B]
+2026-02-15T07:29:42.6300093Z Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [930 kB]
+2026-02-15T07:29:42.6356499Z Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [212 kB]
+2026-02-15T07:29:42.6384769Z Get:35 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [74.2 kB]
+2026-02-15T07:29:42.6394242Z Get:36 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 c-n-f Metadata [19.9 kB]
+2026-02-15T07:29:42.6816589Z Get:37 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2452 kB]
+2026-02-15T07:29:42.6944069Z Get:38 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [564 kB]
+2026-02-15T07:29:42.6982700Z Get:39 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Components [212 B]
+2026-02-15T07:29:42.6990348Z Get:40 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [212 B]
+2026-02-15T07:29:47.9412279Z Fetched 14.3 MB in 2s (7827 kB/s)
+2026-02-15T07:29:48.6648403Z Reading package lists...
+2026-02-15T07:29:48.6993133Z Reading package lists...
+2026-02-15T07:29:48.8620913Z Building dependency tree...
+2026-02-15T07:29:48.8628638Z Reading state information...
+2026-02-15T07:29:49.0463260Z libncurses-dev is already the newest version (6.4+20240113-1ubuntu2).
+2026-02-15T07:29:49.0463947Z libncurses-dev set to manually installed.
+2026-02-15T07:29:49.0464538Z libpcre2-dev is already the newest version (10.42-4ubuntu2.1).
+2026-02-15T07:29:49.0465102Z libpcre2-dev set to manually installed.
+2026-02-15T07:29:49.0465622Z 0 upgraded, 0 newly installed, 0 to remove and 18 not upgraded.
+2026-02-15T07:29:49.0583985Z ##[group]Run git clone https://github.com/cornet/ccze.git /tmp/ccze
+2026-02-15T07:29:49.0584519Z [36;1mgit clone https://github.com/cornet/ccze.git /tmp/ccze[0m
+2026-02-15T07:29:49.0584836Z [36;1mcd /tmp/ccze[0m
+2026-02-15T07:29:49.0585021Z [36;1m[0m
+2026-02-15T07:29:49.0585239Z [36;1m# Create PCRE1-to-PCRE2 compatibility shim[0m
+2026-02-15T07:29:49.0585559Z [36;1mcat > src/pcre_compat.h << 'SHIMEOF'[0m
+2026-02-15T07:29:49.0585815Z [36;1m#ifndef PCRE_COMPAT_H[0m
+2026-02-15T07:29:49.0586042Z [36;1m#define PCRE_COMPAT_H[0m
+2026-02-15T07:29:49.0586267Z [36;1m#define PCRE2_CODE_UNIT_WIDTH 8[0m
+2026-02-15T07:29:49.0586513Z [36;1m#include <pcre2.h>[0m
+2026-02-15T07:29:49.0586721Z [36;1m#include <stdlib.h>[0m
+2026-02-15T07:29:49.0586935Z [36;1m#include <string.h>[0m
+2026-02-15T07:29:49.0587147Z [36;1mtypedef pcre2_code pcre;[0m
+2026-02-15T07:29:49.0587414Z [36;1mtypedef struct { int dummy; } pcre_extra;[0m
+2026-02-15T07:29:49.0587729Z [36;1m#define PCRE_CASELESS PCRE2_CASELESS[0m
+2026-02-15T07:29:49.0588087Z [36;1mstatic inline pcre *pcre_compile(const char *pattern, int options,[0m
+2026-02-15T07:29:49.0588492Z [36;1m                                  const char **errptr, int *erroffset,[0m
+2026-02-15T07:29:49.0589119Z [36;1m                                  const void *tableptr) {[0m
+2026-02-15T07:29:49.0589467Z [36;1m    int errorcode; PCRE2_SIZE eoffset; (void)tableptr;[0m
+2026-02-15T07:29:49.0589908Z [36;1m    pcre2_code *re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED,[0m
+2026-02-15T07:29:49.0590376Z [36;1m                                    (uint32_t)options, &errorcode, &eoffset, NULL);[0m
+2026-02-15T07:29:49.0590709Z [36;1m    if (!re && errptr) {[0m
+2026-02-15T07:29:49.0590947Z [36;1m        static char errbuf[256];[0m
+2026-02-15T07:29:49.0591323Z [36;1m        pcre2_get_error_message(errorcode, (PCRE2_UCHAR *)errbuf, sizeof(errbuf));[0m
+2026-02-15T07:29:49.0591706Z [36;1m        *errptr = errbuf;[0m
+2026-02-15T07:29:49.0591920Z [36;1m    }[0m
+2026-02-15T07:29:49.0592135Z [36;1m    if (erroffset) *erroffset = (int)eoffset;[0m
+2026-02-15T07:29:49.0592396Z [36;1m    return re;[0m
+2026-02-15T07:29:49.0592585Z [36;1m}[0m
+2026-02-15T07:29:49.0592914Z [36;1mstatic inline pcre_extra *pcre_study(pcre *re, int options, const char **errptr) {[0m
+2026-02-15T07:29:49.0593360Z [36;1m    (void)re; (void)options; (void)errptr; return NULL;[0m
+2026-02-15T07:29:49.0593824Z [36;1m}[0m
+2026-02-15T07:29:49.0594093Z [36;1mstatic inline int pcre_exec(const pcre *re, const pcre_extra *extra,[0m
+2026-02-15T07:29:49.0594525Z [36;1m                             const char *subject, int length, int startoffset,[0m
+2026-02-15T07:29:49.0594904Z [36;1m                             int options, int *ovector, int ovecsize) {[0m
+2026-02-15T07:29:49.0595208Z [36;1m    (void)extra;[0m
+2026-02-15T07:29:49.0595509Z [36;1m    pcre2_match_data *md = pcre2_match_data_create(ovecsize / 3, NULL);[0m
+2026-02-15T07:29:49.0595855Z [36;1m    if (!md) return -1;[0m
+2026-02-15T07:29:49.0596163Z [36;1m    int rc = pcre2_match(re, (PCRE2_SPTR)subject, (PCRE2_SIZE)length,[0m
+2026-02-15T07:29:49.0596579Z [36;1m                          (PCRE2_SIZE)startoffset, (uint32_t)options, md, NULL);[0m
+2026-02-15T07:29:49.0596919Z [36;1m    if (rc > 0) {[0m
+2026-02-15T07:29:49.0597191Z [36;1m        PCRE2_SIZE *ov = pcre2_get_ovector_pointer(md);[0m
+2026-02-15T07:29:49.0597493Z [36;1m        int pairs = rc * 2;[0m
+2026-02-15T07:29:49.0597759Z [36;1m        if (pairs > ovecsize) pairs = ovecsize;[0m
+2026-02-15T07:29:49.0598090Z [36;1m        for (int i = 0; i < pairs; i++) ovector[i] = (int)ov[i];[0m
+2026-02-15T07:29:49.0598386Z [36;1m    }[0m
+2026-02-15T07:29:49.0598567Z [36;1m    pcre2_match_data_free(md);[0m
+2026-02-15T07:29:49.0599026Z [36;1m    return rc;[0m
+2026-02-15T07:29:49.0599212Z [36;1m}[0m
+2026-02-15T07:29:49.0599491Z [36;1mstatic inline int pcre_get_substring(const char *subject, int *ovector,[0m
+2026-02-15T07:29:49.0600082Z [36;1m                                      int stringcount, int stringnumber,[0m
+2026-02-15T07:29:49.0600426Z [36;1m                                      const char **stringptr) {[0m
+2026-02-15T07:29:49.0600712Z [36;1m    (void)stringcount;[0m
+2026-02-15T07:29:49.0600956Z [36;1m    int start = ovector[2 * stringnumber];[0m
+2026-02-15T07:29:49.0601250Z [36;1m    int end = ovector[2 * stringnumber + 1];[0m
+2026-02-15T07:29:49.0601568Z [36;1m    if (start < 0) { *stringptr = NULL; return -1; }[0m
+2026-02-15T07:29:49.0601881Z [36;1m    int len = end - start;[0m
+2026-02-15T07:29:49.0602133Z [36;1m    char *buf = malloc(len + 1);[0m
+2026-02-15T07:29:49.0602376Z [36;1m    if (!buf) return -1;[0m
+2026-02-15T07:29:49.0602624Z [36;1m    memcpy(buf, subject + start, len);[0m
+2026-02-15T07:29:49.0602903Z [36;1m    buf[len] = '\0';[0m
+2026-02-15T07:29:49.0603152Z [36;1m    *stringptr = buf;[0m
+2026-02-15T07:29:49.0603372Z [36;1m    return len;[0m
+2026-02-15T07:29:49.0603554Z [36;1m}[0m
+2026-02-15T07:29:49.0603870Z [36;1mstatic inline void pcre_free_substring(const char *str) { free((void *)str); }[0m
+2026-02-15T07:29:49.0604395Z [36;1mstatic inline void pcre_free(void *ptr) { pcre2_code_free((pcre2_code *)ptr); }[0m
+2026-02-15T07:29:49.0604763Z [36;1m#endif[0m
+2026-02-15T07:29:49.0604931Z [36;1mSHIMEOF[0m
+2026-02-15T07:29:49.0605093Z [36;1m[0m
+2026-02-15T07:29:49.0605365Z [36;1msed -i 's|#include <pcre.h>|#include "pcre_compat.h"|' src/ccze.h[0m
+2026-02-15T07:29:49.0605684Z [36;1m[0m
+2026-02-15T07:29:49.0605873Z [36;1m# Create pcre-config shim for configure[0m
+2026-02-15T07:29:49.0606145Z [36;1mcat > pcre-config << 'PCREEOF'[0m
+2026-02-15T07:29:49.0606387Z [36;1m#!/bin/sh[0m
+2026-02-15T07:29:49.0606567Z [36;1mcase "$1" in[0m
+2026-02-15T07:29:49.0606805Z [36;1m  --cflags) echo "-DPCRE2_CODE_UNIT_WIDTH=8" ;;[0m
+2026-02-15T07:29:49.0607087Z [36;1m  --libs) echo "-lpcre2-8" ;;[0m
+2026-02-15T07:29:49.0607323Z [36;1m  --version) echo "8.45" ;;[0m
+2026-02-15T07:29:49.0607540Z [36;1mesac[0m
+2026-02-15T07:29:49.0607697Z [36;1mPCREEOF[0m
+2026-02-15T07:29:49.0607874Z [36;1mchmod +x pcre-config[0m
+2026-02-15T07:29:49.0608093Z [36;1mexport PATH="/tmp/ccze:$PATH"[0m
+2026-02-15T07:29:49.0608313Z [36;1m[0m
+2026-02-15T07:29:49.0608468Z [36;1m./configure && make[0m
+2026-02-15T07:29:49.0608860Z [36;1msudo cp src/ccze /usr/local/bin/ccze[0m
+2026-02-15T07:29:49.0609287Z [36;1msudo mkdir -p /usr/local/lib/ccze[0m
+2026-02-15T07:29:49.0609553Z [36;1msudo cp src/*.so /usr/local/lib/ccze/[0m
+2026-02-15T07:29:49.0660730Z shell: /usr/bin/bash -e {0}
+2026-02-15T07:29:49.0660963Z ##[endgroup]
+2026-02-15T07:29:49.0750714Z Cloning into '/tmp/ccze'...
+2026-02-15T07:29:49.3733949Z checking build system type... x86_64-unknown-linux-gnu
+2026-02-15T07:29:49.3735286Z checking host system type... x86_64-unknown-linux-gnu
+2026-02-15T07:29:49.3740922Z checking for cc... cc
+2026-02-15T07:29:49.3743786Z checking for gcc... (cached) cc
+2026-02-15T07:29:49.5827449Z checking for C compiler default output file name... a.out
+2026-02-15T07:29:49.5850414Z checking whether the C compiler works... yes
+2026-02-15T07:29:49.5861058Z checking whether we are cross compiling... no
+2026-02-15T07:29:49.6148380Z checking for suffix of executables... 
+2026-02-15T07:29:49.6340882Z checking for suffix of object files... o
+2026-02-15T07:29:49.6540137Z checking whether we are using the GNU C compiler... yes
+2026-02-15T07:29:49.6825699Z checking whether cc accepts -g... yes
+2026-02-15T07:29:50.1153672Z checking for cc option to accept ISO C89... none needed
+2026-02-15T07:29:50.1171027Z checking whether we are using GCC 3... no
+2026-02-15T07:29:50.1833866Z checking how to run the C preprocessor... cc -E
+2026-02-15T07:29:50.2156518Z checking for a BSD-compatible install... /usr/bin/install -c
+2026-02-15T07:29:50.2179600Z checking for grep that handles long lines and -e... /usr/bin/grep
+2026-02-15T07:29:50.2195573Z checking for egrep... /usr/bin/grep -E
+2026-02-15T07:29:50.3492957Z checking for ANSI C header files... yes
+2026-02-15T07:29:50.3819539Z checking for dirent.h that defines DIR... yes
+2026-02-15T07:29:50.4232593Z checking for library containing opendir... none required
+2026-02-15T07:29:50.4518062Z checking for sys/types.h... yes
+2026-02-15T07:29:50.4842215Z checking for sys/stat.h... yes
+2026-02-15T07:29:50.5164286Z checking for stdlib.h... yes
+2026-02-15T07:29:50.5511794Z checking for string.h... yes
+2026-02-15T07:29:50.5898605Z checking for memory.h... yes
+2026-02-15T07:29:50.6236095Z checking for strings.h... yes
+2026-02-15T07:29:50.6677350Z checking for inttypes.h... yes
+2026-02-15T07:29:50.7022392Z checking for stdint.h... yes
+2026-02-15T07:29:50.7583684Z checking for unistd.h... yes
+2026-02-15T07:29:50.8221974Z checking argp.h usability... yes
+2026-02-15T07:29:50.8387921Z checking argp.h presence... yes
+2026-02-15T07:29:50.8393896Z checking for argp.h... yes
+2026-02-15T07:29:50.8767158Z checking getopt.h usability... yes
+2026-02-15T07:29:50.8901644Z checking getopt.h presence... yes
+2026-02-15T07:29:50.8907720Z checking for getopt.h... yes
+2026-02-15T07:29:50.9990088Z checking netdb.h usability... yes
+2026-02-15T07:29:51.0164384Z checking netdb.h presence... yes
+2026-02-15T07:29:51.0170662Z checking for netdb.h... yes
+2026-02-15T07:29:51.0578314Z checking fcntl.h usability... yes
+2026-02-15T07:29:51.0723270Z checking fcntl.h presence... yes
+2026-02-15T07:29:51.0729141Z checking for fcntl.h... yes
+2026-02-15T07:29:51.1104348Z checking stddef.h usability... yes
+2026-02-15T07:29:51.1235181Z checking stddef.h presence... yes
+2026-02-15T07:29:51.1241360Z checking for stddef.h... yes
+2026-02-15T07:29:51.1554131Z checking for an ANSI C-conforming const... yes
+2026-02-15T07:29:51.1776075Z checking for working volatile... yes
+2026-02-15T07:29:51.2137120Z checking for size_t... yes
+2026-02-15T07:29:51.2446542Z checking return type of signal handlers... void
+2026-02-15T07:29:51.2485994Z checking for stdlib.h... (cached) yes
+2026-02-15T07:29:51.2952131Z checking for GNU libc compatible malloc... yes
+2026-02-15T07:29:51.2992683Z checking for stdlib.h... (cached) yes
+2026-02-15T07:29:51.3454758Z checking for GNU libc compatible realloc... yes
+2026-02-15T07:29:51.3917298Z checking for strftime... yes
+2026-02-15T07:29:51.4503078Z checking whether lstat dereferences a symlink specified with a trailing slash... yes
+2026-02-15T07:29:51.5038107Z checking whether stat accepts an empty string... no
+2026-02-15T07:29:51.5608538Z checking for working memcmp... yes
+2026-02-15T07:29:51.6024970Z checking for vprintf... yes
+2026-02-15T07:29:51.6458439Z checking for _doprnt... no
+2026-02-15T07:29:51.6993411Z checking whether closedir returns void... no
+2026-02-15T07:29:51.7404712Z checking for alphasort... yes
+2026-02-15T07:29:51.7853696Z checking for argp_parse... yes
+2026-02-15T07:29:51.8300580Z checking for asprintf... yes
+2026-02-15T07:29:51.8745269Z checking for getdelim... yes
+2026-02-15T07:29:51.9190117Z checking for getline... yes
+2026-02-15T07:29:51.9635075Z checking for getopt_long... yes
+2026-02-15T07:29:52.0081042Z checking for getsubopt... yes
+2026-02-15T07:29:52.0534956Z checking for memchr... yes
+2026-02-15T07:29:52.0984194Z checking for memset... yes
+2026-02-15T07:29:52.1430529Z checking for scandir... yes
+2026-02-15T07:29:52.1875827Z checking for strcasecmp... yes
+2026-02-15T07:29:52.2329652Z checking for strchr... yes
+2026-02-15T07:29:52.2776020Z checking for strdup... yes
+2026-02-15T07:29:52.3227183Z checking for strndup... yes
+2026-02-15T07:29:52.3673137Z checking for strstr... yes
+2026-02-15T07:29:52.4123914Z checking for initscr in -lncurses... yes
+2026-02-15T07:29:52.4531370Z checking for dlopen... yes
+2026-02-15T07:29:52.4534119Z checking for getopt_long... (cached) yes
+2026-02-15T07:29:52.4537667Z checking for pcre-config... /tmp/ccze/pcre-config
+2026-02-15T07:29:52.4562502Z checking for PCRE... found
+2026-02-15T07:29:52.5444508Z checking for suboptarg... no
+2026-02-15T07:29:52.5706812Z configure: creating ./config.status
+2026-02-15T07:29:52.6689241Z config.status: creating Rules.mk
+2026-02-15T07:29:52.6717642Z config.status: WARNING:  Rules.mk.in seems to ignore the --datarootdir setting
+2026-02-15T07:29:52.6793259Z config.status: creating Makefile
+2026-02-15T07:29:52.6903288Z config.status: creating doc/Makefile
+2026-02-15T07:29:52.7043864Z config.status: creating src/Makefile
+2026-02-15T07:29:52.7189167Z config.status: creating testsuite/Makefile
+2026-02-15T07:29:52.7330124Z config.status: creating system.h
+2026-02-15T07:29:52.7690263Z make -C doc all
+2026-02-15T07:29:52.7702957Z make[1]: Entering directory '/tmp/ccze/doc'
+2026-02-15T07:29:52.7728022Z sed -e "s,@VERSION\@,0.2.1,g" \
+2026-02-15T07:29:52.7728543Z     -e "s,@sysconfdir\@,/usr/local/etc,g" \
+2026-02-15T07:29:52.7729314Z     -e "s,@pkglibdir\@,/usr/local/lib/ccze,g" \
+2026-02-15T07:29:52.7729727Z <./ccze.1.in >ccze.1T && mv -f ccze.1T ccze.1
+2026-02-15T07:29:52.7785481Z sed -e "s,@VERSION\@,0.2.1,g" \
+2026-02-15T07:29:52.7786030Z     -e "s,@sysconfdir\@,/usr/local/etc,g" \
+2026-02-15T07:29:52.7786522Z     -e "s,@pkglibdir\@,/usr/local/lib/ccze,g" \
+2026-02-15T07:29:52.7787138Z <./ccze-plugin.7.in >ccze-plugin.7T && mv -f ccze-plugin.7T ccze-plugin.7
+2026-02-15T07:29:52.7842098Z sed -e "s,@VERSION\@,0.2.1,g" \
+2026-02-15T07:29:52.7842645Z     -e "s,@sysconfdir\@,/usr/local/etc,g" \
+2026-02-15T07:29:52.7843215Z     -e "s,@pkglibdir\@,/usr/local/lib/ccze,g" \
+2026-02-15T07:29:52.7843949Z <./ccze-cssdump.1.in >ccze-cssdump.1T && mv -f ccze-cssdump.1T ccze-cssdump.1
+2026-02-15T07:29:52.7875506Z make[1]: Leaving directory '/tmp/ccze/doc'
+2026-02-15T07:29:52.7877296Z make -C src all
+2026-02-15T07:29:52.7891271Z make[1]: Entering directory '/tmp/ccze/src'
+2026-02-15T07:29:52.7918384Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze.c
+2026-02-15T07:29:52.8453893Z In file included from ./ccze.h:28,
+2026-02-15T07:29:52.8454620Z                  from ccze.c:27:
+2026-02-15T07:29:52.8455660Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:52.8456520Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:52.8457616Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:52.8458254Z       |                                                                ^
+2026-02-15T07:29:52.9344741Z ccze.c: In function ‘ccze_main’:
+2026-02-15T07:29:52.9345898Z ccze.c:586:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:52.9347031Z   586 |           asprintf (&homerc, "%s/.colorizerc", home);
+2026-02-15T07:29:52.9347459Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:52.9348163Z ccze.c:589:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:52.9349020Z   589 |           asprintf (&homerc, "%s/.cczerc", home);
+2026-02-15T07:29:52.9349397Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.0594014Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-color.c
+2026-02-15T07:29:53.0768188Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.0769387Z                  from ccze-color.c:22:
+2026-02-15T07:29:53.0770309Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.0771380Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.0772579Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.0773486Z       |                                                                ^
+2026-02-15T07:29:53.1243988Z ccze-color.c: In function ‘ccze_color_to_css’:
+2026-02-15T07:29:53.1245779Z ccze-color.c:267:16: warning: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Wsign-compare]
+2026-02-15T07:29:53.1246966Z   267 |   if (my_color < COLOR_PAIR (8))
+2026-02-15T07:29:53.1247482Z       |                ^
+2026-02-15T07:29:53.1272706Z ccze-color.c:268:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.1274100Z   268 |     asprintf (&tmp, "\tcolor: %s\n", ccze_color_to_name_css (my_color, cidx));
+2026-02-15T07:29:53.1275115Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.1276507Z ccze-color.c:278:7: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.1277744Z   278 |       asprintf (&tmp, "\tcolor: %s\n\ttext-background: %s\n", cj, ci);
+2026-02-15T07:29:53.1278893Z       |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.1280261Z ccze-color.c:282:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.1281528Z   282 |     asprintf (&str, ".ccze_%s {\n%s\ttext-decoration: underline\n}\n",
+2026-02-15T07:29:53.1282436Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.1283094Z   283 |               ccze_color_lookup_name (cidx), tmp);
+2026-02-15T07:29:53.1283783Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.1285001Z ccze-color.c:285:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.1286085Z   285 |     asprintf (&str, ".ccze_%s {\n%s}\n",
+2026-02-15T07:29:53.1286662Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.1287530Z   286 |               ccze_color_lookup_name (cidx), tmp);
+2026-02-15T07:29:53.1288219Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2229274Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-plugin.c
+2026-02-15T07:29:53.2403309Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.2403883Z                  from ccze-plugin.c:23:
+2026-02-15T07:29:53.2404534Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.2405335Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.2406181Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.2406805Z       |                                                                ^
+2026-02-15T07:29:53.2582172Z ccze-plugin.c: In function ‘ccze_plugin_load’:
+2026-02-15T07:29:53.2583116Z ccze-plugin.c:196:7: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2584156Z   196 |       asprintf (&path, "%s/.ccze/%s.so", home, name);
+2026-02-15T07:29:53.2584999Z       |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2586173Z ccze-plugin.c:200:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2586971Z   200 |           asprintf (&path, PKGLIBDIR "/%s.so", name);
+2026-02-15T07:29:53.2587644Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2588450Z ccze-plugin.c:204:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2589297Z   204 |     asprintf (&path, PKGLIBDIR "/%s.so", name);
+2026-02-15T07:29:53.2589661Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2590020Z ccze-plugin.c: In function ‘_ccze_plugin_load’:
+2026-02-15T07:29:53.2590716Z ccze-plugin.c:135:3: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2591309Z   135 |   asprintf (&tmp, "ccze_%s_info", name);
+2026-02-15T07:29:53.2591638Z       |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2592274Z ccze-plugin.c:143:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2592865Z   143 |           asprintf (&tmp, "ccze_%s_info", n);
+2026-02-15T07:29:53.2593202Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2593548Z ccze-plugin.c: In function ‘ccze_plugin_load_all’:
+2026-02-15T07:29:53.2594206Z ccze-plugin.c:253:7: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2594794Z   253 |       asprintf (&homeplugs, "%s/.ccze", home);
+2026-02-15T07:29:53.2595134Z       |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.2595471Z ccze-plugin.c: In function ‘_ccze_plugin_load_set’:
+2026-02-15T07:29:53.2596142Z ccze-plugin.c:233:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:53.2596734Z   233 |           asprintf (&path, "%s/%s.so", base, tmp);
+2026-02-15T07:29:53.2597096Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:53.3578290Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-wordcolor.c
+2026-02-15T07:29:53.3753047Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.3753514Z                  from ccze-wordcolor.c:22:
+2026-02-15T07:29:53.3754041Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.3754710Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.3755781Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.3756694Z       |                                                                ^
+2026-02-15T07:29:53.4034483Z ccze-wordcolor.c: In function ‘ccze_wordcolor_process_one’:
+2026-02-15T07:29:53.4035664Z ccze-wordcolor.c:86:52: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.4037137Z    86 |       pcre_get_substring (word, offsets, match, 1, (const char **)&pre);
+2026-02-15T07:29:53.4038004Z       |                                                    ^
+2026-02-15T07:29:53.4039715Z ccze-wordcolor.c:87:52: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.4041429Z    87 |       pcre_get_substring (word, offsets, match, 2, (const char **)&tmp);
+2026-02-15T07:29:53.4042340Z       |                                                    ^
+2026-02-15T07:29:53.4043823Z ccze-wordcolor.c:98:52: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.4045273Z    98 |       pcre_get_substring (word, offsets, match, 1, (const char **)&tmp);
+2026-02-15T07:29:53.4046160Z       |                                                    ^
+2026-02-15T07:29:53.4047635Z ccze-wordcolor.c:99:52: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.4049276Z    99 |       pcre_get_substring (word, offsets, match, 2, (const char **)&post);
+2026-02-15T07:29:53.4050086Z       |                                                    ^
+2026-02-15T07:29:53.5172031Z echo '#include <ccze.h>' >ccze-builtins.c
+2026-02-15T07:29:53.5179710Z echo '#include "ccze-private.h"' >>ccze-builtins.c
+2026-02-15T07:29:53.5186346Z echo >>ccze-builtins.c
+2026-02-15T07:29:53.5193188Z echo "void" >>ccze-builtins.c
+2026-02-15T07:29:53.5200080Z echo "ccze_plugin_load_all_builtins (void)" >>ccze-builtins.c
+2026-02-15T07:29:53.5206589Z echo "{" >>ccze-builtins.c
+2026-02-15T07:29:53.5213466Z echo "}" >>ccze-builtins.c
+2026-02-15T07:29:53.5248380Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-builtins.c
+2026-02-15T07:29:53.5427622Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.5428350Z                  from ccze-builtins.c:1:
+2026-02-15T07:29:53.5429395Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.5430487Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.5431698Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.5432599Z       |                                                                ^
+2026-02-15T07:29:53.5648220Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-compat.c
+2026-02-15T07:29:53.5822304Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.5823060Z                  from ccze-compat.c:22:
+2026-02-15T07:29:53.5823817Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.5824967Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.5826149Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.5827073Z       |                                                                ^
+2026-02-15T07:29:53.6150396Z cc -rdynamic -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 -o ccze ccze.o ccze-color.o ccze-plugin.o ccze-wordcolor.o ccze-builtins.o ccze-compat.o  -lpcre2-8 -lncurses 
+2026-02-15T07:29:53.6402377Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o apm.so mod_apm.c -shared
+2026-02-15T07:29:53.6576371Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.6577066Z                  from mod_apm.c:22:
+2026-02-15T07:29:53.6577886Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.6579209Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.6580404Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.6581315Z       |                                                                ^
+2026-02-15T07:29:53.6693489Z mod_apm.c: In function ‘ccze_apm_process’:
+2026-02-15T07:29:53.6694885Z mod_apm.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6696304Z    38 |   pcre_get_substring (str, offsets, match, 1, (const char **)&battery);
+2026-02-15T07:29:53.6697173Z       |                                               ^
+2026-02-15T07:29:53.6698639Z mod_apm.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6700244Z    39 |   pcre_get_substring (str, offsets, match, 2, (const char **)&charge);
+2026-02-15T07:29:53.6701059Z       |                                               ^
+2026-02-15T07:29:53.6702403Z mod_apm.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6703747Z    40 |   pcre_get_substring (str, offsets, match, 4, (const char **)&rate);
+2026-02-15T07:29:53.6704531Z       |                                               ^
+2026-02-15T07:29:53.6706224Z mod_apm.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6707759Z    41 |   pcre_get_substring (str, offsets, match, 5, (const char **)&stuff1);
+2026-02-15T07:29:53.6708578Z       |                                               ^
+2026-02-15T07:29:53.6710103Z mod_apm.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6711486Z    42 |   pcre_get_substring (str, offsets, match, 6, (const char **)&elapsed);
+2026-02-15T07:29:53.6712327Z       |                                               ^
+2026-02-15T07:29:53.6713623Z mod_apm.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6714942Z    43 |   pcre_get_substring (str, offsets, match, 7, (const char **)&remain);
+2026-02-15T07:29:53.6715770Z       |                                               ^
+2026-02-15T07:29:53.6717115Z mod_apm.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.6718458Z    44 |   pcre_get_substring (str, offsets, match, 8, (const char **)&stuff2);
+2026-02-15T07:29:53.6719498Z       |                                               ^
+2026-02-15T07:29:53.7305253Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o distcc.so mod_distcc.c -shared
+2026-02-15T07:29:53.7479250Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.7479943Z                  from mod_distcc.c:22:
+2026-02-15T07:29:53.7480734Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.7481828Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.7483019Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.7483928Z       |                                                                ^
+2026-02-15T07:29:53.7602001Z mod_distcc.c: In function ‘ccze_distcc_process’:
+2026-02-15T07:29:53.7603495Z mod_distcc.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.7604984Z    40 |   pcre_get_substring (str, offsets, match, 1, (const char **)&pid);
+2026-02-15T07:29:53.7605878Z       |                                               ^
+2026-02-15T07:29:53.7607225Z mod_distcc.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.7608598Z    41 |   pcre_get_substring (str, offsets, match, 2, (const char **)&func);
+2026-02-15T07:29:53.7609684Z       |                                               ^
+2026-02-15T07:29:53.7611059Z mod_distcc.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.7612481Z    42 |   pcre_get_substring (str, offsets, match, 3, (const char **)&rest);
+2026-02-15T07:29:53.7613288Z       |                                               ^
+2026-02-15T07:29:53.8160065Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o dpkg.so mod_dpkg.c -shared
+2026-02-15T07:29:53.8336103Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.8336795Z                  from mod_dpkg.c:22:
+2026-02-15T07:29:53.8337598Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.8338932Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.8340131Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.8341058Z       |                                                                ^
+2026-02-15T07:29:53.8454330Z mod_dpkg.c: In function ‘ccze_dpkg_status_process’:
+2026-02-15T07:29:53.8455760Z mod_dpkg.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8457188Z    38 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:53.8457958Z       |                                               ^
+2026-02-15T07:29:53.8459497Z mod_dpkg.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8460820Z    39 |   pcre_get_substring (str, offsets, match, 2, (const char **)&state);
+2026-02-15T07:29:53.8461894Z       |                                               ^
+2026-02-15T07:29:53.8463311Z mod_dpkg.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8464790Z    40 |   pcre_get_substring (str, offsets, match, 3, (const char **)&pkg);
+2026-02-15T07:29:53.8465548Z       |                                               ^
+2026-02-15T07:29:53.8466842Z mod_dpkg.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8468231Z    41 |   pcre_get_substring (str, offsets, match, 4, (const char **)&installed_version);
+2026-02-15T07:29:53.8469337Z       |                                               ^
+2026-02-15T07:29:53.8470034Z mod_dpkg.c: In function ‘ccze_dpkg_action_process’:
+2026-02-15T07:29:53.8471422Z mod_dpkg.c:67:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8472756Z    67 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:53.8473541Z       |                                               ^
+2026-02-15T07:29:53.8474825Z mod_dpkg.c:68:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8476123Z    68 |   pcre_get_substring (str, offsets, match, 2, (const char **)&action);
+2026-02-15T07:29:53.8476882Z       |                                               ^
+2026-02-15T07:29:53.8478181Z mod_dpkg.c:69:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8479689Z    69 |   pcre_get_substring (str, offsets, match, 3, (const char **)&pkg);
+2026-02-15T07:29:53.8480480Z       |                                               ^
+2026-02-15T07:29:53.8481812Z mod_dpkg.c:70:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8483165Z    70 |   pcre_get_substring (str, offsets, match, 4, (const char **)&installed_version);
+2026-02-15T07:29:53.8483989Z       |                                               ^
+2026-02-15T07:29:53.8485250Z mod_dpkg.c:71:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8486918Z    71 |   pcre_get_substring (str, offsets, match, 5, (const char **)&available_version);
+2026-02-15T07:29:53.8487769Z       |                                               ^
+2026-02-15T07:29:53.8488480Z mod_dpkg.c: In function ‘ccze_dpkg_conffile_process’:
+2026-02-15T07:29:53.8490042Z mod_dpkg.c:99:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8491374Z    99 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:53.8492174Z       |                                               ^
+2026-02-15T07:29:53.8493500Z mod_dpkg.c:100:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8494814Z   100 |   pcre_get_substring (str, offsets, match, 2, (const char **)&filename);
+2026-02-15T07:29:53.8495639Z       |                                               ^
+2026-02-15T07:29:53.8496955Z mod_dpkg.c:101:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.8498255Z   101 |   pcre_get_substring (str, offsets, match, 3, (const char **)&decision);
+2026-02-15T07:29:53.8499291Z       |                                               ^
+2026-02-15T07:29:53.9275634Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o exim.so mod_exim.c -shared
+2026-02-15T07:29:53.9451040Z In file included from ./ccze.h:28,
+2026-02-15T07:29:53.9451729Z                  from mod_exim.c:22:
+2026-02-15T07:29:53.9452537Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:53.9453632Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:53.9454813Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:53.9455721Z       |                                                                ^
+2026-02-15T07:29:53.9567835Z mod_exim.c: In function ‘ccze_exim_process’:
+2026-02-15T07:29:53.9569453Z mod_exim.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9570834Z    40 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:53.9571644Z       |                                               ^
+2026-02-15T07:29:53.9573054Z mod_exim.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9574539Z    41 |   pcre_get_substring (str, offsets, match, 2, (const char **)&msgfull);
+2026-02-15T07:29:53.9575335Z       |                                               ^
+2026-02-15T07:29:53.9576664Z mod_exim.c:47:27: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9577864Z    47 |                           (const char **)&uniqn);
+2026-02-15T07:29:53.9578455Z       |                           ^
+2026-02-15T07:29:53.9579999Z mod_exim.c:49:27: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9581209Z    49 |                           (const char **)&action);
+2026-02-15T07:29:53.9581802Z       |                           ^
+2026-02-15T07:29:53.9583407Z mod_exim.c:51:27: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9584580Z    51 |                           (const char **)&msg);
+2026-02-15T07:29:53.9585146Z       |                           ^
+2026-02-15T07:29:53.9586411Z mod_exim.c:63:27: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9587561Z    63 |                           (const char **)&uniqn);
+2026-02-15T07:29:53.9588144Z       |                           ^
+2026-02-15T07:29:53.9589664Z mod_exim.c:65:27: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:53.9590811Z    65 |                           (const char **)&msg);
+2026-02-15T07:29:53.9591361Z       |                           ^
+2026-02-15T07:29:54.0333673Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o fetchmail.so mod_fetchmail.c -shared
+2026-02-15T07:29:54.0515803Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.0516546Z                  from mod_fetchmail.c:22:
+2026-02-15T07:29:54.0517381Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.0518490Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.0519914Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.0520831Z       |                                                                ^
+2026-02-15T07:29:54.0632559Z mod_fetchmail.c: In function ‘ccze_fetchmail_process’:
+2026-02-15T07:29:54.0634101Z mod_fetchmail.c:37:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.0635544Z    37 |   pcre_get_substring (str, offsets, match, 1, (const char **)&start);
+2026-02-15T07:29:54.0636475Z       |                                               ^
+2026-02-15T07:29:54.0637853Z mod_fetchmail.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.0639454Z    38 |   pcre_get_substring (str, offsets, match, 2, (const char **)&addy);
+2026-02-15T07:29:54.0640248Z       |                                               ^
+2026-02-15T07:29:54.0641660Z mod_fetchmail.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.0643135Z    39 |   pcre_get_substring (str, offsets, match, 3, (const char **)&current);
+2026-02-15T07:29:54.0643953Z       |                                               ^
+2026-02-15T07:29:54.0645295Z mod_fetchmail.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.0646668Z    40 |   pcre_get_substring (str, offsets, match, 4, (const char **)&full);
+2026-02-15T07:29:54.0647454Z       |                                               ^
+2026-02-15T07:29:54.0649036Z mod_fetchmail.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.0650429Z    41 |   pcre_get_substring (str, offsets, match, 5, (const char **)&rest);
+2026-02-15T07:29:54.0651208Z       |                                               ^
+2026-02-15T07:29:54.1195809Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o ftpstats.so mod_ftpstats.c -shared
+2026-02-15T07:29:54.1370379Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.1371136Z                  from mod_ftpstats.c:22:
+2026-02-15T07:29:54.1371944Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.1373025Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.1374210Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.1375129Z       |                                                                ^
+2026-02-15T07:29:54.1492760Z mod_ftpstats.c: In function ‘ccze_ftpstats_process’:
+2026-02-15T07:29:54.1494329Z mod_ftpstats.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1495740Z    40 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.1496590Z       |                                               ^
+2026-02-15T07:29:54.1498462Z mod_ftpstats.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1500084Z    41 |   pcre_get_substring (str, offsets, match, 2, (const char **)&sessionid);
+2026-02-15T07:29:54.1500914Z       |                                               ^
+2026-02-15T07:29:54.1502274Z mod_ftpstats.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1503654Z    42 |   pcre_get_substring (str, offsets, match, 3, (const char **)&user);
+2026-02-15T07:29:54.1504450Z       |                                               ^
+2026-02-15T07:29:54.1505834Z mod_ftpstats.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1507169Z    43 |   pcre_get_substring (str, offsets, match, 4, (const char **)&host);
+2026-02-15T07:29:54.1507958Z       |                                               ^
+2026-02-15T07:29:54.1509525Z mod_ftpstats.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1510856Z    44 |   pcre_get_substring (str, offsets, match, 5, (const char **)&type);
+2026-02-15T07:29:54.1511628Z       |                                               ^
+2026-02-15T07:29:54.1513009Z mod_ftpstats.c:45:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1514304Z    45 |   pcre_get_substring (str, offsets, match, 6, (const char **)&size);
+2026-02-15T07:29:54.1515057Z       |                                               ^
+2026-02-15T07:29:54.1516378Z mod_ftpstats.c:46:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1517780Z    46 |   pcre_get_substring (str, offsets, match, 7, (const char **)&duration);
+2026-02-15T07:29:54.1518603Z       |                                               ^
+2026-02-15T07:29:54.1520149Z mod_ftpstats.c:47:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.1521503Z    47 |   pcre_get_substring (str, offsets, match, 8, (const char **)&file);
+2026-02-15T07:29:54.1522563Z       |                                               ^
+2026-02-15T07:29:54.2108914Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o httpd.so mod_httpd.c -shared
+2026-02-15T07:29:54.2285465Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.2286193Z                  from mod_httpd.c:22:
+2026-02-15T07:29:54.2286978Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.2288052Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.2289502Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.2290405Z       |                                                                ^
+2026-02-15T07:29:54.2403702Z mod_httpd.c: In function ‘ccze_httpd_access_log_process’:
+2026-02-15T07:29:54.2405162Z mod_httpd.c:53:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2406815Z    53 |   pcre_get_substring (str, offsets, match, 1, (const char **)&vhost);
+2026-02-15T07:29:54.2407633Z       |                                               ^
+2026-02-15T07:29:54.2409192Z mod_httpd.c:54:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2410598Z    54 |   pcre_get_substring (str, offsets, match, 2, (const char **)&host);
+2026-02-15T07:29:54.2411514Z       |                                               ^
+2026-02-15T07:29:54.2412859Z mod_httpd.c:55:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2414165Z    55 |   pcre_get_substring (str, offsets, match, 3, (const char **)&user);
+2026-02-15T07:29:54.2414943Z       |                                               ^
+2026-02-15T07:29:54.2416259Z mod_httpd.c:56:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2417615Z    56 |   pcre_get_substring (str, offsets, match, 4, (const char **)&date);
+2026-02-15T07:29:54.2418408Z       |                                               ^
+2026-02-15T07:29:54.2420003Z mod_httpd.c:57:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2421408Z    57 |   pcre_get_substring (str, offsets, match, 5, (const char **)&full_action);
+2026-02-15T07:29:54.2422254Z       |                                               ^
+2026-02-15T07:29:54.2423536Z mod_httpd.c:58:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2424846Z    58 |   pcre_get_substring (str, offsets, match, 6, (const char **)&method);
+2026-02-15T07:29:54.2425637Z       |                                               ^
+2026-02-15T07:29:54.2426926Z mod_httpd.c:59:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2428303Z    59 |   pcre_get_substring (str, offsets, match, 7, (const char **)&http_code);
+2026-02-15T07:29:54.2429371Z       |                                               ^
+2026-02-15T07:29:54.2430700Z mod_httpd.c:60:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2432301Z    60 |   pcre_get_substring (str, offsets, match, 8, (const char **)&gsize);
+2026-02-15T07:29:54.2433052Z       |                                               ^
+2026-02-15T07:29:54.2434432Z mod_httpd.c:61:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2435822Z    61 |   pcre_get_substring (str, offsets, match, 9, (const char **)&other);
+2026-02-15T07:29:54.2436613Z       |                                               ^
+2026-02-15T07:29:54.2437358Z mod_httpd.c: In function ‘ccze_httpd_error_log_process’:
+2026-02-15T07:29:54.2439022Z mod_httpd.c:106:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2440389Z   106 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.2441217Z       |                                               ^
+2026-02-15T07:29:54.2442605Z mod_httpd.c:107:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2443966Z   107 |   pcre_get_substring (str, offsets, match, 2, (const char **)&level);
+2026-02-15T07:29:54.2444767Z       |                                               ^
+2026-02-15T07:29:54.2446096Z mod_httpd.c:108:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.2447672Z   108 |   pcre_get_substring (str, offsets, match, 3, (const char **)&msg);
+2026-02-15T07:29:54.2448494Z       |                                               ^
+2026-02-15T07:29:54.3238886Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o icecast.so mod_icecast.c -shared
+2026-02-15T07:29:54.3419957Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.3420690Z                  from mod_icecast.c:22:
+2026-02-15T07:29:54.3421557Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.3422705Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.3423885Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.3424794Z       |                                                                ^
+2026-02-15T07:29:54.3544029Z mod_icecast.c: In function ‘ccze_icecast_process’:
+2026-02-15T07:29:54.3545559Z mod_icecast.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3546922Z    41 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.3547699Z       |                                               ^
+2026-02-15T07:29:54.3549193Z mod_icecast.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3550560Z    42 |   pcre_get_substring (str, offsets, match, 2, (const char **)&admin);
+2026-02-15T07:29:54.3551399Z       |                                               ^
+2026-02-15T07:29:54.3552786Z mod_icecast.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3554344Z    43 |   pcre_get_substring (str, offsets, match, 4, (const char **)&threadno);
+2026-02-15T07:29:54.3555486Z       |                                               ^
+2026-02-15T07:29:54.3556858Z mod_icecast.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3558230Z    44 |   pcre_get_substring (str, offsets, match, 5, (const char **)&thread);
+2026-02-15T07:29:54.3559287Z       |                                               ^
+2026-02-15T07:29:54.3560685Z mod_icecast.c:45:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3562313Z    45 |   pcre_get_substring (str, offsets, match, 6, (const char **)&rest);
+2026-02-15T07:29:54.3563162Z       |                                               ^
+2026-02-15T07:29:54.3563886Z mod_icecast.c: In function ‘ccze_icecast_usage_process’:
+2026-02-15T07:29:54.3565304Z mod_icecast.c:82:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3566667Z    82 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.3567448Z       |                                               ^
+2026-02-15T07:29:54.3568921Z mod_icecast.c:83:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3570311Z    83 |   pcre_get_substring (str, offsets, match, 3, (const char **)&threadno);
+2026-02-15T07:29:54.3571150Z       |                                               ^
+2026-02-15T07:29:54.3572514Z mod_icecast.c:84:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3573861Z    84 |   pcre_get_substring (str, offsets, match, 4, (const char **)&thread);
+2026-02-15T07:29:54.3574643Z       |                                               ^
+2026-02-15T07:29:54.3575976Z mod_icecast.c:85:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3577387Z    85 |   pcre_get_substring (str, offsets, match, 5, (const char **)&date2);
+2026-02-15T07:29:54.3578185Z       |                                               ^
+2026-02-15T07:29:54.3579779Z mod_icecast.c:86:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3581163Z    86 |   pcre_get_substring (str, offsets, match, 6, (const char **)&bw);
+2026-02-15T07:29:54.3581969Z       |                                               ^
+2026-02-15T07:29:54.3583347Z mod_icecast.c:87:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3584736Z    87 |   pcre_get_substring (str, offsets, match, 7, (const char **)&unit);
+2026-02-15T07:29:54.3585543Z       |                                               ^
+2026-02-15T07:29:54.3587113Z mod_icecast.c:88:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3588445Z    88 |   pcre_get_substring (str, offsets, match, 8, (const char **)&src);
+2026-02-15T07:29:54.3589445Z       |                                               ^
+2026-02-15T07:29:54.3590787Z mod_icecast.c:89:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3592202Z    89 |   pcre_get_substring (str, offsets, match, 9, (const char **)&clients);
+2026-02-15T07:29:54.3593010Z       |                                               ^
+2026-02-15T07:29:54.3594356Z mod_icecast.c:90:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.3595754Z    90 |   pcre_get_substring (str, offsets, match, 10, (const char **)&admins);
+2026-02-15T07:29:54.3596612Z       |                                                ^
+2026-02-15T07:29:54.4399954Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o oops.so mod_oops.c -shared
+2026-02-15T07:29:54.4574362Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.4575075Z                  from mod_oops.c:22:
+2026-02-15T07:29:54.4575875Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.4576989Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.4578234Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.4579389Z       |                                                                ^
+2026-02-15T07:29:54.4696447Z mod_oops.c: In function ‘ccze_oops_process’:
+2026-02-15T07:29:54.4697849Z mod_oops.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4699437Z    40 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.4700313Z       |                                               ^
+2026-02-15T07:29:54.4701787Z mod_oops.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4703193Z    41 |   pcre_get_substring (str, offsets, match, 4, (const char **)&sp1);
+2026-02-15T07:29:54.4703980Z       |                                               ^
+2026-02-15T07:29:54.4705330Z mod_oops.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4706685Z    42 |   pcre_get_substring (str, offsets, match, 5, (const char **)&id);
+2026-02-15T07:29:54.4707483Z       |                                               ^
+2026-02-15T07:29:54.4709069Z mod_oops.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4710468Z    43 |   pcre_get_substring (str, offsets, match, 6, (const char **)&field);
+2026-02-15T07:29:54.4711274Z       |                                               ^
+2026-02-15T07:29:54.4712599Z mod_oops.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4713907Z    44 |   pcre_get_substring (str, offsets, match, 7, (const char **)&sp2);
+2026-02-15T07:29:54.4715056Z       |                                               ^
+2026-02-15T07:29:54.4716353Z mod_oops.c:45:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4717717Z    45 |   pcre_get_substring (str, offsets, match, 8, (const char **)&value);
+2026-02-15T07:29:54.4718511Z       |                                               ^
+2026-02-15T07:29:54.4720037Z mod_oops.c:46:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.4721380Z    46 |   pcre_get_substring (str, offsets, match, 9, (const char **)&etc);
+2026-02-15T07:29:54.4722179Z       |                                               ^
+2026-02-15T07:29:54.5301397Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o php.so mod_php.c -shared
+2026-02-15T07:29:54.5480502Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.5481192Z                  from mod_php.c:22:
+2026-02-15T07:29:54.5481969Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.5483342Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.5484606Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.5485536Z       |                                                                ^
+2026-02-15T07:29:54.5604447Z mod_php.c: In function ‘ccze_php_process’:
+2026-02-15T07:29:54.5605887Z mod_php.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.5607389Z    40 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.5608205Z       |                                               ^
+2026-02-15T07:29:54.5610668Z mod_php.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.5612129Z    41 |   pcre_get_substring (str, offsets, match, 2, (const char **)&rest);
+2026-02-15T07:29:54.5612931Z       |                                               ^
+2026-02-15T07:29:54.6086145Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o postfix.so mod_postfix.c -shared
+2026-02-15T07:29:54.6261992Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.6262716Z                  from mod_postfix.c:22:
+2026-02-15T07:29:54.6263510Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.6264626Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.6265788Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.6266700Z       |                                                                ^
+2026-02-15T07:29:54.6384808Z mod_postfix.c: In function ‘ccze_postfix_process’:
+2026-02-15T07:29:54.6386378Z mod_postfix.c:61:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.6388228Z    61 |   pcre_get_substring (str, offsets, match, 1, (const char **)&spoolid);
+2026-02-15T07:29:54.6389376Z       |                                               ^
+2026-02-15T07:29:54.6390759Z mod_postfix.c:62:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.6392097Z    62 |   pcre_get_substring (str, offsets, match, 2, (const char **)&s);
+2026-02-15T07:29:54.6392910Z       |                                               ^
+2026-02-15T07:29:54.6394281Z mod_postfix.c:63:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.6395683Z    63 |   pcre_get_substring (str, offsets, match, 4, (const char **)&rest);
+2026-02-15T07:29:54.6396506Z       |                                               ^
+2026-02-15T07:29:54.6946765Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o procmail.so mod_procmail.c -shared
+2026-02-15T07:29:54.7121074Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.7121810Z                  from mod_procmail.c:22:
+2026-02-15T07:29:54.7122618Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.7123710Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.7124899Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.7125827Z       |                                                                ^
+2026-02-15T07:29:54.7237386Z mod_procmail.c: In function ‘ccze_procmail_process’:
+2026-02-15T07:29:54.7239122Z mod_procmail.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.7240563Z    41 |   pcre_get_substring (str, offsets, match, 1, (const char **)&space1);
+2026-02-15T07:29:54.7241439Z       |                                               ^
+2026-02-15T07:29:54.7243021Z mod_procmail.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.7244410Z    42 |   pcre_get_substring (str, offsets, match, 2, (const char **)&header);
+2026-02-15T07:29:54.7245239Z       |                                               ^
+2026-02-15T07:29:54.7246645Z mod_procmail.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.7248044Z    43 |   pcre_get_substring (str, offsets, match, 3, (const char **)&value);
+2026-02-15T07:29:54.7249080Z       |                                               ^
+2026-02-15T07:29:54.7250489Z mod_procmail.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.7251897Z    44 |   pcre_get_substring (str, offsets, match, 4, (const char **)&space2);
+2026-02-15T07:29:54.7252690Z       |                                               ^
+2026-02-15T07:29:54.7254074Z mod_procmail.c:45:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.7255419Z    45 |   pcre_get_substring (str, offsets, match, 5, (const char **)&extra);
+2026-02-15T07:29:54.7256514Z       |                                               ^
+2026-02-15T07:29:54.7850317Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o proftpd.so mod_proftpd.c -shared
+2026-02-15T07:29:54.8019143Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.8019874Z                  from mod_proftpd.c:22:
+2026-02-15T07:29:54.8020663Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.8044676Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.8046016Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.8046975Z       |                                                                ^
+2026-02-15T07:29:54.8137603Z mod_proftpd.c: In function ‘ccze_proftpd_access_log_process’:
+2026-02-15T07:29:54.8139297Z mod_proftpd.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8140684Z    38 |   pcre_get_substring (str, offsets, match, 1, (const char **)&host);
+2026-02-15T07:29:54.8141747Z       |                                               ^
+2026-02-15T07:29:54.8143099Z mod_proftpd.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8144399Z    39 |   pcre_get_substring (str, offsets, match, 2, (const char **)&user);
+2026-02-15T07:29:54.8145200Z       |                                               ^
+2026-02-15T07:29:54.8146566Z mod_proftpd.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8147984Z    40 |   pcre_get_substring (str, offsets, match, 3, (const char **)&auser);
+2026-02-15T07:29:54.8149141Z       |                                               ^
+2026-02-15T07:29:54.8150505Z mod_proftpd.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8151872Z    41 |   pcre_get_substring (str, offsets, match, 4, (const char **)&date);
+2026-02-15T07:29:54.8152667Z       |                                               ^
+2026-02-15T07:29:54.8154036Z mod_proftpd.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8155420Z    42 |   pcre_get_substring (str, offsets, match, 5, (const char **)&command);
+2026-02-15T07:29:54.8156241Z       |                                               ^
+2026-02-15T07:29:54.8157600Z mod_proftpd.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8159059Z    43 |   pcre_get_substring (str, offsets, match, 6, (const char **)&file);
+2026-02-15T07:29:54.8159795Z       |                                               ^
+2026-02-15T07:29:54.8161034Z mod_proftpd.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8162272Z    44 |   pcre_get_substring (str, offsets, match, 7, (const char **)&ftpcode);
+2026-02-15T07:29:54.8163045Z       |                                               ^
+2026-02-15T07:29:54.8164337Z mod_proftpd.c:45:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8165959Z    45 |   pcre_get_substring (str, offsets, match, 8, (const char **)&size);
+2026-02-15T07:29:54.8166757Z       |                                               ^
+2026-02-15T07:29:54.8167459Z mod_proftpd.c: In function ‘ccze_proftpd_auth_log_process’:
+2026-02-15T07:29:54.8169025Z mod_proftpd.c:89:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8170382Z    89 |   pcre_get_substring (str, offsets, match, 1, (const char **)&servhost);
+2026-02-15T07:29:54.8171241Z       |                                               ^
+2026-02-15T07:29:54.8172591Z mod_proftpd.c:90:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8173938Z    90 |   pcre_get_substring (str, offsets, match, 2, (const char **)&pid);
+2026-02-15T07:29:54.8174733Z       |                                               ^
+2026-02-15T07:29:54.8176100Z mod_proftpd.c:91:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8177492Z    91 |   pcre_get_substring (str, offsets, match, 3, (const char **)&remhost);
+2026-02-15T07:29:54.8178311Z       |                                               ^
+2026-02-15T07:29:54.8179905Z mod_proftpd.c:92:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8181459Z    92 |   pcre_get_substring (str, offsets, match, 4, (const char **)&date);
+2026-02-15T07:29:54.8182246Z       |                                               ^
+2026-02-15T07:29:54.8183601Z mod_proftpd.c:93:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8184950Z    93 |   pcre_get_substring (str, offsets, match, 5, (const char **)&cmd);
+2026-02-15T07:29:54.8185745Z       |                                               ^
+2026-02-15T07:29:54.8187051Z mod_proftpd.c:94:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8188398Z    94 |   pcre_get_substring (str, offsets, match, 6, (const char **)&value);
+2026-02-15T07:29:54.8189436Z       |                                               ^
+2026-02-15T07:29:54.8190795Z mod_proftpd.c:95:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.8192216Z    95 |   pcre_get_substring (str, offsets, match, 7, (const char **)&ftpcode);
+2026-02-15T07:29:54.8193057Z       |                                               ^
+2026-02-15T07:29:54.8985159Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o squid.so mod_squid.c -shared
+2026-02-15T07:29:54.9161121Z In file included from ./ccze.h:28,
+2026-02-15T07:29:54.9161832Z                  from mod_squid.c:22:
+2026-02-15T07:29:54.9162638Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:54.9163758Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:54.9164940Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:54.9165853Z       |                                                                ^
+2026-02-15T07:29:54.9279422Z mod_squid.c: In function ‘ccze_squid_access_log_process’:
+2026-02-15T07:29:54.9281150Z mod_squid.c:90:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9282473Z    90 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.9283273Z       |                                               ^
+2026-02-15T07:29:54.9284597Z mod_squid.c:91:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9285941Z    91 |   pcre_get_substring (str, offsets, match, 2, (const char **)&espace);
+2026-02-15T07:29:54.9286710Z       |                                               ^
+2026-02-15T07:29:54.9287997Z mod_squid.c:92:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9289437Z    92 |   pcre_get_substring (str, offsets, match, 3, (const char **)&elaps);
+2026-02-15T07:29:54.9290208Z       |                                               ^
+2026-02-15T07:29:54.9291441Z mod_squid.c:93:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9292679Z    93 |   pcre_get_substring (str, offsets, match, 4, (const char **)&host);
+2026-02-15T07:29:54.9293419Z       |                                               ^
+2026-02-15T07:29:54.9294896Z mod_squid.c:94:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9296182Z    94 |   pcre_get_substring (str, offsets, match, 5, (const char **)&action);
+2026-02-15T07:29:54.9296935Z       |                                               ^
+2026-02-15T07:29:54.9298217Z mod_squid.c:95:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9299815Z    95 |   pcre_get_substring (str, offsets, match, 6, (const char **)&httpc);
+2026-02-15T07:29:54.9300648Z       |                                               ^
+2026-02-15T07:29:54.9302073Z mod_squid.c:96:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9303494Z    96 |   pcre_get_substring (str, offsets, match, 7, (const char **)&gsize);
+2026-02-15T07:29:54.9304286Z       |                                               ^
+2026-02-15T07:29:54.9305633Z mod_squid.c:97:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9306984Z    97 |   pcre_get_substring (str, offsets, match, 8, (const char **)&method);
+2026-02-15T07:29:54.9307778Z       |                                               ^
+2026-02-15T07:29:54.9309304Z mod_squid.c:98:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9310730Z    98 |   pcre_get_substring (str, offsets, match, 9, (const char **)&uri);
+2026-02-15T07:29:54.9311509Z       |                                               ^
+2026-02-15T07:29:54.9312785Z mod_squid.c:99:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9314176Z    99 |   pcre_get_substring (str, offsets, match, 10, (const char **)&ident);
+2026-02-15T07:29:54.9314995Z       |                                                ^
+2026-02-15T07:29:54.9316364Z mod_squid.c:100:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9317742Z   100 |   pcre_get_substring (str, offsets, match, 11, (const char **)&hierar);
+2026-02-15T07:29:54.9318554Z       |                                                ^
+2026-02-15T07:29:54.9320414Z mod_squid.c:101:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9321691Z   101 |   pcre_get_substring (str, offsets, match, 12, (const char **)&fhost);
+2026-02-15T07:29:54.9322509Z       |                                                ^
+2026-02-15T07:29:54.9323859Z mod_squid.c:102:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9325204Z   102 |   pcre_get_substring (str, offsets, match, 13, (const char **)&ctype);
+2026-02-15T07:29:54.9326037Z       |                                                ^
+2026-02-15T07:29:54.9326744Z mod_squid.c: In function ‘ccze_squid_cache_log_process’:
+2026-02-15T07:29:54.9328097Z mod_squid.c:160:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9329567Z   160 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.9330377Z       |                                               ^
+2026-02-15T07:29:54.9331743Z mod_squid.c:161:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9333097Z   161 |   pcre_get_substring (str, offsets, match, 3, (const char **)&other);
+2026-02-15T07:29:54.9333889Z       |                                               ^
+2026-02-15T07:29:54.9334615Z mod_squid.c: In function ‘ccze_squid_store_log_process’:
+2026-02-15T07:29:54.9336284Z mod_squid.c:177:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9337669Z   177 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:54.9338496Z       |                                               ^
+2026-02-15T07:29:54.9340107Z mod_squid.c:178:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9341487Z   178 |   pcre_get_substring (str, offsets, match, 2, (const char **)&tag);
+2026-02-15T07:29:54.9342301Z       |                                               ^
+2026-02-15T07:29:54.9343707Z mod_squid.c:179:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9345089Z   179 |   pcre_get_substring (str, offsets, match, 3, (const char **)&swapnum);
+2026-02-15T07:29:54.9345956Z       |                                               ^
+2026-02-15T07:29:54.9347364Z mod_squid.c:180:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9348955Z   180 |   pcre_get_substring (str, offsets, match, 4, (const char **)&swapname);
+2026-02-15T07:29:54.9349797Z       |                                               ^
+2026-02-15T07:29:54.9351134Z mod_squid.c:181:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9352432Z   181 |   pcre_get_substring (str, offsets, match, 5, (const char **)&swapsum);
+2026-02-15T07:29:54.9353261Z       |                                               ^
+2026-02-15T07:29:54.9354583Z mod_squid.c:182:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9355949Z   182 |   pcre_get_substring (str, offsets, match, 6, (const char **)&space1);
+2026-02-15T07:29:54.9356776Z       |                                               ^
+2026-02-15T07:29:54.9358155Z mod_squid.c:183:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9359719Z   183 |   pcre_get_substring (str, offsets, match, 7, (const char **)&hcode);
+2026-02-15T07:29:54.9360772Z       |                                               ^
+2026-02-15T07:29:54.9362152Z mod_squid.c:184:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9363438Z   184 |   pcre_get_substring (str, offsets, match, 8, (const char **)&space2);
+2026-02-15T07:29:54.9364232Z       |                                               ^
+2026-02-15T07:29:54.9365592Z mod_squid.c:185:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9366940Z   185 |   pcre_get_substring (str, offsets, match, 9, (const char **)&hdate);
+2026-02-15T07:29:54.9367734Z       |                                               ^
+2026-02-15T07:29:54.9369246Z mod_squid.c:186:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9370618Z   186 |   pcre_get_substring (str, offsets, match, 10, (const char **)&space3);
+2026-02-15T07:29:54.9371461Z       |                                                ^
+2026-02-15T07:29:54.9372831Z mod_squid.c:187:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9374205Z   187 |   pcre_get_substring (str, offsets, match, 11, (const char **)&lmdate);
+2026-02-15T07:29:54.9375064Z       |                                                ^
+2026-02-15T07:29:54.9376717Z mod_squid.c:188:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9378142Z   188 |   pcre_get_substring (str, offsets, match, 12, (const char **)&space4);
+2026-02-15T07:29:54.9379188Z       |                                                ^
+2026-02-15T07:29:54.9380584Z mod_squid.c:189:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9382013Z   189 |   pcre_get_substring (str, offsets, match, 13, (const char **)&expire);
+2026-02-15T07:29:54.9382852Z       |                                                ^
+2026-02-15T07:29:54.9384244Z mod_squid.c:190:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9385650Z   190 |   pcre_get_substring (str, offsets, match, 14, (const char **)&ctype);
+2026-02-15T07:29:54.9386501Z       |                                                ^
+2026-02-15T07:29:54.9387890Z mod_squid.c:191:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9389441Z   191 |   pcre_get_substring (str, offsets, match, 15, (const char **)&size);
+2026-02-15T07:29:54.9390270Z       |                                                ^
+2026-02-15T07:29:54.9391680Z mod_squid.c:192:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9393030Z   192 |   pcre_get_substring (str, offsets, match, 16, (const char **)&read);
+2026-02-15T07:29:54.9393840Z       |                                                ^
+2026-02-15T07:29:54.9395153Z mod_squid.c:193:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9396525Z   193 |   pcre_get_substring (str, offsets, match, 17, (const char **)&method);
+2026-02-15T07:29:54.9397351Z       |                                                ^
+2026-02-15T07:29:54.9398646Z mod_squid.c:194:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:54.9400159Z   194 |   pcre_get_substring (str, offsets, match, 18, (const char **)&uri);
+2026-02-15T07:29:54.9401218Z       |                                                ^
+2026-02-15T07:29:55.0722970Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o sulog.so mod_sulog.c -shared
+2026-02-15T07:29:55.0897948Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.0898503Z                  from mod_sulog.c:22:
+2026-02-15T07:29:55.0899402Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.0900191Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.0901059Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.0901686Z       |                                                                ^
+2026-02-15T07:29:55.1013020Z mod_sulog.c: In function ‘ccze_sulog_process’:
+2026-02-15T07:29:55.1014325Z mod_sulog.c:37:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1015278Z    37 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:55.1016101Z       |                                               ^
+2026-02-15T07:29:55.1017049Z mod_sulog.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1017970Z    38 |   pcre_get_substring (str, offsets, match, 2, (const char **)&islogin);
+2026-02-15T07:29:55.1018519Z       |                                               ^
+2026-02-15T07:29:55.1019804Z mod_sulog.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1020699Z    39 |   pcre_get_substring (str, offsets, match, 3, (const char **)&tty);
+2026-02-15T07:29:55.1021227Z       |                                               ^
+2026-02-15T07:29:55.1022086Z mod_sulog.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1022960Z    40 |   pcre_get_substring (str, offsets, match, 4, (const char **)&fromuser);
+2026-02-15T07:29:55.1023404Z       |                                               ^
+2026-02-15T07:29:55.1024093Z mod_sulog.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1024815Z    41 |   pcre_get_substring (str, offsets, match, 5, (const char **)&touser);
+2026-02-15T07:29:55.1025437Z       |                                               ^
+2026-02-15T07:29:55.1570320Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o super.so mod_super.c -shared
+2026-02-15T07:29:55.1743146Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.1743620Z                  from mod_super.c:22:
+2026-02-15T07:29:55.1744144Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.1744805Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.1745500Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.1746013Z       |                                                                ^
+2026-02-15T07:29:55.1860722Z mod_super.c: In function ‘ccze_super_process’:
+2026-02-15T07:29:55.1862170Z mod_super.c:37:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1863603Z    37 |   pcre_get_substring (str, offsets, match, 1, (const char **)&email);
+2026-02-15T07:29:55.1864959Z       |                                               ^
+2026-02-15T07:29:55.1866351Z mod_super.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1867686Z    38 |   pcre_get_substring (str, offsets, match, 2, (const char **)&date);
+2026-02-15T07:29:55.1868484Z       |                                               ^
+2026-02-15T07:29:55.1870111Z mod_super.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1871493Z    39 |   pcre_get_substring (str, offsets, match, 3, (const char **)&space);
+2026-02-15T07:29:55.1872311Z       |                                               ^
+2026-02-15T07:29:55.1873630Z mod_super.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1875009Z    40 |   pcre_get_substring (str, offsets, match, 4, (const char **)&suptag);
+2026-02-15T07:29:55.1875794Z       |                                               ^
+2026-02-15T07:29:55.1877290Z mod_super.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.1878653Z    41 |   pcre_get_substring (str, offsets, match, 5, (const char **)&other);
+2026-02-15T07:29:55.1879658Z       |                                               ^
+2026-02-15T07:29:55.2408155Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o syslog.so mod_syslog.c -shared
+2026-02-15T07:29:55.2583189Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.2583919Z                  from mod_syslog.c:22:
+2026-02-15T07:29:55.2584720Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.2585821Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.2587280Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.2588186Z       |                                                                ^
+2026-02-15T07:29:55.2705846Z mod_syslog.c: In function ‘ccze_syslog_process’:
+2026-02-15T07:29:55.2707295Z mod_syslog.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.2708898Z    41 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:55.2709755Z       |                                               ^
+2026-02-15T07:29:55.2711223Z mod_syslog.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.2712673Z    42 |   pcre_get_substring (str, offsets, match, 2, (const char **)&host);
+2026-02-15T07:29:55.2713459Z       |                                               ^
+2026-02-15T07:29:55.2714827Z mod_syslog.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.2716209Z    43 |   pcre_get_substring (str, offsets, match, 3, (const char **)&send);
+2026-02-15T07:29:55.2716999Z       |                                               ^
+2026-02-15T07:29:55.2718383Z mod_syslog.c:50:51: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.2720290Z    50 |       pcre_get_substring (str, offsets, match, 4, (const char **)&process);
+2026-02-15T07:29:55.2721177Z       |                                                   ^
+2026-02-15T07:29:55.2722520Z mod_syslog.c:51:51: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.2723855Z    51 |       pcre_get_substring (str, offsets, match, 5, (const char **)&msg);
+2026-02-15T07:29:55.2724706Z       |                                                   ^
+2026-02-15T07:29:55.3363867Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o ulogd.so mod_ulogd.c -shared
+2026-02-15T07:29:55.3537749Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.3538461Z                  from mod_ulogd.c:22:
+2026-02-15T07:29:55.3539463Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.3540581Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.3541813Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.3542722Z       |                                                                ^
+2026-02-15T07:29:55.4108193Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o vsftpd.so mod_vsftpd.c -shared
+2026-02-15T07:29:55.4282133Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.4282846Z                  from mod_vsftpd.c:22:
+2026-02-15T07:29:55.4284055Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.4285201Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.4286413Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.4287329Z       |                                                                ^
+2026-02-15T07:29:55.4399999Z mod_vsftpd.c: In function ‘ccze_vsftpd_log_process’:
+2026-02-15T07:29:55.4401510Z mod_vsftpd.c:37:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.4402928Z    37 |   pcre_get_substring (str, offsets, match, 1, (const char **)&date);
+2026-02-15T07:29:55.4403836Z       |                                               ^
+2026-02-15T07:29:55.4405232Z mod_vsftpd.c:38:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.4406577Z    38 |   pcre_get_substring (str, offsets, match, 2, (const char **)&sspace);
+2026-02-15T07:29:55.4407371Z       |                                               ^
+2026-02-15T07:29:55.4408941Z mod_vsftpd.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.4410291Z    39 |   pcre_get_substring (str, offsets, match, 3, (const char **)&pid);
+2026-02-15T07:29:55.4411094Z       |                                               ^
+2026-02-15T07:29:55.4412701Z mod_vsftpd.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.4414034Z    40 |   pcre_get_substring (str, offsets, match, 5, (const char **)&user);
+2026-02-15T07:29:55.4414818Z       |                                               ^
+2026-02-15T07:29:55.4416112Z mod_vsftpd.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.4417492Z    41 |   pcre_get_substring (str, offsets, match, 6, (const char **)&other);
+2026-02-15T07:29:55.4418257Z       |                                               ^
+2026-02-15T07:29:55.4959014Z cc -fPIC -DPIC -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8  -lpcre2-8 -lncurses  -o xferlog.so mod_xferlog.c -shared
+2026-02-15T07:29:55.5133089Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.5133820Z                  from mod_xferlog.c:22:
+2026-02-15T07:29:55.5134645Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.5135742Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.5136940Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.5137858Z       |                                                                ^
+2026-02-15T07:29:55.5251132Z mod_xferlog.c: In function ‘ccze_xferlog_log_process’:
+2026-02-15T07:29:55.5252944Z mod_xferlog.c:39:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5254628Z    39 |   pcre_get_substring (str, offsets, match, 1, (const char **)&curtime);
+2026-02-15T07:29:55.5255591Z       |                                               ^
+2026-02-15T07:29:55.5256953Z mod_xferlog.c:40:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5258252Z    40 |   pcre_get_substring (str, offsets, match, 2, (const char **)&transtime);
+2026-02-15T07:29:55.5259442Z       |                                               ^
+2026-02-15T07:29:55.5260469Z mod_xferlog.c:41:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5261332Z    41 |   pcre_get_substring (str, offsets, match, 3, (const char **)&host);
+2026-02-15T07:29:55.5261763Z       |                                               ^
+2026-02-15T07:29:55.5262497Z mod_xferlog.c:42:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5263228Z    42 |   pcre_get_substring (str, offsets, match, 4, (const char **)&fsize);
+2026-02-15T07:29:55.5263662Z       |                                               ^
+2026-02-15T07:29:55.5264361Z mod_xferlog.c:43:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5265168Z    43 |   pcre_get_substring (str, offsets, match, 5, (const char **)&fname);
+2026-02-15T07:29:55.5265592Z       |                                               ^
+2026-02-15T07:29:55.5266298Z mod_xferlog.c:44:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5267032Z    44 |   pcre_get_substring (str, offsets, match, 6, (const char **)&transtype);
+2026-02-15T07:29:55.5267675Z       |                                               ^
+2026-02-15T07:29:55.5268371Z mod_xferlog.c:45:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5270661Z    45 |   pcre_get_substring (str, offsets, match, 7, (const char **)&actionflag);
+2026-02-15T07:29:55.5271126Z       |                                               ^
+2026-02-15T07:29:55.5271840Z mod_xferlog.c:46:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5272587Z    46 |   pcre_get_substring (str, offsets, match, 8, (const char **)&direction);
+2026-02-15T07:29:55.5273032Z       |                                               ^
+2026-02-15T07:29:55.5273734Z mod_xferlog.c:47:47: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5274464Z    47 |   pcre_get_substring (str, offsets, match, 9, (const char **)&amode);
+2026-02-15T07:29:55.5274899Z       |                                               ^
+2026-02-15T07:29:55.5275590Z mod_xferlog.c:48:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5276300Z    48 |   pcre_get_substring (str, offsets, match, 10, (const char **)&user);
+2026-02-15T07:29:55.5276739Z       |                                                ^
+2026-02-15T07:29:55.5277428Z mod_xferlog.c:49:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5278153Z    49 |   pcre_get_substring (str, offsets, match, 11, (const char **)&service);
+2026-02-15T07:29:55.5278589Z       |                                                ^
+2026-02-15T07:29:55.5279514Z mod_xferlog.c:50:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5280239Z    50 |   pcre_get_substring (str, offsets, match, 12, (const char **)&amethod);
+2026-02-15T07:29:55.5280663Z       |                                                ^
+2026-02-15T07:29:55.5281360Z mod_xferlog.c:51:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5282221Z    51 |   pcre_get_substring (str, offsets, match, 13, (const char **)&auid);
+2026-02-15T07:29:55.5282637Z       |                                                ^
+2026-02-15T07:29:55.5283325Z mod_xferlog.c:52:48: warning: to be safe all intermediate pointers in cast from ‘char **’ to ‘const char **’ must be ‘const’ qualified [-Wcast-qual]
+2026-02-15T07:29:55.5284039Z    52 |   pcre_get_substring (str, offsets, match, 14, (const char **)&status);
+2026-02-15T07:29:55.5284469Z       |                                                ^
+2026-02-15T07:29:55.6000531Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-dump.c
+2026-02-15T07:29:55.6178926Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.6179598Z                  from ccze-dump.c:24:
+2026-02-15T07:29:55.6180142Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.6180770Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.6181420Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.6182157Z       |                                                                ^
+2026-02-15T07:29:55.6386583Z In file included from ccze-dump.c:29:
+2026-02-15T07:29:55.6387254Z ccze-color.c: In function ‘ccze_color_to_css’:
+2026-02-15T07:29:55.6388593Z ccze-color.c:267:16: warning: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Wsign-compare]
+2026-02-15T07:29:55.6389948Z   267 |   if (my_color < COLOR_PAIR (8))
+2026-02-15T07:29:55.6390474Z       |                ^
+2026-02-15T07:29:55.6413550Z ccze-dump.c: In function ‘ccze_dump_color_to_name’:
+2026-02-15T07:29:55.6414966Z ccze-dump.c:103:16: warning: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Wsign-compare]
+2026-02-15T07:29:55.6416110Z   103 |   if (my_color < COLOR_PAIR (8))
+2026-02-15T07:29:55.6416619Z       |                ^
+2026-02-15T07:29:55.6424554Z ccze-color.c: In function ‘ccze_color_to_css’:
+2026-02-15T07:29:55.6425908Z ccze-color.c:268:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6427248Z   268 |     asprintf (&tmp, "\tcolor: %s\n", ccze_color_to_name_css (my_color, cidx));
+2026-02-15T07:29:55.6428252Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6429841Z ccze-color.c:278:7: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6431113Z   278 |       asprintf (&tmp, "\tcolor: %s\n\ttext-background: %s\n", cj, ci);
+2026-02-15T07:29:55.6432020Z       |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6433381Z ccze-color.c:282:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6434629Z   282 |     asprintf (&str, ".ccze_%s {\n%s\ttext-decoration: underline\n}\n",
+2026-02-15T07:29:55.6435547Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6436225Z   283 |               ccze_color_lookup_name (cidx), tmp);
+2026-02-15T07:29:55.6436904Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6438132Z ccze-color.c:285:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6439379Z   285 |     asprintf (&str, ".ccze_%s {\n%s}\n",
+2026-02-15T07:29:55.6440302Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6440914Z   286 |               ccze_color_lookup_name (cidx), tmp);
+2026-02-15T07:29:55.6441591Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6442227Z ccze-dump.c: In function ‘main’:
+2026-02-15T07:29:55.6443425Z ccze-dump.c:165:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6444572Z   165 |           asprintf (&homerc, "%s/.colorizerc", home);
+2026-02-15T07:29:55.6445292Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6446502Z ccze-dump.c:168:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6447611Z   168 |           asprintf (&homerc, "%s/.cczerc", home);
+2026-02-15T07:29:55.6448275Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.6449238Z ccze-dump.c: In function ‘ccze_dump_color_to_name’:
+2026-02-15T07:29:55.6450524Z ccze-dump.c:114:7: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.6451626Z   114 |       asprintf (&str, "%s on_%s", cj, ci);
+2026-02-15T07:29:55.6452255Z       |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.7741016Z cc -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 -o ccze-dump ccze-dump.o ccze-compat.o
+2026-02-15T07:29:55.7945179Z cc -c  -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 ccze-cssdump.c
+2026-02-15T07:29:55.8120446Z In file included from ./ccze.h:28,
+2026-02-15T07:29:55.8121221Z                  from ccze-cssdump.c:22:
+2026-02-15T07:29:55.8121891Z ./pcre_compat.h: In function ‘pcre_free_substring’:
+2026-02-15T07:29:55.8122677Z ./pcre_compat.h:59:64: warning: cast discards ‘const’ qualifier from pointer target type [-Wcast-qual]
+2026-02-15T07:29:55.8123510Z    59 | static inline void pcre_free_substring(const char *str) { free((void *)str); }
+2026-02-15T07:29:55.8124142Z       |                                                                ^
+2026-02-15T07:29:55.8323964Z In file included from ccze-cssdump.c:29:
+2026-02-15T07:29:55.8324623Z ccze-color.c: In function ‘ccze_color_to_css’:
+2026-02-15T07:29:55.8326156Z ccze-color.c:267:16: warning: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Wsign-compare]
+2026-02-15T07:29:55.8327313Z   267 |   if (my_color < COLOR_PAIR (8))
+2026-02-15T07:29:55.8327836Z       |                ^
+2026-02-15T07:29:55.8355431Z ccze-color.c:268:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.8356840Z   268 |     asprintf (&tmp, "\tcolor: %s\n", ccze_color_to_name_css (my_color, cidx));
+2026-02-15T07:29:55.8357855Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8359459Z ccze-color.c:278:7: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.8361011Z   278 |       asprintf (&tmp, "\tcolor: %s\n\ttext-background: %s\n", cj, ci);
+2026-02-15T07:29:55.8361942Z       |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8363284Z ccze-color.c:282:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.8364533Z   282 |     asprintf (&str, ".ccze_%s {\n%s\ttext-decoration: underline\n}\n",
+2026-02-15T07:29:55.8365452Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8366173Z   283 |               ccze_color_lookup_name (cidx), tmp);
+2026-02-15T07:29:55.8366864Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8368130Z ccze-color.c:285:5: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.8369437Z   285 |     asprintf (&str, ".ccze_%s {\n%s}\n",
+2026-02-15T07:29:55.8370028Z       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8370626Z   286 |               ccze_color_lookup_name (cidx), tmp);
+2026-02-15T07:29:55.8371244Z       |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8371864Z ccze-cssdump.c: In function ‘main’:
+2026-02-15T07:29:55.8373085Z ccze-cssdump.c:98:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.8374270Z    98 |           asprintf (&homerc, "%s/.colorizerc", home);
+2026-02-15T07:29:55.8374988Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.8376521Z ccze-cssdump.c:101:11: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+2026-02-15T07:29:55.8377643Z   101 |           asprintf (&homerc, "%s/.cczerc", home);
+2026-02-15T07:29:55.8378338Z       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-02-15T07:29:55.9328525Z cc -I. -I. -I.. -DPATCHLEVEL=\"1\" -DSYSCONFDIR=\"/usr/local/etc\" -D_GNU_SOURCE=1 -DPKGLIBDIR=\"/usr/local/lib/ccze\" -DHAVE_SYSTEM_H=1 -DBUILTIN=1 -Wshadow -Wpointer-arith -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wcast-qual -Wbad-function-cast -Wsign-compare -Wchar-subscripts -Wcomment -Wformat -Wformat-nonliteral -Wformat-security -Wimplicit -Wmain -Wmissing-braces -Wparentheses -Wreturn-type -Wswitch -Wmissing-noreturn -Wmissing-declarations  -g -O2 -DPCRE2_CODE_UNIT_WIDTH=8 -o ccze-cssdump ccze-cssdump.o ccze-compat.o
+2026-02-15T07:29:55.9503605Z make[1]: Leaving directory '/tmp/ccze/src'
+2026-02-15T07:29:55.9506618Z make -C testsuite all
+2026-02-15T07:29:55.9519187Z make[1]: Entering directory '/tmp/ccze/testsuite'
+2026-02-15T07:29:55.9519722Z make[1]: Nothing to be done for 'all'.
+2026-02-15T07:29:55.9520205Z make[1]: Leaving directory '/tmp/ccze/testsuite'
+2026-02-15T07:29:55.9546417Z sed -e "s,@VERSION@,0.2.1,g" -e "s,@DIST@,stable,g" \
+2026-02-15T07:29:55.9546994Z     <ccze.spec.in >ccze.spec
+2026-02-15T07:29:55.9835386Z ##[group]Run bench_to_table() {
+2026-02-15T07:29:55.9835710Z [36;1mbench_to_table() {[0m
+2026-02-15T07:29:55.9835996Z [36;1m  echo "| Benchmark | Iterations | ns/op | B/op | allocs/op |"[0m
+2026-02-15T07:29:55.9836367Z [36;1m  echo "|-----------|------------|-------|------|-----------|"[0m
+2026-02-15T07:29:55.9836672Z [36;1m  while IFS= read -r line; do[0m
+2026-02-15T07:29:55.9836926Z [36;1m    if [[ "$line" =~ ^Benchmark ]]; then[0m
+2026-02-15T07:29:55.9837200Z [36;1m      name=$(echo "$line" | awk '{print $1}')[0m
+2026-02-15T07:29:55.9837474Z [36;1m      iters=$(echo "$line" | awk '{print $2}')[0m
+2026-02-15T07:29:55.9837752Z [36;1m      nsop=$(echo "$line" | awk '{print $3}')[0m
+2026-02-15T07:29:55.9838014Z [36;1m      bop=$(echo "$line" | awk '{print $5}')[0m
+2026-02-15T07:29:55.9838274Z [36;1m      aop=$(echo "$line" | awk '{print $7}')[0m
+2026-02-15T07:29:55.9838560Z [36;1m      echo "| ${name} | ${iters} | ${nsop} | ${bop} | ${aop} |"[0m
+2026-02-15T07:29:55.9839108Z [36;1m    fi[0m
+2026-02-15T07:29:55.9839423Z [36;1m  done[0m
+2026-02-15T07:29:55.9839573Z [36;1m}[0m
+2026-02-15T07:29:55.9839713Z [36;1m[0m
+2026-02-15T07:29:55.9839930Z [36;1mecho "## Benchmark Results" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9840209Z [36;1mecho "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9840421Z [36;1m[0m
+2026-02-15T07:29:55.9840571Z [36;1m# System info[0m
+2026-02-15T07:29:55.9841011Z [36;1mCPULINE=$(go test -bench='BenchmarkColorTableInit' -benchtime=100ms -count=1 2>&1 | grep '^cpu:' | sed 's/^cpu: //')[0m
+2026-02-15T07:29:55.9841499Z [36;1mif [ -n "$CPULINE" ]; then[0m
+2026-02-15T07:29:55.9841761Z [36;1m  echo "> **CPU:** ${CPULINE}" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9842046Z [36;1m  echo "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9842261Z [36;1mfi[0m
+2026-02-15T07:29:55.9842407Z [36;1m[0m
+2026-02-15T07:29:55.9842625Z [36;1mecho "### Go Component Benchmarks" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9842928Z [36;1mecho "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9843525Z [36;1mgo test -bench='Benchmark(Color|Wordcolor|.*Plugin|Registry|FullPipeline)' -benchmem -benchtime=2s -count=1 2>&1 | bench_to_table >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9844116Z [36;1mecho "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9844329Z [36;1m[0m
+2026-02-15T07:29:55.9844560Z [36;1mecho "### Go vs C Throughput Comparison" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9844872Z [36;1mecho "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9845309Z [36;1mgo test -bench='BenchmarkVsC' -benchmem -benchtime=3s -count=1 2>&1 | bench_to_table >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9845756Z [36;1mecho "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9845964Z [36;1m[0m
+2026-02-15T07:29:55.9846113Z [36;1m# Calculate speedup[0m
+2026-02-15T07:29:55.9846599Z [36;1mGO_NS=$(go test -bench='BenchmarkVsCThroughput/Go' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/Go' | awk '{print $3}')[0m
+2026-02-15T07:29:55.9847382Z [36;1mC_NS=$(go test -bench='BenchmarkVsCThroughput/C' -benchtime=2s -count=1 2>&1 | grep 'BenchmarkVsCThroughput/C' | awk '{print $3}')[0m
+2026-02-15T07:29:55.9847877Z [36;1m[0m
+2026-02-15T07:29:55.9848102Z [36;1mif [ -n "$GO_NS" ] && [ -n "$C_NS" ] && [ "$GO_NS" -gt 0 ]; then[0m
+2026-02-15T07:29:55.9848430Z [36;1m  SPEEDUP=$(echo "scale=1; $C_NS / $GO_NS" | bc)[0m
+2026-02-15T07:29:55.9848877Z [36;1m  echo "### Summary" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9849179Z [36;1m  echo "" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9849469Z [36;1m  echo "| Metric | Go | C |" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9849809Z [36;1m  echo "|--------|-----|---|" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9850177Z [36;1m  echo "| ns/op (37 lines) | ${GO_NS} | ${C_NS} |" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9850638Z [36;1m  echo "| **Speedup** | **${SPEEDUP}x faster** | baseline |" >> $GITHUB_STEP_SUMMARY[0m
+2026-02-15T07:29:55.9851158Z [36;1mfi[0m
+2026-02-15T07:29:55.9900169Z shell: /usr/bin/bash -e {0}
+2026-02-15T07:29:55.9900407Z ##[endgroup]
+2026-02-15T07:31:06.8394757Z Post job cleanup.
+2026-02-15T07:31:06.9964016Z [command]/opt/hostedtoolcache/go/1.24.7/x64/bin/go env GOMODCACHE
+2026-02-15T07:31:07.0002601Z [command]/opt/hostedtoolcache/go/1.24.7/x64/bin/go env GOCACHE
+2026-02-15T07:31:07.0027797Z /home/runner/go/pkg/mod
+2026-02-15T07:31:07.0056617Z /home/runner/.cache/go-build
+2026-02-15T07:31:07.0062414Z [warning]Cache folder path is retrieved but doesn't exist on disk: /home/runner/go/pkg/mod
+2026-02-15T07:31:07.0063610Z Primary key was not generated. Please check the log messages above for more errors or information
+2026-02-15T07:31:07.0188137Z Post job cleanup.
+2026-02-15T07:31:07.1193610Z [command]/usr/bin/git version
+2026-02-15T07:31:07.1229256Z git version 2.52.0
+2026-02-15T07:31:07.1273739Z Temporarily overriding HOME='/home/runner/work/_temp/4975c184-ad04-4d0f-88aa-e4e7651b86b8' before making global git config changes
+2026-02-15T07:31:07.1275425Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-15T07:31:07.1288597Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ccze-go/ccze-go
+2026-02-15T07:31:07.1325118Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-02-15T07:31:07.1359012Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-02-15T07:31:07.1598559Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-15T07:31:07.1620256Z http.https://github.com/.extraheader
+2026-02-15T07:31:07.1632683Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-02-15T07:31:07.1663863Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-02-15T07:31:07.1894487Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-15T07:31:07.1926269Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-02-15T07:31:07.2266599Z Cleaning up orphan processes
