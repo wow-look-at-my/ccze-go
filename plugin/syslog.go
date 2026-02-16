@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"ccze-go/color"
+	"ccze-go/plugin/matchers"
 	"ccze-go/wordcolor"
 )
 
@@ -34,6 +35,10 @@ func (p *SyslogPlugin) Type() Type           { return TypeFull }
 func (p *SyslogPlugin) Description() string  { return "Generic syslog(8) log coloriser." }
 
 func (p *SyslogPlugin) Handle(line string) (bool, string) {
+	// DFA pre-filter: fast rejection before expensive regex
+	if !matchers.MatchSyslog(line) {
+		return false, ""
+	}
 	m := p.re.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
