@@ -3,31 +3,16 @@ package wordcolor
 
 import (
 	"io"
-	"regexp"
 	"strings"
 
 	"ccze-go/color"
 )
 
-// Processor holds precompiled regular expressions and a color table for
-// performing word-level colorization of log messages.
+// Processor holds a color table for performing word-level colorization of
+// log messages. Pattern matching is done with hand-written scanners instead
+// of compiled regular expressions for better throughput on the hot path.
 type Processor struct {
-	ct        *color.Table
-	regPre    *regexp.Regexp // punctuation prefix
-	regPost   *regexp.Regexp // punctuation suffix
-	regHost   *regexp.Regexp
-	regHostIP *regexp.Regexp
-	regMAC    *regexp.Regexp
-	regEmail  *regexp.Regexp
-	regEmail2 *regexp.Regexp
-	regMsgID  *regexp.Regexp
-	regURI    *regexp.Regexp
-	regSize   *regexp.Regexp
-	regVer    *regexp.Regexp
-	regTime   *regexp.Regexp
-	regAddr   *regexp.Regexp
-	regNum    *regexp.Regexp
-	regSig    *regexp.Regexp
+	ct *color.Table
 }
 
 var wordsBad = []string{
@@ -53,28 +38,551 @@ var wordsSystem = []string{
 	"bios", "cpu", "fpu", "discharging", "resume",
 }
 
-// New creates a new Processor with all regular expressions compiled and
-// the given color table.
+// Signal name lookup table. The regex was ^sig(name...) which is effectively
+// a hash-set lookup after stripping the "sig" prefix.
+var sigNames = map[string]bool{
+	"hup": true, "int": true, "quit": true, "ill": true, "abrt": true,
+	"fpe": true, "kill": true, "segv": true, "pipe": true, "alrm": true,
+	"term": true, "usr1": true, "usr2": true, "chld": true, "cont": true,
+	"stop": true, "tstp": true, "tin": true, "tout": true, "bus": true,
+	"poll": true, "prof": true, "sys": true, "trap": true, "urg": true,
+	"vtalrm": true, "xcpu": true, "xfsz": true, "iot": true, "emt": true,
+	"stkflt": true, "io": true, "cld": true, "pwr": true, "info": true,
+	"lost": true, "winch": true, "unused": true,
+}
+
+// New creates a new Processor with the given color table.
 func New(ct *color.Table) *Processor {
-	return &Processor{
-		ct:        ct,
-		regPre:    regexp.MustCompile("^([`'\".,!?:;(\\[{<]+)([^`'\".,!?:;(\\[{<]\\S*)$"),
-		regPost:   regexp.MustCompile("^(\\S*[^`'\".,!?:;)\\]}>])([`'\".,!?:;)\\]}>]+)$"),
-		regHost:   regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_]+\\.)+[a-z]{2,3})|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)$"),
-		regHostIP: regexp.MustCompile("^(((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(([a-z0-9-_\\.]+)+)|(localhost)|(\\w*::\\w+)+)(:\\d{1,5})?)\\["),
-		regMAC:    regexp.MustCompile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$"),
-		regEmail:  regexp.MustCompile("^[a-z0-9-_=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]{2,4})+"),
-		regEmail2: regexp.MustCompile("(\\.[a-z]{2,4})+$"),
-		regMsgID:  regexp.MustCompile("^[a-z0-9-_\\.\\$=\\+]+@([a-z0-9-_\\.]+)+(\\.[a-z]+)+"),
-		regURI:    regexp.MustCompile("^\\w{2,}:\\/\\/(\\S+\\/?)+$"),
-		regSize:   regexp.MustCompile("^\\d+(\\.\\d+)?[kmgt]i?b?(ytes?)?"),
-		regVer:    regexp.MustCompile("^v?(\\d+\\.){1}((\\d|[a-z])+\\.)*(\\d|[a-z])+$"),
-		regTime:   regexp.MustCompile("\\d{1,2}:\\d{1,2}(:\\d{1,2})?"),
-		regAddr:   regexp.MustCompile("^0x(\\d|[a-f])+$"),
-		regNum:    regexp.MustCompile("^[+-]?\\d+$"),
-		regSig:    regexp.MustCompile("^sig(hup|int|quit|ill|abrt|fpe|kill|segv|pipe|alrm|term|usr1|usr2|chld|cont|stop|tstp|tin|tout|bus|poll|prof|sys|trap|urg|vtalrm|xcpu|xfsz|iot|emt|stkflt|io|cld|pwr|info|lost|winch|unused)"),
+	return &Processor{ct: ct}
+}
+
+// ---------------------------------------------------------------------------
+// Character classification helpers
+// ---------------------------------------------------------------------------
+
+func isDigit(c byte) bool     { return c >= '0' && c <= '9' }
+func isHexLower(c byte) bool  { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') }
+func isLowerAlpha(c byte) bool { return c >= 'a' && c <= 'z' }
+func isLowerAlnum(c byte) bool { return isLowerAlpha(c) || isDigit(c) }
+func isWordChar(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isDigit(c) || c == '_'
+}
+
+func allDigits(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if !isDigit(s[i]) {
+			return false
+		}
+	}
+	return len(s) > 0
+}
+
+// ---------------------------------------------------------------------------
+// Punctuation stripping  (replaces regPre / regPost)
+// ---------------------------------------------------------------------------
+
+func isPunctPre(c byte) bool {
+	switch c {
+	case '`', '\'', '"', '.', ',', '!', '?', ':', ';', '(', '[', '{', '<':
+		return true
+	}
+	return false
+}
+
+func isPunctPost(c byte) bool {
+	switch c {
+	case '`', '\'', '"', '.', ',', '!', '?', ':', ';', ')', ']', '}', '>':
+		return true
+	}
+	return false
+}
+
+// splitPre strips leading punctuation from word.
+// Equivalent to: ^([`'".,!?:;(\[{<]+)([^`'".,!?:;(\[{<]\S*)$
+func splitPre(word string) (pre, rest string) {
+	i := 0
+	for i < len(word) && isPunctPre(word[i]) {
+		i++
+	}
+	if i == 0 || i >= len(word) {
+		return "", word
+	}
+	return word[:i], word[i:]
+}
+
+// splitPost strips trailing punctuation from word.
+// Equivalent to: ^(\S*[^`'".,!?:;)\]}>])([`'".,!?:;)\]}>]+)$
+func splitPost(word string) (body, post string) {
+	i := len(word)
+	for i > 0 && isPunctPost(word[i-1]) {
+		i--
+	}
+	if i == len(word) || i == 0 {
+		return word, ""
+	}
+	return word[:i], word[i:]
+}
+
+// ---------------------------------------------------------------------------
+// Pattern matchers (replace the 13 content regexes)
+// ---------------------------------------------------------------------------
+
+// matchNum: ^[+-]?\d+$
+func matchNum(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	i := 0
+	if s[0] == '+' || s[0] == '-' {
+		i++
+	}
+	if i >= len(s) {
+		return false
+	}
+	for ; i < len(s); i++ {
+		if !isDigit(s[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+// matchAddr: ^0x(\d|[a-f])+$
+func matchAddr(s string) bool {
+	if len(s) < 3 || s[0] != '0' || s[1] != 'x' {
+		return false
+	}
+	for i := 2; i < len(s); i++ {
+		if !isHexLower(s[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+// matchMAC: ^([0-9a-f]{2}:){5}[0-9a-f]{2}$
+// A MAC address is exactly 17 characters: aa:bb:cc:dd:ee:ff
+func matchMAC(s string) bool {
+	if len(s) != 17 {
+		return false
+	}
+	for i := 0; i < 17; i++ {
+		if i%3 == 2 {
+			if s[i] != ':' {
+				return false
+			}
+		} else {
+			if !isHexLower(s[i]) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// matchSig: ^sig(hup|int|quit|...) — hash-set lookup after "sig" prefix.
+// The original regex had no $ anchor, so "sigtermed" would match via "sigterm".
+func matchSig(s string) bool {
+	if len(s) < 5 || s[0] != 's' || s[1] != 'i' || s[2] != 'g' {
+		return false
+	}
+	rest := s[3:]
+	// Signal names range from 2 to 6 characters. Try each prefix length.
+	for end := 2; end <= 6 && end <= len(rest); end++ {
+		if sigNames[rest[:end]] {
+			return true
+		}
+	}
+	return false
+}
+
+// matchTime: \d{1,2}:\d{1,2}(:\d{1,2})?  (unanchored — matches anywhere)
+func matchTime(s string) bool {
+	n := len(s)
+	for i := 0; i < n; i++ {
+		if !isDigit(s[i]) {
+			continue
+		}
+		// Start of potential digit group
+		j := i + 1
+		if j < n && isDigit(s[j]) {
+			j++
+		}
+		if j >= n || s[j] != ':' {
+			continue
+		}
+		j++ // skip first colon
+		if j >= n || !isDigit(s[j]) {
+			continue
+		}
+		j++
+		if j < n && isDigit(s[j]) {
+			j++
+		}
+		// Matched d{1,2}:d{1,2}
+		return true
+	}
+	return false
+}
+
+// matchURI: ^\w{2,}://(\S+/?)+$
+func matchURI(s string) bool {
+	idx := strings.Index(s, "://")
+	if idx < 2 {
+		return false
+	}
+	for i := 0; i < idx; i++ {
+		if !isWordChar(s[i]) {
+			return false
+		}
+	}
+	rest := s[idx+3:]
+	if len(rest) == 0 {
+		return false
+	}
+	for i := 0; i < len(rest); i++ {
+		if rest[i] <= ' ' {
+			return false
+		}
+	}
+	return true
+}
+
+// matchSize: ^\d+(\.\d+)?[kmgt]i?b?(ytes?)?  (prefix match, no $ anchor)
+func matchSize(s string) bool {
+	i := 0
+	n := len(s)
+	// \d+
+	if i >= n || !isDigit(s[i]) {
+		return false
+	}
+	for i < n && isDigit(s[i]) {
+		i++
+	}
+	// (\.\d+)?
+	if i < n && s[i] == '.' {
+		i++
+		if i >= n || !isDigit(s[i]) {
+			return false
+		}
+		for i < n && isDigit(s[i]) {
+			i++
+		}
+	}
+	// [kmgt]
+	if i >= n {
+		return false
+	}
+	c := s[i]
+	if c != 'k' && c != 'm' && c != 'g' && c != 't' {
+		return false
+	}
+	i++
+	// i?
+	if i < n && s[i] == 'i' {
+		i++
+	}
+	// b?
+	if i < n && s[i] == 'b' {
+		i++
+	}
+	// (ytes?)?
+	if i+2 < n && s[i] == 'y' && s[i+1] == 't' && s[i+2] == 'e' {
+		i += 3
+		if i < n && s[i] == 's' {
+			i++
+		}
+	}
+	return true
+}
+
+// matchVer: ^v?(\d+\.){1}((\d|[a-z])+\.)*(\d|[a-z])+$
+func matchVer(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	i := 0
+	if s[i] == 'v' {
+		i++
+	}
+	// First group: one or more digits followed by a dot
+	start := i
+	for i < len(s) && isDigit(s[i]) {
+		i++
+	}
+	if i == start || i >= len(s) || s[i] != '.' {
+		return false
+	}
+	i++ // skip dot
+
+	// Remaining groups: one or more [a-z0-9] chars, separated by dots.
+	// The last group must NOT end with a dot.
+	for {
+		start = i
+		for i < len(s) && isLowerAlnum(s[i]) {
+			i++
+		}
+		if i == start {
+			return false // empty group
+		}
+		if i == len(s) {
+			return true // consumed entire string
+		}
+		if s[i] != '.' {
+			return false // unexpected character
+		}
+		i++ // skip dot, continue to next group
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Host / IP matching  (replaces regHost and regHostIP)
+// ---------------------------------------------------------------------------
+
+// matchIPv4: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
+func matchIPv4(s string) bool {
+	parts := strings.Split(s, ".")
+	if len(parts) != 4 {
+		return false
+	}
+	for _, p := range parts {
+		if len(p) < 1 || len(p) > 3 || !allDigits(p) {
+			return false
+		}
+	}
+	return true
+}
+
+// matchHostname: ([a-z0-9-_]+\.)+[a-z]{2,3}
+func matchHostname(s string) bool {
+	idx := strings.LastIndex(s, ".")
+	if idx < 1 {
+		return false
+	}
+	tld := s[idx+1:]
+	if len(tld) < 2 || len(tld) > 3 {
+		return false
+	}
+	for i := 0; i < len(tld); i++ {
+		if !isLowerAlpha(tld[i]) {
+			return false
+		}
+	}
+	prefix := s[:idx]
+	parts := strings.Split(prefix, ".")
+	for _, p := range parts {
+		if len(p) < 1 {
+			return false
+		}
+		for i := 0; i < len(p); i++ {
+			c := p[i]
+			if !isLowerAlnum(c) && c != '-' && c != '_' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// matchIPv6Like: (\w*::\w+)+
+func matchIPv6Like(s string) bool {
+	if !strings.Contains(s, "::") {
+		return false
+	}
+	i := 0
+	matched := false
+	for i < len(s) {
+		// \w*
+		for i < len(s) && isWordChar(s[i]) {
+			i++
+		}
+		// ::
+		if i+1 >= len(s) || s[i] != ':' || s[i+1] != ':' {
+			return matched && i == len(s)
+		}
+		i += 2
+		// \w+ (at least one)
+		start := i
+		for i < len(s) && isWordChar(s[i]) {
+			i++
+		}
+		if i == start {
+			return false
+		}
+		matched = true
+	}
+	return matched
+}
+
+// matchHostCore checks if s (without port) is a valid host.
+func matchHostCore(s string) bool {
+	if s == "localhost" {
+		return true
+	}
+	return matchIPv4(s) || matchHostname(s) || matchIPv6Like(s)
+}
+
+// matchHost: the full regHost pattern, with optional :port suffix.
+// ^(((IPv4)|(hostname)|(localhost)|(IPv6))(:\d{1,5})?)$
+func matchHost(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	if matchHostCore(s) {
+		return true
+	}
+	// Try splitting off a trailing :port
+	idx := strings.LastIndex(s, ":")
+	if idx <= 0 || s[idx-1] == ':' {
+		return false
+	}
+	port := s[idx+1:]
+	if len(port) < 1 || len(port) > 5 || !allDigits(port) {
+		return false
+	}
+	return matchHostCore(s[:idx])
+}
+
+// matchHostIPCore is like matchHostCore but with the looser hostname
+// pattern from regHostIP: ([a-z0-9-_.]+)+ instead of requiring a TLD.
+func matchHostIPCore(s string) bool {
+	if s == "localhost" || matchIPv4(s) || matchIPv6Like(s) {
+		return true
+	}
+	if len(s) == 0 {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' {
+			return false
+		}
+	}
+	return true
+}
+
+// matchHostIP: like regHostIP — host pattern followed by '['.
+func matchHostIP(s string) bool {
+	idx := strings.Index(s, "[")
+	if idx <= 0 {
+		return false
+	}
+	host := s[:idx]
+	if matchHostIPCore(host) {
+		return true
+	}
+	// Try with port
+	cidx := strings.LastIndex(host, ":")
+	if cidx > 0 && host[cidx-1] != ':' {
+		port := host[cidx+1:]
+		if len(port) >= 1 && len(port) <= 5 && allDigits(port) {
+			return matchHostIPCore(host[:cidx])
+		}
+	}
+	return false
+}
+
+// ---------------------------------------------------------------------------
+// Email / MsgID matching  (replaces regEmail, regEmail2, regMsgID)
+// ---------------------------------------------------------------------------
+
+// matchEmail: ^[a-z0-9-_=+]+@([a-z0-9-_.]+)+  (prefix match)
+func matchEmail(s string) bool {
+	atIdx := strings.Index(s, "@")
+	if atIdx < 1 {
+		return false
+	}
+	for i := 0; i < atIdx; i++ {
+		c := s[i]
+		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '=' && c != '+' {
+			return false
+		}
+	}
+	domain := s[atIdx+1:]
+	if len(domain) == 0 {
+		return false
+	}
+	for i := 0; i < len(domain); i++ {
+		c := domain[i]
+		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' {
+			return false
+		}
+	}
+	return true
+}
+
+// matchEmail2: (\.[a-z]{2,4})+$
+func matchEmail2(s string) bool {
+	i := len(s)
+	matched := false
+	for i > 0 {
+		// Scan backwards for .tld segment
+		j := i - 1
+		for j >= 0 && s[j] != '.' {
+			j--
+		}
+		if j < 0 {
+			break
+		}
+		tld := s[j+1 : i]
+		if len(tld) < 2 || len(tld) > 4 {
+			break
+		}
+		ok := true
+		for k := 0; k < len(tld); k++ {
+			if !isLowerAlpha(tld[k]) {
+				ok = false
+				break
+			}
+		}
+		if !ok {
+			break
+		}
+		matched = true
+		i = j
+	}
+	return matched
+}
+
+// matchMsgID: ^[a-z0-9-_.$=+]+@([a-z0-9-_.]+)+(\.[a-z]+)+  (prefix match)
+func matchMsgID(s string) bool {
+	atIdx := strings.Index(s, "@")
+	if atIdx < 1 {
+		return false
+	}
+	for i := 0; i < atIdx; i++ {
+		c := s[i]
+		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' && c != '$' && c != '=' && c != '+' {
+			return false
+		}
+	}
+	domain := s[atIdx+1:]
+	if len(domain) == 0 {
+		return false
+	}
+	for i := 0; i < len(domain); i++ {
+		c := domain[i]
+		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' {
+			return false
+		}
+	}
+	// Must contain .[a-z]+ at end
+	lastDot := strings.LastIndex(domain, ".")
+	if lastDot < 0 || lastDot == len(domain)-1 {
+		return false
+	}
+	tld := domain[lastDot+1:]
+	for i := 0; i < len(tld); i++ {
+		if !isLowerAlpha(tld[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+// ---------------------------------------------------------------------------
+// Process / ProcessOne
+// ---------------------------------------------------------------------------
 
 // Process colorizes an entire message string, writing the result to w.
 // If wcol is false, the message is written with the Default color.
@@ -118,50 +626,42 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 	printed := false
 
 	// Extract punctuation prefix
-	var pre string
-	if m := p.regPre.FindStringSubmatch(word); m != nil {
-		pre = m[1]
-		word = m[2]
-	}
+	pre, word := splitPre(word)
 
 	// Extract punctuation suffix
-	var post string
-	if m := p.regPost.FindStringSubmatch(word); m != nil {
-		post = m[2]
-		word = m[1]
-	}
+	word, post := splitPost(word)
 
 	lword := strings.ToLower(word)
 
 	// Pattern cascade - order matters, first match wins (except hostip)
 	switch {
-	case p.regHost.MatchString(lword):
+	case matchHost(lword):
 		col = color.Host
-	case p.regMAC.MatchString(lword):
+	case matchMAC(lword):
 		col = color.MAC
 	case len(lword) > 0 && lword[0] == '/':
 		col = color.Dir
-	case p.regEmail.MatchString(lword) && p.regEmail2.MatchString(lword):
+	case matchEmail(lword) && matchEmail2(lword):
 		col = color.Email
-	case p.regMsgID.MatchString(lword):
+	case matchMsgID(lword):
 		col = color.Email
-	case p.regURI.MatchString(lword):
+	case matchURI(lword):
 		col = color.URI
-	case p.regSize.MatchString(lword):
+	case matchSize(lword):
 		col = color.Size
-	case p.regVer.MatchString(lword):
+	case matchVer(lword):
 		col = color.Version
-	case p.regTime.MatchString(lword):
+	case matchTime(lword):
 		col = color.Date
-	case p.regAddr.MatchString(lword):
+	case matchAddr(lword):
 		col = color.Address
-	case p.regNum.MatchString(lword):
+	case matchNum(lword):
 		col = color.Numbers
-	case p.regSig.MatchString(lword):
+	case matchSig(lword):
 		col = color.Signal
-	case p.regHostIP.MatchString(lword):
+	case matchHostIP(lword):
 		// Special handling: split at '[', output host and IP separately.
-		// By this point the regPost has already stripped any trailing ']',
+		// By this point the splitPost has already stripped any trailing ']',
 		// so the word looks like "hostname[192.168.1.1".
 		idx := strings.Index(word, "[")
 		if idx < 0 {

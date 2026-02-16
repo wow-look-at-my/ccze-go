@@ -8,6 +8,10 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var oopsRe = regexp.MustCompile(
+	`^((Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+ \d+:\d+:\d+ \d+)(\s+)\[([\dxa-fA-F]+)\]statistics\(\): ([\S]+)(\s*): (\d+)(.*)`,
+)
+
 // OopsPlugin is a FULL plugin.
 // Coloriser for oops/proxy logs.
 type OopsPlugin struct {
@@ -15,7 +19,6 @@ type OopsPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewOopsPlugin creates a new OopsPlugin.
@@ -25,19 +28,16 @@ func NewOopsPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convda
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re: regexp.MustCompile(
-			`^((Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+ \d+:\d+:\d+ \d+)(\s+)\[([\dxa-fA-F]+)\]statistics\(\): ([\S]+)(\s*): (\d+)(.*)`,
-		),
 	}
 }
 
 func (p *OopsPlugin) Name() string        { return "oops" }
-func (p *OopsPlugin) Type() Type           { return TypeFull }
-func (p *OopsPlugin) Description() string  { return "Coloriser for oops proxy logs." }
+func (p *OopsPlugin) Type() Type          { return TypeFull }
+func (p *OopsPlugin) Description() string { return "Coloriser for oops proxy logs." }
 
 // Handle attempts to match and colorize an oops log line.
 func (p *OopsPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
+	m := oopsRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

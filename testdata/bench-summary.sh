@@ -74,3 +74,13 @@ hyperfine --warmup 2 --min-runs 5 \
   --command-name "ccze (C)" "ccze -A < $SMALL_FILE > /dev/null" \
   2>&1 | tee -a "$OUT"
 echo '```' >> "$OUT"
+
+echo "" >> "$OUT"
+echo "### Hyperfine: Startup Time (--list + exit)" >> "$OUT"
+echo "" >> "$OUT"
+echo '```' >> "$OUT"
+hyperfine --warmup 5 --min-runs 20 \
+  --command-name "ccze-go" "/tmp/ccze-go -l > /dev/null" \
+  --command-name "ccze (C)" "ccze -l > /dev/null" \
+  2>&1 | tee -a "$OUT"
+echo '```' >> "$OUT"

@@ -8,6 +8,15 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var (
+	icecastRe = regexp.MustCompile(
+		`^(\[\d+/.../\d+:\d+:\d+:\d+\]) (Admin)? *(\[(\d+)?:?([^\]]*)\]) (.*)$`,
+	)
+	icecastReUsage = regexp.MustCompile(
+		`^(\[\d+/.../\d+:\d+:\d+:\d+\]) (\[(\d+):([^\]]*)\]) (\[\d+/.../\d+:\d+:\d+:\d+\]) Bandwidth:([\d\.]+)([^ ]*) Sources:(\d+) Clients:(\d+) Admins:(\d+)`,
+	)
+)
+
 // IcecastPlugin is a FULL plugin.
 // Coloriser for Icecast(8) logs.
 type IcecastPlugin struct {
@@ -15,8 +24,6 @@ type IcecastPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
-	reUsage  *regexp.Regexp
 }
 
 // NewIcecastPlugin creates a new IcecastPlugin.
@@ -26,29 +33,23 @@ func NewIcecastPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, con
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re: regexp.MustCompile(
-			`^(\[\d+/.../\d+:\d+:\d+:\d+\]) (Admin)? *(\[(\d+)?:?([^\]]*)\]) (.*)$`,
-		),
-		reUsage: regexp.MustCompile(
-			`^(\[\d+/.../\d+:\d+:\d+:\d+\]) (\[(\d+):([^\]]*)\]) (\[\d+/.../\d+:\d+:\d+:\d+\]) Bandwidth:([\d\.]+)([^ ]*) Sources:(\d+) Clients:(\d+) Admins:(\d+)`,
-		),
 	}
 }
 
 func (p *IcecastPlugin) Name() string        { return "icecast" }
-func (p *IcecastPlugin) Type() Type           { return TypeFull }
-func (p *IcecastPlugin) Description() string  { return "Coloriser for Icecast(8) logs." }
+func (p *IcecastPlugin) Type() Type          { return TypeFull }
+func (p *IcecastPlugin) Description() string { return "Coloriser for Icecast(8) logs." }
 
 // Handle attempts to match and colorize an Icecast log line.
 // It tries the usage pattern first, then the general pattern.
 func (p *IcecastPlugin) Handle(line string) (bool, string) {
 	// Try usage pattern first
-	if m := p.reUsage.FindStringSubmatch(line); m != nil {
+	if m := icecastReUsage.FindStringSubmatch(line); m != nil {
 		return p.handleUsage(m), ""
 	}
 
 	// Try general pattern
-	if m := p.re.FindStringSubmatch(line); m != nil {
+	if m := icecastRe.FindStringSubmatch(line); m != nil {
 		return true, p.handleGeneral(m)
 	}
 

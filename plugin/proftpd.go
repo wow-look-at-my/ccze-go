@@ -8,14 +8,17 @@ import (
 	"ccze-go/wordcolor"
 )
 
+var (
+	proftpdReAccess = regexp.MustCompile(`^(\d+\.\d+\.\d+\.\d+) (\S+) (\S+) \[(\d{2}/.{3}/\d{4}:\d{2}:\d{2}:\d{2} [-+]\d{4})\] "([A-Z]+) ([^"]+)" (\d{3}) (-|\d+)`)
+	proftpdReAuth   = regexp.MustCompile(`^(\S+) ftp server \[(\d+)\] (\d+\.\d+\.\d+\.\d+) \[(\d{2}/.{3}/\d{4}:\d{2}:\d{2}:\d{2} [-+]\d{4})\] "([A-Z]+) ([^"]+)" (\d{3})`)
+)
+
 // ProFTPDPlugin colorizes ProFTPD access and auth log lines.
 type ProFTPDPlugin struct {
 	w        io.Writer
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	reAccess *regexp.Regexp
-	reAuth   *regexp.Regexp
 }
 
 // NewProFTPDPlugin creates a new ProFTPDPlugin.
@@ -25,18 +28,16 @@ func NewProFTPDPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, con
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		reAccess: regexp.MustCompile(`^(\d+\.\d+\.\d+\.\d+) (\S+) (\S+) \[(\d{2}/.{3}/\d{4}:\d{2}:\d{2}:\d{2} [-+]\d{4})\] "([A-Z]+) ([^"]+)" (\d{3}) (-|\d+)`),
-		reAuth:   regexp.MustCompile(`^(\S+) ftp server \[(\d+)\] (\d+\.\d+\.\d+\.\d+) \[(\d{2}/.{3}/\d{4}:\d{2}:\d{2}:\d{2} [-+]\d{4})\] "([A-Z]+) ([^"]+)" (\d{3})`),
 	}
 }
 
 func (p *ProFTPDPlugin) Name() string        { return "proftpd" }
-func (p *ProFTPDPlugin) Type() Type           { return TypeFull }
-func (p *ProFTPDPlugin) Description() string  { return "Coloriser for ProFTPD logs." }
+func (p *ProFTPDPlugin) Type() Type          { return TypeFull }
+func (p *ProFTPDPlugin) Description() string { return "Coloriser for ProFTPD logs." }
 
 func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
 	// Try access log
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	if m := proftpdReAccess.FindStringSubmatch(line); m != nil {
 		host := m[1]
 		user := m[2]
 		auser := m[3]
@@ -75,7 +76,7 @@ func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try auth log
-	if m := p.reAuth.FindStringSubmatch(line); m != nil {
+	if m := proftpdReAuth.FindStringSubmatch(line); m != nil {
 		servhost := m[1]
 		pid := m[2]
 		remhost := m[3]

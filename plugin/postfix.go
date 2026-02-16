@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 	"strings"
 
 	"ccze-go/color"
@@ -15,7 +14,6 @@ type PostfixPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	re       *regexp.Regexp
 }
 
 // NewPostfixPlugin creates a new PostfixPlugin.
@@ -25,7 +23,6 @@ func NewPostfixPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, con
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		re:       regexp.MustCompile(`^([\dA-F]+): ((client|to|message-id|uid|resent-message-id|from)(=.*))`),
 	}
 }
 
@@ -51,14 +48,45 @@ func (p *PostfixPlugin) postfixProcessOne(s string) bool {
 	return false
 }
 
+// postfix keyword prefixes that trigger the match.
+var postfixKeywords = []string{"client=", "to=", "message-id=", "uid=", "resent-message-id=", "from="}
+
+// parsePostfix hand-parses a postfix sub-log line.
+// Format: ^([\dA-F]+): ((client|to|message-id|uid|resent-message-id|from)(=.*))
+func parsePostfix(line string) (spoolid, rest string, ok bool) {
+	colonIdx := strings.Index(line, ": ")
+	if colonIdx < 1 {
+		return
+	}
+	// Validate spoolid: all hex uppercase + digits
+	for i := 0; i < colonIdx; i++ {
+		c := line[i]
+		if !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) {
+			return
+		}
+	}
+	rest = line[colonIdx+2:]
+	// Check that rest starts with a known keyword=
+	matched := false
+	for _, kw := range postfixKeywords {
+		if strings.HasPrefix(rest, kw) {
+			matched = true
+			break
+		}
+	}
+	if !matched {
+		return
+	}
+	spoolid = line[:colonIdx]
+	ok = true
+	return
+}
+
 func (p *PostfixPlugin) Handle(line string) (bool, string) {
-	m := p.re.FindStringSubmatch(line)
-	if m == nil {
+	spoolid, s, ok := parsePostfix(line)
+	if !ok {
 		return false, ""
 	}
-
-	spoolid := m[1]
-	s := m[2]
 
 	p.ct.WriteColored(p.w, color.Uniqn, spoolid)
 	p.ct.WriteColored(p.w, color.Default, ": ")
