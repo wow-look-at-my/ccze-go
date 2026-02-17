@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 	"strings"
 
 	"ccze-go/color"
@@ -11,11 +10,10 @@ import (
 
 // HTTPDPlugin colorizes generic HTTPD access and error log lines.
 type HTTPDPlugin struct {
-	w         io.Writer
-	ct        *color.Table
-	wc        *wordcolor.Processor
-	convdate  bool
-	reAccess  *regexp.Regexp // kept: complex multi-group Apache combined log format
+	w        io.Writer
+	ct       *color.Table
+	wc       *wordcolor.Processor
+	convdate bool
 }
 
 // NewHTTPDPlugin creates a new HTTPDPlugin.
@@ -25,7 +23,6 @@ func NewHTTPDPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 		ct:       ct,
 		wc:       wc,
 		convdate: convdate,
-		reAccess: regexp.MustCompile(`^(\S*)\s(\S*)?\s?-\s(\S+)\s(\[\d{1,2}/\S*/\d{4}:\d{2}:\d{2}:\d{2}.{0,6}[^\]]*\])\s("([^ "]+)\s*[^"]*")\s(\d{3})\s(\d+|-)\s*(.*)$`),
 	}
 }
 
@@ -49,54 +46,9 @@ func httpdErrorColor(level string) color.Color {
 	return color.Unknown
 }
 
-// parseHTTPDError hand-parses an HTTPD error log line.
-// Format: ^(\[\w{3}\s\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}\])\s(\[\w*\])\s(.*)$
-func parseHTTPDError(line string) (date, level, msg string, ok bool) {
-	if len(line) == 0 || line[0] != '[' {
-		return
-	}
-
-	// Find closing bracket for date: [Day Mon DD HH:MM:SS YYYY]
-	closeBracket := strings.Index(line, "] ")
-	if closeBracket < 10 {
-		return
-	}
-	dateContent := line[1:closeBracket]
-
-	// Validate date format: \w{3}\s\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}
-	// e.g. "Sun Oct 12 15:30:00 2003"
-	// Quick validation: must contain a time-like pattern and end with 4 digits (year)
-	if len(dateContent) < 20 {
-		return
-	}
-	// Check year at end (4 digits)
-	year := dateContent[len(dateContent)-4:]
-	for i := 0; i < 4; i++ {
-		if year[i] < '0' || year[i] > '9' {
-			return
-		}
-	}
-	date = line[:closeBracket+1]
-	rest := line[closeBracket+2:]
-
-	// Level: [\w*] — brackets around a word
-	if len(rest) == 0 || rest[0] != '[' {
-		return
-	}
-	levelClose := strings.Index(rest, "] ")
-	if levelClose < 1 {
-		return
-	}
-	level = rest[:levelClose+1]
-	msg = rest[levelClose+2:]
-
-	ok = true
-	return
-}
-
 func (p *HTTPDPlugin) Handle(line string) (bool, string) {
-	// Try access log first (kept as regex — complex multi-group pattern)
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	// Try access log first
+	if m := httpdAccessFindSubmatch(line); m != nil {
 		vhost := m[1]
 		host := m[2]
 		user := m[3]
@@ -137,8 +89,11 @@ func (p *HTTPDPlugin) Handle(line string) (bool, string) {
 		return true, ""
 	}
 
-	// Try error log (hand-parsed — bracket-delimited segments)
-	if date, level, msg, ok := parseHTTPDError(line); ok {
+	// Try error log
+	if m := httpdErrorFindSubmatch(line); m != nil {
+		date := m[1]
+		level := m[2]
+		msg := m[3]
 		lcol := httpdErrorColor(level)
 
 		p.ct.WriteColored(p.w, color.Date, date)

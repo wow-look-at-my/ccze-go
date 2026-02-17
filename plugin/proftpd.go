@@ -2,15 +2,9 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-)
-
-var (
-	proftpdReAccess = regexp.MustCompile(`^(\d+\.\d+\.\d+\.\d+) (\S+) (\S+) \[(\d{2}/.{3}/\d{4}:\d{2}:\d{2}:\d{2} [-+]\d{4})\] "([A-Z]+) ([^"]+)" (\d{3}) (-|\d+)`)
-	proftpdReAuth   = regexp.MustCompile(`^(\S+) ftp server \[(\d+)\] (\d+\.\d+\.\d+\.\d+) \[(\d{2}/.{3}/\d{4}:\d{2}:\d{2}:\d{2} [-+]\d{4})\] "([A-Z]+) ([^"]+)" (\d{3})`)
 )
 
 // ProFTPDPlugin colorizes ProFTPD access and auth log lines.
@@ -37,7 +31,7 @@ func (p *ProFTPDPlugin) Description() string { return "Coloriser for ProFTPD log
 
 func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
 	// Try access log
-	if m := proftpdReAccess.FindStringSubmatch(line); m != nil {
+	if m := proftpdAccessFindSubmatch(line); m != nil {
 		host := m[1]
 		user := m[2]
 		auser := m[3]
@@ -76,7 +70,7 @@ func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try auth log
-	if m := proftpdReAuth.FindStringSubmatch(line); m != nil {
+	if m := proftpdAuthFindSubmatch(line); m != nil {
 		servhost := m[1]
 		pid := m[2]
 		remhost := m[3]

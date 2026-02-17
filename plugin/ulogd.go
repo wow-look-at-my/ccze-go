@@ -31,22 +31,11 @@ func (p *UlogdPlugin) Name() string        { return "ulogd" }
 func (p *UlogdPlugin) Type() Type           { return TypePartial }
 func (p *UlogdPlugin) Description() string  { return "Coloriser for ulogd sub-logs." }
 
-// ulogd netfilter keywords that trigger a match.
-var ulogdKeywords = []string{"IN=", "OUT=", "MAC=", "TTL=", "SRC=", "TOS=", "PREC=", "SPT="}
-
 // Handle attempts to match and colorize a ulogd log line.
 // If the line contains netfilter keywords, it splits on spaces and
 // colorizes field=value pairs individually.
 func (p *UlogdPlugin) Handle(line string) (bool, string) {
-	// Check for any netfilter keyword (replaces regex match)
-	found := false
-	for _, kw := range ulogdKeywords {
-		if strings.Contains(line, kw) {
-			found = true
-			break
-		}
-	}
-	if !found {
+	if !ulogdMatch(line) {
 		return false, ""
 	}
 

@@ -2,19 +2,9 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-)
-
-var (
-	icecastRe = regexp.MustCompile(
-		`^(\[\d+/.../\d+:\d+:\d+:\d+\]) (Admin)? *(\[(\d+)?:?([^\]]*)\]) (.*)$`,
-	)
-	icecastReUsage = regexp.MustCompile(
-		`^(\[\d+/.../\d+:\d+:\d+:\d+\]) (\[(\d+):([^\]]*)\]) (\[\d+/.../\d+:\d+:\d+:\d+\]) Bandwidth:([\d\.]+)([^ ]*) Sources:(\d+) Clients:(\d+) Admins:(\d+)`,
-	)
 )
 
 // IcecastPlugin is a FULL plugin.
@@ -44,12 +34,12 @@ func (p *IcecastPlugin) Description() string { return "Coloriser for Icecast(8) 
 // It tries the usage pattern first, then the general pattern.
 func (p *IcecastPlugin) Handle(line string) (bool, string) {
 	// Try usage pattern first
-	if m := icecastReUsage.FindStringSubmatch(line); m != nil {
+	if m := icecastUsageFindSubmatch(line); m != nil {
 		return p.handleUsage(m), ""
 	}
 
 	// Try general pattern
-	if m := icecastRe.FindStringSubmatch(line); m != nil {
+	if m := icecastFindSubmatch(line); m != nil {
 		return true, p.handleGeneral(m)
 	}
 

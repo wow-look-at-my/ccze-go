@@ -30,74 +30,17 @@ func (p *ProcmailPlugin) Name() string        { return "procmail" }
 func (p *ProcmailPlugin) Type() Type           { return TypeFull }
 func (p *ProcmailPlugin) Description() string  { return "Coloriser for procmail(1) logs." }
 
-// parseProcmail hand-parses a procmail log line.
-// Format: ^(\s*)(>?From|Subject:|Folder:)?\s(\S+)(\s+)?(.*)
-func parseProcmail(line string) (space1, header, value, space2, extra string, ok bool) {
-	i := 0
-	n := len(line)
-
-	// Leading whitespace: \s*
-	for i < n && (line[i] == ' ' || line[i] == '\t') {
-		i++
-	}
-	space1 = line[:i]
-
-	// Optional header keyword: (>?From|Subject:|Folder:)?
-	rest := line[i:]
-	header = ""
-	for _, kw := range []string{">From", "From", "Subject:", "Folder:"} {
-		if strings.HasPrefix(rest, kw) {
-			header = kw
-			rest = rest[len(kw):]
-			break
-		}
-	}
-
-	// \s — at least one whitespace char
-	if len(rest) == 0 || (rest[0] != ' ' && rest[0] != '\t') {
-		// If no header matched, backtrack one space from space1 (regex backtracking)
-		if header == "" && i > 0 {
-			i--
-			space1 = line[:i]
-			rest = line[i:]
-			// Now consume the mandatory \s
-			rest = rest[1:]
-		} else {
-			return
-		}
-	} else {
-		// Skip exactly one space (the regex consumes one \s)
-		rest = rest[1:]
-	}
-
-	// Value: \S+ (non-whitespace)
-	j := 0
-	for j < len(rest) && rest[j] != ' ' && rest[j] != '\t' {
-		j++
-	}
-	if j == 0 {
-		return
-	}
-	value = rest[:j]
-	rest = rest[j:]
-
-	// Optional space: (\s+)?
-	k := 0
-	for k < len(rest) && (rest[k] == ' ' || rest[k] == '\t') {
-		k++
-	}
-	space2 = rest[:k]
-	extra = rest[k:]
-
-	ok = true
-	return
-}
-
 func (p *ProcmailPlugin) Handle(line string) (bool, string) {
-	space1, header, value, space2, extra, ok := parseProcmail(line)
-	if !ok {
+	m := procmailFindSubmatch(line)
+	if m == nil {
 		return false, ""
 	}
+
+	space1 := m[1]
+	header := m[2]
+	value := m[3]
+	space2 := m[4]
+	extra := m[5]
 
 	headerLower := strings.ToLower(header)
 

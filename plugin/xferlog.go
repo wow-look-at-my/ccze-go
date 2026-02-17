@@ -2,14 +2,9 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-)
-
-var xferlogRe = regexp.MustCompile(
-	`^(... ... +\d{1,2} +\d{1,2}:\d{1,2}:\d{1,2} \d+) (\d+) ([^ ]+) (\d+) (\S+) (a|b) (C|U|T|_) (o|i) (a|g|r) ([^ ]+) ([^ ]+) (0|1) ([^ ]+) (c|i)`,
 )
 
 // XferlogPlugin is a FULL plugin.
@@ -37,7 +32,7 @@ func (p *XferlogPlugin) Description() string { return "Generic xferlog coloriser
 
 // Handle attempts to match and colorize an xferlog line.
 func (p *XferlogPlugin) Handle(line string) (bool, string) {
-	m := xferlogRe.FindStringSubmatch(line)
+	m := xferlogFindSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

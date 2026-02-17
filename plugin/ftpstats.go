@@ -2,14 +2,9 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-)
-
-var ftpstatsRe = regexp.MustCompile(
-	`^(\d{9,10})\s([\da-f]+\.[\da-f]+)\s([^\s]+)\s([^\s]+)\s(U|D)\s(\d+)\s(\d+)\s(.*)$`,
 )
 
 // FtpstatsPlugin is a FULL plugin.
@@ -37,7 +32,7 @@ func (p *FtpstatsPlugin) Description() string { return "Coloriser for ftpstats (
 
 // Handle attempts to match and colorize an ftpstats log line.
 func (p *FtpstatsPlugin) Handle(line string) (bool, string) {
-	m := ftpstatsRe.FindStringSubmatch(line)
+	m := ftpstatsFindSubmatch(line)
 	if m == nil {
 		return false, ""
 	}

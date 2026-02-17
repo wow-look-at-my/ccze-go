@@ -2,14 +2,9 @@ package plugin
 
 import (
 	"io"
-	"regexp"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-)
-
-var oopsRe = regexp.MustCompile(
-	`^((Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+ \d+:\d+:\d+ \d+)(\s+)\[([\dxa-fA-F]+)\]statistics\(\): ([\S]+)(\s*): (\d+)(.*)`,
 )
 
 // OopsPlugin is a FULL plugin.
@@ -37,7 +32,7 @@ func (p *OopsPlugin) Description() string { return "Coloriser for oops proxy log
 
 // Handle attempts to match and colorize an oops log line.
 func (p *OopsPlugin) Handle(line string) (bool, string) {
-	m := oopsRe.FindStringSubmatch(line)
+	m := oopsFindSubmatch(line)
 	if m == nil {
 		return false, ""
 	}
