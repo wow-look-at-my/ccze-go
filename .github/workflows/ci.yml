@@ -6,11 +6,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Build and test
         uses: wow-look-at-my/go-toolchain@v1
+        with:
+          autorelease: 'true'
 
   benchmark:
     runs-on: ubuntu-latest
