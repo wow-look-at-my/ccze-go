@@ -8,12 +8,13 @@ import (
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
+	"github.com/wow-look-at-my/testify/assert"
 )
 
 func TestConvertColorOverride(t *testing.T) {
 	tests := []struct {
-		input string
-		want  string
+		input	string
+		want	string
 	}{
 		{"date=boldcyan", "date bold cyan"},
 		{"error=red", "error red"},
@@ -26,9 +27,8 @@ func TestConvertColorOverride(t *testing.T) {
 	}
 	for _, tt := range tests {
 		got := convertColorOverride(tt.input)
-		if got != tt.want {
-			t.Errorf("convertColorOverride(%q) = %q, want %q", tt.input, got, tt.want)
-		}
+		assert.Equal(t, tt.want, got)
+
 	}
 }
 
@@ -42,9 +42,8 @@ func TestRegisterAllPlugins(t *testing.T) {
 	registerAllPlugins(r, w, ct, wc, false)
 
 	plugins := r.Plugins()
-	if len(plugins) != 20 {
-		t.Errorf("expected 20 plugins, got %d", len(plugins))
-	}
+	assert.Equal(t, 20, len(plugins))
+
 }
 
 func TestFilterPlugins(t *testing.T) {
@@ -58,9 +57,8 @@ func TestFilterPlugins(t *testing.T) {
 	filterPlugins(r, []string{"syslog", "httpd"})
 
 	plugins := r.Plugins()
-	if len(plugins) != 2 {
-		t.Errorf("expected 2 plugins after filter, got %d", len(plugins))
-	}
+	assert.Equal(t, 2, len(plugins))
+
 }
 
 func TestListAllPlugins(t *testing.T) {
