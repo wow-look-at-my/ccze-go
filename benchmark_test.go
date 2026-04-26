@@ -22,6 +22,7 @@ import (
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
+	"github.com/wow-look-at-my/testify/require"
 )
 
 // --------------------------------------------------------------------------
@@ -242,24 +243,20 @@ func benchPipe(b *testing.B, binPath string, input []byte, totalBytes int64) {
 
 	cmd := exec.Command(binPath, "-A")
 	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		b.Fatalf("failed to create stdin pipe: %v", err)
-	}
+	require.Nil(b, err)
+
 	cmd.Stdout = io.Discard
-	if err := cmd.Start(); err != nil {
-		b.Fatalf("failed to start %s: %v", binPath, err)
-	}
+	require.NoError(b, cmd.Start())
 
 	for i := 0; i < b.N; i++ {
-		if _, err := stdin.Write(input); err != nil {
-			b.Fatalf("failed to write to %s: %v", binPath, err)
-		}
+		_, err := stdin.Write(input)
+		require.Nil(b, err)
+
 	}
 
 	stdin.Close()
-	if err := cmd.Wait(); err != nil {
-		b.Fatalf("%s failed: %v", binPath, err)
-	}
+	require.NoError(b, cmd.Wait())
+
 }
 
 // buildGoBinary builds the ccze-go binary into a temp dir and returns its path.
@@ -269,17 +266,15 @@ func buildGoBinary(b *testing.B) string {
 	binPath := tmp + "/ccze-go"
 	cmd := exec.Command("go", "build", "-o", binPath, ".")
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		b.Fatalf("failed to build ccze-go: %v", err)
-	}
+	require.NoError(b, cmd.Run())
+
 	return binPath
 }
 
 func BenchmarkVsCThroughput(b *testing.B) {
 	data, err := os.ReadFile("testdata/mixed.log")
-	if err != nil {
-		b.Fatalf("failed to read testdata/mixed.log: %v", err)
-	}
+	require.Nil(b, err)
+
 	lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
 	input := data
 
@@ -346,9 +341,8 @@ func TestBenchmarkSummary(t *testing.T) {
 	}
 
 	data, err := os.ReadFile("testdata/mixed.log")
-	if err != nil {
-		t.Fatalf("failed to read testdata/mixed.log: %v", err)
-	}
+	require.Nil(t, err)
+
 	lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
 	input := data
 
@@ -362,9 +356,7 @@ func TestBenchmarkSummary(t *testing.T) {
 	goBin := tmp + "/ccze-go"
 	cmd := exec.Command("go", "build", "-o", goBin, ".")
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("failed to build ccze-go: %v", err)
-	}
+	require.NoError(t, cmd.Run())
 
 	// In-process benchmark
 	inProcResult := testing.Benchmark(func(b *testing.B) {

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"ccze-go/color"
+	"github.com/wow-look-at-my/testify/assert"
 )
 
 func newTestProcessor() (*Processor, *color.Table) {
@@ -37,9 +38,8 @@ func TestProcessEmpty(t *testing.T) {
 	p, _ := newTestProcessor()
 	var buf bytes.Buffer
 	p.Process(&buf, "", true, false)
-	if buf.Len() != 0 {
-		t.Error("Process empty should produce no output")
-	}
+	assert.Equal(t, 0, buf.Len())
+
 }
 
 func TestProcessNoWordcolor(t *testing.T) {
@@ -47,9 +47,8 @@ func TestProcessNoWordcolor(t *testing.T) {
 	var buf bytes.Buffer
 	p.Process(&buf, "hello world", false, false)
 	out := stripAnsi(buf.String())
-	if out != "hello world" {
-		t.Errorf("Process with wcol=false should output raw text, got %q", out)
-	}
+	assert.Equal(t, "hello world", out)
+
 }
 
 func TestProcessRepeatMessage(t *testing.T) {
@@ -57,9 +56,8 @@ func TestProcessRepeatMessage(t *testing.T) {
 	var buf bytes.Buffer
 	p.Process(&buf, "last message repeated 10 times", true, false)
 	out := buf.String()
-	if !strings.Contains(out, "last message repeated 10 times") {
-		t.Error("repeat message should appear in output")
-	}
+	assert.Contains(t, out, "last message repeated 10 times")
+
 }
 
 func TestProcessMark(t *testing.T) {
@@ -67,9 +65,8 @@ func TestProcessMark(t *testing.T) {
 	var buf bytes.Buffer
 	p.Process(&buf, "-- MARK --", true, false)
 	out := buf.String()
-	if !strings.Contains(out, "-- MARK --") {
-		t.Error("MARK message should appear in output")
-	}
+	assert.Contains(t, out, "-- MARK --")
+
 }
 
 func TestProcessOneIPAddress(t *testing.T) {
@@ -77,9 +74,8 @@ func TestProcessOneIPAddress(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "192.168.1.1", false)
 	out := stripAnsi(buf.String())
-	if out != "192.168.1.1" {
-		t.Errorf("IP address should appear, got %q", out)
-	}
+	assert.Equal(t, "192.168.1.1", out)
+
 }
 
 func TestProcessOneHostname(t *testing.T) {
@@ -87,9 +83,8 @@ func TestProcessOneHostname(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "www.example.com", false)
 	out := stripAnsi(buf.String())
-	if out != "www.example.com" {
-		t.Errorf("hostname should appear, got %q", out)
-	}
+	assert.Equal(t, "www.example.com", out)
+
 }
 
 func TestProcessOneMAC(t *testing.T) {
@@ -97,9 +92,8 @@ func TestProcessOneMAC(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "aa:bb:cc:dd:ee:ff", false)
 	out := stripAnsi(buf.String())
-	if out != "aa:bb:cc:dd:ee:ff" {
-		t.Errorf("MAC should appear, got %q", out)
-	}
+	assert.Equal(t, "aa:bb:cc:dd:ee:ff", out)
+
 }
 
 func TestProcessOneDirectory(t *testing.T) {
@@ -107,9 +101,8 @@ func TestProcessOneDirectory(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "/etc/passwd", false)
 	out := stripAnsi(buf.String())
-	if out != "/etc/passwd" {
-		t.Errorf("directory should appear, got %q", out)
-	}
+	assert.Equal(t, "/etc/passwd", out)
+
 }
 
 func TestProcessOneEmail(t *testing.T) {
@@ -117,9 +110,8 @@ func TestProcessOneEmail(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "user@example.com", false)
 	out := stripAnsi(buf.String())
-	if out != "user@example.com" {
-		t.Errorf("email should appear, got %q", out)
-	}
+	assert.Equal(t, "user@example.com", out)
+
 }
 
 func TestProcessOneURI(t *testing.T) {
@@ -127,9 +119,8 @@ func TestProcessOneURI(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "http://example.com/path", false)
 	out := stripAnsi(buf.String())
-	if out != "http://example.com/path" {
-		t.Errorf("URI should appear, got %q", out)
-	}
+	assert.Equal(t, "http://example.com/path", out)
+
 }
 
 func TestProcessOneVersion(t *testing.T) {
@@ -137,9 +128,8 @@ func TestProcessOneVersion(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "2.3.7", false)
 	out := stripAnsi(buf.String())
-	if out != "2.3.7" {
-		t.Errorf("version should appear, got %q", out)
-	}
+	assert.Equal(t, "2.3.7", out)
+
 }
 
 func TestProcessOneNumber(t *testing.T) {
@@ -147,9 +137,8 @@ func TestProcessOneNumber(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "42", false)
 	out := stripAnsi(buf.String())
-	if out != "42" {
-		t.Errorf("number should appear, got %q", out)
-	}
+	assert.Equal(t, "42", out)
+
 }
 
 func TestProcessOneAddress(t *testing.T) {
@@ -157,9 +146,8 @@ func TestProcessOneAddress(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "0x1234abcd", false)
 	out := stripAnsi(buf.String())
-	if out != "0x1234abcd" {
-		t.Errorf("address should appear, got %q", out)
-	}
+	assert.Equal(t, "0x1234abcd", out)
+
 }
 
 func TestProcessOneSignal(t *testing.T) {
@@ -167,9 +155,8 @@ func TestProcessOneSignal(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "sigterm", false)
 	out := stripAnsi(buf.String())
-	if out != "sigterm" {
-		t.Errorf("signal should appear, got %q", out)
-	}
+	assert.Equal(t, "sigterm", out)
+
 }
 
 func TestProcessOneSize(t *testing.T) {
@@ -177,9 +164,8 @@ func TestProcessOneSize(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "150mb", false)
 	out := stripAnsi(buf.String())
-	if out != "150mb" {
-		t.Errorf("size should appear, got %q", out)
-	}
+	assert.Equal(t, "150mb", out)
+
 }
 
 func TestProcessOneTime(t *testing.T) {
@@ -187,9 +173,8 @@ func TestProcessOneTime(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "12:30:45", false)
 	out := stripAnsi(buf.String())
-	if out != "12:30:45" {
-		t.Errorf("time should appear, got %q", out)
-	}
+	assert.Equal(t, "12:30:45", out)
+
 }
 
 func TestProcessOneBadWord(t *testing.T) {
@@ -198,9 +183,8 @@ func TestProcessOneBadWord(t *testing.T) {
 	p.ProcessOne(&buf, "error", false)
 	// Should use Error color (bold red)
 	out := buf.String()
-	if !strings.Contains(out, "\x1b[1m") {
-		t.Error("error word should be bold")
-	}
+	assert.Contains(t, out, "\x1b[1m")
+
 }
 
 func TestProcessOneGoodWord(t *testing.T) {
@@ -208,9 +192,8 @@ func TestProcessOneGoodWord(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "started", false)
 	out := stripAnsi(buf.String())
-	if out != "started" {
-		t.Errorf("good word should appear, got %q", out)
-	}
+	assert.Equal(t, "started", out)
+
 }
 
 func TestProcessOneSystemWord(t *testing.T) {
@@ -218,9 +201,8 @@ func TestProcessOneSystemWord(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "linux", false)
 	out := stripAnsi(buf.String())
-	if out != "linux" {
-		t.Errorf("system word should appear, got %q", out)
-	}
+	assert.Equal(t, "linux", out)
+
 }
 
 func TestProcessOnePunctuation(t *testing.T) {
@@ -228,9 +210,8 @@ func TestProcessOnePunctuation(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "(test)", false)
 	out := stripAnsi(buf.String())
-	if out != "(test)" {
-		t.Errorf("punctuation-wrapped word should appear, got %q", out)
-	}
+	assert.Equal(t, "(test)", out)
+
 }
 
 func TestProcessOneHostIP(t *testing.T) {
@@ -238,12 +219,10 @@ func TestProcessOneHostIP(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "mail.example.com[192.168.1.1]", false)
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "mail.example.com") {
-		t.Errorf("host part should appear, got %q", out)
-	}
-	if !strings.Contains(out, "192.168.1.1") {
-		t.Errorf("IP part should appear, got %q", out)
-	}
+	assert.Contains(t, out, "mail.example.com")
+
+	assert.Contains(t, out, "192.168.1.1")
+
 }
 
 func TestProcessMultipleWords(t *testing.T) {
@@ -251,9 +230,8 @@ func TestProcessMultipleWords(t *testing.T) {
 	var buf bytes.Buffer
 	p.Process(&buf, "hello world 42", true, false)
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "hello") || !strings.Contains(out, "world") || !strings.Contains(out, "42") {
-		t.Errorf("all words should appear, got %q", out)
-	}
+	assert.False(t, !strings.Contains(out, "hello") || !strings.Contains(out, "world") || !strings.Contains(out, "42"))
+
 }
 
 func TestProcessLocalhost(t *testing.T) {
@@ -261,9 +239,8 @@ func TestProcessLocalhost(t *testing.T) {
 	var buf bytes.Buffer
 	p.ProcessOne(&buf, "localhost", false)
 	out := stripAnsi(buf.String())
-	if out != "localhost" {
-		t.Errorf("localhost should appear, got %q", out)
-	}
+	assert.Equal(t, "localhost", out)
+
 }
 
 func TestProcessConsecutiveSpaces(t *testing.T) {
@@ -271,7 +248,6 @@ func TestProcessConsecutiveSpaces(t *testing.T) {
 	var buf bytes.Buffer
 	p.Process(&buf, "a  b", true, false)
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "a") && !strings.Contains(out, "b") {
-		t.Errorf("both words should appear, got %q", out)
-	}
+	assert.False(t, !strings.Contains(out, "a") && !strings.Contains(out, "b"))
+
 }
