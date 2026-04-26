@@ -1,37 +1,30 @@
 package plugin
 
 import (
-	"strings"
 	"testing"
 
 	"ccze-go/color"
+	"github.com/wow-look-at-my/testify/assert"
 )
 
 func TestXferlogPlugin(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewXferlogPlugin(buf, ct, wc, false)
 
-	if p.Name() != "xferlog" {
-		t.Errorf("Name = %q, want xferlog", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "xferlog", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("Mon Oct 15 14:30:22 2023 5 192.168.1.1 1234 /pub/file.txt b _ o r user ftp 0 * c")
-	if !handled {
-		t.Error("xferlog should handle xferlog line")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "192.168.1.1") {
-		t.Error("output should contain host")
-	}
-	if !strings.Contains(out, "/pub/file.txt") {
-		t.Error("output should contain filename")
-	}
+	assert.Contains(t, out, "192.168.1.1")
+
+	assert.Contains(t, out, "/pub/file.txt")
+
 }
 
 func TestXferlogPluginNoMatch(t *testing.T) {
@@ -39,9 +32,8 @@ func TestXferlogPluginNoMatch(t *testing.T) {
 	p := NewXferlogPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not an xferlog line")
-	if handled {
-		t.Error("xferlog should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -49,27 +41,20 @@ func TestFtpstatsPlugin(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewFtpstatsPlugin(buf, ct, wc, false)
 
-	if p.Name() != "ftpstats" {
-		t.Errorf("Name = %q, want ftpstats", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "ftpstats", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("1234567890 ab12.cd34 admin 192.168.1.1 U 4096 120 /uploads/data.zip")
-	if !handled {
-		t.Error("ftpstats should handle ftpstats line")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "admin") {
-		t.Error("output should contain user")
-	}
-	if !strings.Contains(out, "192.168.1.1") {
-		t.Error("output should contain host")
-	}
+	assert.Contains(t, out, "admin")
+
+	assert.Contains(t, out, "192.168.1.1")
+
 }
 
 func TestFtpstatsPluginNoMatch(t *testing.T) {
@@ -77,9 +62,8 @@ func TestFtpstatsPluginNoMatch(t *testing.T) {
 	p := NewFtpstatsPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not an ftpstats line")
-	if handled {
-		t.Error("ftpstats should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -87,27 +71,20 @@ func TestOopsPlugin(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewOopsPlugin(buf, ct, wc, false)
 
-	if p.Name() != "oops" {
-		t.Errorf("Name = %q, want oops", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "oops", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("Mon Oct 15 14:30:22 2023 [0xa1b2]statistics(): requests : 42 total")
-	if !handled {
-		t.Error("oops should handle oops log")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "statistics()") {
-		t.Error("output should contain statistics()")
-	}
-	if !strings.Contains(out, "42") {
-		t.Error("output should contain value")
-	}
+	assert.Contains(t, out, "statistics()")
+
+	assert.Contains(t, out, "42")
+
 }
 
 func TestOopsPluginNoMatch(t *testing.T) {
@@ -115,9 +92,8 @@ func TestOopsPluginNoMatch(t *testing.T) {
 	p := NewOopsPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not an oops line")
-	if handled {
-		t.Error("oops should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -125,27 +101,20 @@ func TestSulogPlugin(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewSulogPlugin(buf, ct, wc, false)
 
-	if p.Name() != "sulog" {
-		t.Errorf("Name = %q, want sulog", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "sulog", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("SU 10/15 14:30 + pts/0 root-admin")
-	if !handled {
-		t.Error("sulog should handle su log line")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "SU") {
-		t.Error("output should contain SU")
-	}
-	if !strings.Contains(out, "10/15 14:30") {
-		t.Error("output should contain date")
-	}
+	assert.Contains(t, out, "SU")
+
+	assert.Contains(t, out, "10/15 14:30")
+
 }
 
 func TestSulogPluginQuestionMarkTTY(t *testing.T) {
@@ -153,9 +122,8 @@ func TestSulogPluginQuestionMarkTTY(t *testing.T) {
 	p := NewSulogPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("SU 10/15 14:30 - ?tty root-admin")
-	if !handled {
-		t.Error("sulog should handle su log with ? tty")
-	}
+	assert.True(t, handled)
+
 	_ = buf
 }
 
@@ -164,9 +132,8 @@ func TestSulogPluginNoMatch(t *testing.T) {
 	p := NewSulogPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not a sulog line")
-	if handled {
-		t.Error("sulog should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -174,24 +141,18 @@ func TestSuperPlugin(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewSuperPlugin(buf, ct, wc, false)
 
-	if p.Name() != "super" {
-		t.Errorf("Name = %q, want super", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "super", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("user@host Mon Oct 15 14:30:22 2023  supertag (some command)")
-	if !handled {
-		t.Error("super should handle super log line")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "user@host") {
-		t.Error("output should contain email")
-	}
+	assert.Contains(t, out, "user@host")
+
 }
 
 func TestSuperPluginNoMatch(t *testing.T) {
@@ -199,9 +160,8 @@ func TestSuperPluginNoMatch(t *testing.T) {
 	p := NewSuperPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not a super line")
-	if handled {
-		t.Error("super should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -209,27 +169,20 @@ func TestDistccPlugin(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewDistccPlugin(buf, ct, wc, false)
 
-	if p.Name() != "distcc" {
-		t.Errorf("Name = %q, want distcc", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "distcc", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("distccd[1234] (dcc_compile) compiling foo.c")
-	if !handled {
-		t.Error("distcc should handle distcc log line")
-	}
-	if rest == "" {
-		t.Error("distcc should have rest")
-	}
+	assert.True(t, handled)
+
+	assert.NotEqual(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "distccd") {
-		t.Error("output should contain distccd")
-	}
-	if !strings.Contains(out, "1234") {
-		t.Error("output should contain PID")
-	}
+	assert.Contains(t, out, "distccd")
+
+	assert.Contains(t, out, "1234")
+
 }
 
 func TestDistccPluginNoFunc(t *testing.T) {
@@ -237,12 +190,10 @@ func TestDistccPluginNoFunc(t *testing.T) {
 	p := NewDistccPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("distccd[5678] some message here")
-	if !handled {
-		t.Error("distcc should handle line without func name")
-	}
-	if rest == "" {
-		t.Error("distcc should have rest")
-	}
+	assert.True(t, handled)
+
+	assert.NotEqual(t, "", rest)
+
 	_ = buf
 }
 
@@ -251,9 +202,8 @@ func TestDistccPluginNoMatch(t *testing.T) {
 	p := NewDistccPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not a distcc line")
-	if handled {
-		t.Error("distcc should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -262,12 +212,10 @@ func TestSquidPluginStore(t *testing.T) {
 	p := NewSquidPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("1097454321.987 SWAPOUT 0000002A  http://example.com/page 5A3F2B1C 200 1097454321 1097454321 -1 text/html 1024/2048 GET http://example.com/page")
-	if !handled {
-		t.Error("squid should handle store log")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	_ = buf
 }
 
@@ -276,12 +224,10 @@ func TestSquidPluginCache(t *testing.T) {
 	p := NewSquidPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("2023/10/15 14:30:22| Starting Squid Cache")
-	if !handled {
-		t.Error("squid should handle cache log")
-	}
-	if rest == "" {
-		t.Error("squid cache should return rest")
-	}
+	assert.True(t, handled)
+
+	assert.NotEqual(t, "", rest)
+
 	_ = buf
 }
 
@@ -290,16 +236,15 @@ func TestSquidPluginNoMatch(t *testing.T) {
 	p := NewSquidPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not a squid log")
-	if handled {
-		t.Error("squid should not match random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
 func TestProxyAction(t *testing.T) {
 	tests := []struct {
-		action string
-		want   color.Color
+		action	string
+		want	color.Color
 	}{
 		{"ERR_SOMETHING", color.Error},
 		{"TCP_MISS", color.ProxyMiss},
@@ -311,16 +256,16 @@ func TestProxyAction(t *testing.T) {
 		{"UNKNOWN_THING", color.Unknown},
 	}
 	for _, tt := range tests {
-		if got := proxyAction(tt.action); got != tt.want {
-			t.Errorf("proxyAction(%q) = %d, want %d", tt.action, got, tt.want)
-		}
+		got := proxyAction(tt.action)
+		assert.Equal(t, tt.want, got)
+
 	}
 }
 
 func TestProxyHierarchy(t *testing.T) {
 	tests := []struct {
-		hierar string
-		want   color.Color
+		hierar	string
+		want	color.Color
 	}{
 		{"NO_DIRECT_FAIL", color.Warning},
 		{"DIRECT", color.ProxyDirect},
@@ -329,16 +274,16 @@ func TestProxyHierarchy(t *testing.T) {
 		{"SOMETHING_ELSE", color.Unknown},
 	}
 	for _, tt := range tests {
-		if got := proxyHierarchy(tt.hierar); got != tt.want {
-			t.Errorf("proxyHierarchy(%q) = %d, want %d", tt.hierar, got, tt.want)
-		}
+		got := proxyHierarchy(tt.hierar)
+		assert.Equal(t, tt.want, got)
+
 	}
 }
 
 func TestProxyTag(t *testing.T) {
 	tests := []struct {
-		tag  string
-		want color.Color
+		tag	string
+		want	color.Color
 	}{
 		{"CREATE", color.ProxyCreate},
 		{"SWAPIN", color.ProxySwapin},
@@ -347,9 +292,9 @@ func TestProxyTag(t *testing.T) {
 		{"UNKNOWN", color.Unknown},
 	}
 	for _, tt := range tests {
-		if got := proxyTag(tt.tag); got != tt.want {
-			t.Errorf("proxyTag(%q) = %d, want %d", tt.tag, got, tt.want)
-		}
+		got := proxyTag(tt.tag)
+		assert.Equal(t, tt.want, got)
+
 	}
 }
 
@@ -359,13 +304,11 @@ func TestEximPluginActionType(t *testing.T) {
 
 	// Test incoming action (<= or <=)
 	handled, rest := p.Handle("2023-10-15 14:30:22 1234567890123456 <= user@example.com message text here")
-	if !handled {
-		t.Error("exim should handle action type line")
-	}
+	assert.True(t, handled)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "2023-10-15 14:30:22") {
-		t.Error("output should contain date")
-	}
+	assert.Contains(t, out, "2023-10-15 14:30:22")
+
 	_ = rest
 }
 
@@ -374,9 +317,8 @@ func TestEximPluginOutgoing(t *testing.T) {
 	p := NewEximPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("2023-10-15 14:30:22 1234567890123456 => user@example.com some message")
-	if !handled {
-		t.Error("exim should handle outgoing action")
-	}
+	assert.True(t, handled)
+
 	_ = rest
 	_ = buf
 }
@@ -386,9 +328,8 @@ func TestEximPluginErrorAction(t *testing.T) {
 	p := NewEximPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("2023-10-15 14:30:22 1234567890123456 ** user@example.com bounce message")
-	if !handled {
-		t.Error("exim should handle error action")
-	}
+	assert.True(t, handled)
+
 	_ = rest
 	_ = buf
 }
@@ -398,12 +339,10 @@ func TestEximPluginUniqn(t *testing.T) {
 	p := NewEximPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("2023-10-15 14:30:22 1234567890123456 some plain message")
-	if !handled {
-		t.Error("exim should handle unique ID line")
-	}
-	if rest == "" {
-		t.Error("should have rest")
-	}
+	assert.True(t, handled)
+
+	assert.NotEqual(t, "", rest)
+
 	_ = buf
 }
 
@@ -412,9 +351,8 @@ func TestEximPluginNoMatch(t *testing.T) {
 	p := NewEximPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not an exim line at all")
-	if handled {
-		t.Error("exim should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -422,24 +360,18 @@ func TestIcecastPluginUsage(t *testing.T) {
 	buf, ct, wc := setup()
 	p := NewIcecastPlugin(buf, ct, wc, false)
 
-	if p.Name() != "icecast" {
-		t.Errorf("Name = %q, want icecast", p.Name())
-	}
-	if p.Type() != TypeFull {
-		t.Errorf("Type = %d, want TypeFull", p.Type())
-	}
+	assert.Equal(t, "icecast", p.Name())
+
+	assert.Equal(t, TypeFull, p.Type())
 
 	handled, rest := p.Handle("[15/Oct/2023:14:30:22] [1234:connection] [15/Oct/2023:14:30:22] Bandwidth:128.5kbps Sources:3 Clients:42 Admins:1")
-	if !handled {
-		t.Error("icecast should handle usage log")
-	}
-	if rest != "" {
-		t.Errorf("rest should be empty, got %q", rest)
-	}
+	assert.True(t, handled)
+
+	assert.Equal(t, "", rest)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "Bandwidth:") {
-		t.Error("output should contain Bandwidth:")
-	}
+	assert.Contains(t, out, "Bandwidth:")
+
 }
 
 func TestIcecastPluginGeneral(t *testing.T) {
@@ -447,12 +379,10 @@ func TestIcecastPluginGeneral(t *testing.T) {
 	p := NewIcecastPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("[15/Oct/2023:14:30:22] [1234:connection] some log message")
-	if !handled {
-		t.Error("icecast should handle general log")
-	}
-	if rest == "" {
-		t.Error("icecast general should return rest")
-	}
+	assert.True(t, handled)
+
+	assert.NotEqual(t, "", rest)
+
 	_ = buf
 }
 
@@ -461,9 +391,8 @@ func TestIcecastPluginAdmin(t *testing.T) {
 	p := NewIcecastPlugin(buf, ct, wc, false)
 
 	handled, rest := p.Handle("[15/Oct/2023:14:30:22] Admin [admin_host] some admin message")
-	if !handled {
-		t.Error("icecast should handle admin log")
-	}
+	assert.True(t, handled)
+
 	_ = rest
 	_ = buf
 }
@@ -473,9 +402,8 @@ func TestIcecastPluginNoMatch(t *testing.T) {
 	p := NewIcecastPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not an icecast line")
-	if handled {
-		t.Error("icecast should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -493,9 +421,8 @@ func TestHTTPDPluginErrorLevels(t *testing.T) {
 	for _, line := range tests {
 		buf.Reset()
 		handled, _ := p.Handle(line)
-		if !handled {
-			t.Errorf("httpd should handle error log: %s", line)
-		}
+		assert.True(t, handled)
+
 	}
 }
 
@@ -504,13 +431,11 @@ func TestHTTPDPluginAccessWithVhost(t *testing.T) {
 	p := NewHTTPDPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle(`example.com 10.0.0.1 - admin [10/Oct/2000:13:55:36 -0700] "POST /api/data HTTP/1.1" 201 512`)
-	if !handled {
-		t.Error("httpd should handle access log with vhost")
-	}
+	assert.True(t, handled)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "example.com") {
-		t.Error("output should contain vhost")
-	}
+	assert.Contains(t, out, "example.com")
+
 	_ = buf
 }
 
@@ -519,16 +444,13 @@ func TestPostfixPluginMultipleFields(t *testing.T) {
 	p := NewPostfixPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("ABC123: to=<user@example.com>,relay=smtp.example.com,delay=0.5,status=sent")
-	if !handled {
-		t.Error("postfix should handle multi-field log")
-	}
+	assert.True(t, handled)
+
 	out := stripAnsi(buf.String())
-	if !strings.Contains(out, "ABC123") {
-		t.Error("output should contain spool ID")
-	}
-	if !strings.Contains(out, "to") {
-		t.Error("output should contain field names")
-	}
+	assert.Contains(t, out, "ABC123")
+
+	assert.Contains(t, out, "to")
+
 }
 
 func TestPostfixPluginNoMatch(t *testing.T) {
@@ -536,9 +458,8 @@ func TestPostfixPluginNoMatch(t *testing.T) {
 	p := NewPostfixPlugin(buf, ct, wc, false)
 
 	handled, _ := p.Handle("not a postfix line")
-	if handled {
-		t.Error("postfix should not handle random text")
-	}
+	assert.False(t, handled)
+
 	_ = buf
 }
 
@@ -550,12 +471,9 @@ func TestRegistryRunFullThenPartial(t *testing.T) {
 
 	// Full match
 	handled, rest := r.Run("Sep 14 11:45:00 myhost postfix/smtp[1234]: ABC123: to=<user@example.com>", TypeFull)
-	if !handled {
-		t.Error("should handle syslog line")
-	}
-	if rest == "" {
-		t.Error("should have rest from syslog")
-	}
+	assert.True(t, handled)
+
+	assert.NotEqual(t, "", rest)
 
 	// Partial match on rest
 	buf.Reset()

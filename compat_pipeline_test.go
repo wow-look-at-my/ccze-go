@@ -11,6 +11,8 @@ import (
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
+	"github.com/wow-look-at-my/testify/assert"
+	"github.com/wow-look-at-my/testify/require"
 )
 
 func TestCompatSyslogExactOutput(t *testing.T) {
@@ -20,12 +22,9 @@ func TestCompatSyslogExactOutput(t *testing.T) {
 	p := plugin.NewSyslogPlugin(&buf, ct, wc, false)
 
 	handled, rest := p.Handle("Sep 14 11:45:00 myhost sshd[1234]: test message")
-	if !handled {
-		t.Fatal("syslog should handle this line")
-	}
-	if rest != "test message" {
-		t.Fatalf("rest = %q, want 'test message'", rest)
-	}
+	require.True(t, handled)
+
+	require.Equal(t, "test message", rest)
 
 	out := buf.String()
 
@@ -42,34 +41,23 @@ func TestCompatSyslogExactOutput(t *testing.T) {
 	// [22m[36m [0m                    <- space
 
 	// Verify date: bold cyan
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[36mSep 14 11:45:00\x1b[0m") {
-		t.Errorf("date ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[36mSep 14 11:45:00\x1b[0m"))
 
 	// Verify host: bold blue
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[34mmyhost\x1b[0m") {
-		t.Errorf("host ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[34mmyhost\x1b[0m"))
 
 	// Verify process: green (no bold)
-	if !containsSequence(out, "\x1b[22m\x1b[32msshd\x1b[0m") {
-		t.Errorf("process ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[32msshd\x1b[0m"))
 
 	// Verify PID bracket open: bold green
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[32m[\x1b[0m") {
-		t.Errorf("PID bracket open ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[32m[\x1b[0m"))
 
 	// Verify PID number: bold white
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[37m1234\x1b[0m") {
-		t.Errorf("PID number ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[37m1234\x1b[0m"))
 
 	// Verify PID bracket close: bold green
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[32m]\x1b[0m") {
-		t.Errorf("PID bracket close ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[32m]\x1b[0m"))
+
 }
 
 // TestCompatHTTPDAccessExactOutput verifies exact ANSI for an HTTP access log.
@@ -80,36 +68,25 @@ func TestCompatHTTPDAccessExactOutput(t *testing.T) {
 	p := plugin.NewHTTPDPlugin(&buf, ct, wc, false)
 
 	handled, _ := p.Handle(`192.168.1.1 - frank [10/Oct/2000:13:55:36 -0700] "GET /page HTTP/1.0" 200 2326`)
-	if !handled {
-		t.Fatal("httpd should handle this line")
-	}
+	require.True(t, handled)
 
 	out := buf.String()
 
 	// Host: bold blue
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[34m192.168.1.1\x1b[0m") {
-		t.Errorf("host ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[34m192.168.1.1\x1b[0m"))
 
 	// User: bold yellow
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[33mfrank\x1b[0m") {
-		t.Errorf("user ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[33mfrank\x1b[0m"))
 
 	// HTTP action: green (GET = HTTPGet = 2)
-	if !containsSequence(out, "\x1b[22m\x1b[32m") {
-		t.Errorf("HTTP GET action ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[32m"))
 
 	// HTTP code: bold white
-	if !containsSequence(out, "\x1b[22m\x1b[1m\x1b[37m200\x1b[0m") {
-		t.Errorf("HTTP code ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[37m200\x1b[0m"))
 
 	// Get size: magenta (6, ansiColor[6]=35)
-	if !containsSequence(out, "\x1b[22m\x1b[35m2326\x1b[0m") {
-		t.Errorf("size ANSI mismatch.\ngot:  %q", out)
-	}
+	assert.True(t, containsSequence(out, "\x1b[22m\x1b[35m2326\x1b[0m"))
+
 }
 
 // TestCompatEmptyStringNoOutput verifies empty string produces no output.
@@ -117,9 +94,8 @@ func TestCompatEmptyStringNoOutput(t *testing.T) {
 	ct := color.NewTable(true)
 	var buf bytes.Buffer
 	ct.WriteColored(&buf, color.Date, "")
-	if buf.Len() != 0 {
-		t.Error("empty string should produce no ANSI output")
-	}
+	assert.Equal(t, 0, buf.Len())
+
 }
 
 // --------------------------------------------------------------------------
@@ -128,69 +104,62 @@ func TestCompatEmptyStringNoOutput(t *testing.T) {
 
 func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 	lines := []struct {
-		name  string
-		input string
-		check func(t *testing.T, out string)
+		name	string
+		input	string
+		check	func(t *testing.T, out string)
 	}{
 		{
-			name:  "syslog_with_pid",
-			input: "Jan  1 00:00:00 server sshd[99]: Accepted publickey",
+			name:	"syslog_with_pid",
+			input:	"Jan  1 00:00:00 server sshd[99]: Accepted publickey",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
-				if !strings.Contains(s, "server") || !strings.Contains(s, "sshd") ||
-					!strings.Contains(s, "99") || !strings.Contains(s, "Accepted") {
-					t.Error("syslog output missing fields")
-				}
+				assert.False(t, !strings.Contains(s, "server") || !strings.Contains(s, "sshd") || !strings.Contains(s, "99") || !strings.Contains(s, "Accepted"))
+
 			},
 		},
 		{
-			name:  "httpd_access",
-			input: `10.0.0.1 - - [01/Jan/2024:12:00:00 +0000] "HEAD /health HTTP/1.1" 200 0`,
+			name:	"httpd_access",
+			input:	`10.0.0.1 - - [01/Jan/2024:12:00:00 +0000] "HEAD /health HTTP/1.1" 200 0`,
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
-				if !strings.Contains(s, "10.0.0.1") || !strings.Contains(s, "HEAD") {
-					t.Error("httpd output missing fields")
-				}
+				assert.False(t, !strings.Contains(s, "10.0.0.1") || !strings.Contains(s, "HEAD"))
+
 			},
 		},
 		{
-			name:  "httpd_error",
-			input: "[Mon Jan 01 12:00:00 2024] [warn] potential issue",
+			name:	"httpd_error",
+			input:	"[Mon Jan 01 12:00:00 2024] [warn] potential issue",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
-				if !strings.Contains(s, "[warn]") || !strings.Contains(s, "potential issue") {
-					t.Error("httpd error output missing fields")
-				}
+				assert.False(t, !strings.Contains(s, "[warn]") || !strings.Contains(s, "potential issue"))
+
 			},
 		},
 		{
-			name:  "dpkg_status",
-			input: "2024-01-01 12:00:00 status installed base-files:amd64 12.4",
+			name:	"dpkg_status",
+			input:	"2024-01-01 12:00:00 status installed base-files:amd64 12.4",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
-				if !strings.Contains(s, "status") || !strings.Contains(s, "base-files") {
-					t.Error("dpkg output missing fields")
-				}
+				assert.False(t, !strings.Contains(s, "status") || !strings.Contains(s, "base-files"))
+
 			},
 		},
 		{
-			name:  "plain_with_keywords",
-			input: "error connecting to server failed retry starting",
+			name:	"plain_with_keywords",
+			input:	"error connecting to server failed retry starting",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
-				if !strings.Contains(s, "error") || !strings.Contains(s, "starting") {
-					t.Error("keyword output missing words")
-				}
+				assert.False(t, !strings.Contains(s, "error") || !strings.Contains(s, "starting"))
+
 			},
 		},
 		{
-			name:  "plain_with_ip_and_path",
-			input: "connection from 192.168.0.1 reading /var/log/syslog",
+			name:	"plain_with_ip_and_path",
+			input:	"connection from 192.168.0.1 reading /var/log/syslog",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
-				if !strings.Contains(s, "192.168.0.1") || !strings.Contains(s, "/var/log/syslog") {
-					t.Error("IP/path output missing")
-				}
+				assert.False(t, !strings.Contains(s, "192.168.0.1") || !strings.Contains(s, "/var/log/syslog"))
+
 			},
 		},
 	}
@@ -245,9 +214,8 @@ func TestCompatAgainstCBinary(t *testing.T) {
 			cStr := normalizeAnsiOutput(string(cOutput))
 			gStr := normalizeAnsiOutput(goOutput)
 
-			if cStr != gStr {
-				t.Errorf("output mismatch for line %d\n  C:  %q\n  Go: %q", i, cStr, gStr)
-			}
+			assert.Equal(t, gStr, cStr)
+
 		})
 	}
 }
@@ -261,9 +229,9 @@ func TestCompatConfigFileParsing(t *testing.T) {
 
 	// Test all color names parse correctly
 	colorTests := []struct {
-		line string
-		slot color.Color
-		want int
+		line	string
+		slot	color.Color
+		want	int
 	}{
 		{"date bold cyan", color.Date, color.AttrBold | 5},
 		{"host red", color.Host, 1},
@@ -278,16 +246,14 @@ func TestCompatConfigFileParsing(t *testing.T) {
 		{"date green on_red", color.Date, 2 | (1 << 8)},
 		{"host blue on_green", color.Host, 4 | (2 << 8)},
 		// Quoted keyword reference
-		{"host 'date'", color.Host, 2 | (1 << 8)}, // date was set to green on_red above
+		{"host 'date'", color.Host, 2 | (1 << 8)},	// date was set to green on_red above
 	}
 
 	for _, tt := range colorTests {
 		ct.ParseLine(tt.line)
 		got := ct.Get(tt.slot)
-		if got != tt.want {
-			t.Errorf("ParseLine(%q): slot %s = 0x%x, want 0x%x",
-				tt.line, color.ColorName(tt.slot), got, tt.want)
-		}
+		assert.Equal(t, tt.want, got)
+
 	}
 }
 
@@ -297,8 +263,8 @@ func TestCompatConfigFileParsing(t *testing.T) {
 
 func TestCompatFacilityRemoval(t *testing.T) {
 	tests := []struct {
-		input string
-		want  string
+		input	string
+		want	string
 	}{
 		{"<13>Sep 14 11:45:00 host test: msg", "Sep 14 11:45:00 host test: msg"},
 		{"<0>line", "line"},
@@ -313,9 +279,8 @@ func TestCompatFacilityRemoval(t *testing.T) {
 				line = line[idx+1:]
 			}
 		}
-		if line != tt.want {
-			t.Errorf("facility removal: %q -> %q, want %q", tt.input, line, tt.want)
-		}
+		assert.Equal(t, tt.want, line)
+
 	}
 }
 
@@ -325,8 +290,8 @@ func TestCompatFacilityRemoval(t *testing.T) {
 
 func TestCompatConvertColorOverride(t *testing.T) {
 	tests := []struct {
-		input string
-		want  string
+		input	string
+		want	string
 	}{
 		{"date=boldcyan", "date bold cyan"},
 		{"error=red", "error red"},
@@ -341,9 +306,8 @@ func TestCompatConvertColorOverride(t *testing.T) {
 
 	for _, tt := range tests {
 		got := convertColorOverride(tt.input)
-		if got != tt.want {
-			t.Errorf("convertColorOverride(%q) = %q, want %q", tt.input, got, tt.want)
-		}
+		assert.Equal(t, tt.want, got)
+
 	}
 }
 
