@@ -142,6 +142,18 @@ func TestExtSlogQuotedAndGuards(t *testing.T) {
 	}
 }
 
+// TestExtSlogValueTypes checks that slog values are classified by type, and
+// that a bare-filename value prefers File over the hostname syntax it also
+// matches (only when the Files extension is also enabled).
+func TestExtSlogValueTypes(t *testing.T) {
+	p, ct := procWith(Extensions{Slog: true, Files: true, Durations: true})
+	out := render(p, "file=main.go host=example.com dur=1m30s")
+	assert.Equal(t, "file=main.go host=example.com dur=1m30s", stripAnsi(out))
+	assert.Contains(t, out, fgSeq(ct, color.File), "file=main.go value should be File")
+	assert.Contains(t, out, fgSeq(ct, color.Host), "host=example.com value should be Host")
+	assert.Contains(t, out, fgSeq(ct, color.GetTime), "dur=1m30s value should be a duration")
+}
+
 // ---------------------------------------------------------------------------
 // Files / paths
 // ---------------------------------------------------------------------------

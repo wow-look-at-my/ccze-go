@@ -229,6 +229,10 @@ func (p *Processor) classifyValue(lword string) color.Color {
 		return color.Default
 	case p.ext.Durations && matchDuration(lword):
 		return color.GetTime
+	case p.ext.Files && isBareFile(lword):
+		// e.g. file=main.go — prefer File over the hostname syntax it also
+		// matches. Gated on Files so it only applies when that extension is on.
+		return color.File
 	case matchHost(lword):
 		return color.Host
 	case matchMAC(lword):
