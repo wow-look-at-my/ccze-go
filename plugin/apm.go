@@ -28,8 +28,8 @@ func NewApmPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convdat
 }
 
 func (p *ApmPlugin) Name() string        { return "apm" }
-func (p *ApmPlugin) Type() Type           { return TypePartial }
-func (p *ApmPlugin) Description() string  { return "Coloriser for APM sub-logs." }
+func (p *ApmPlugin) Type() Type          { return TypePartial }
+func (p *ApmPlugin) Description() string { return "Coloriser for APM sub-logs." }
 
 // parseApm hand-parses an APM log line.
 // Format: Battery: (-?\d*)%, ((.*)charging) \((-?\d*)% ([^ ]*) (\d*:\d*:\d*)\), (\d*:\d*:\d*) (.*)

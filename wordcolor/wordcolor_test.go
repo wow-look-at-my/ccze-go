@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"ccze-go/color"
-	"github.com/wow-look-at-my/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func newTestProcessor() (*Processor, *color.Table) {

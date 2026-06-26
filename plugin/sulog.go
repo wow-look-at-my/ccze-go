@@ -28,8 +28,8 @@ func NewSulogPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 }
 
 func (p *SulogPlugin) Name() string        { return "sulog" }
-func (p *SulogPlugin) Type() Type           { return TypeFull }
-func (p *SulogPlugin) Description() string  { return "Coloriser for su(1) logs." }
+func (p *SulogPlugin) Type() Type          { return TypeFull }
+func (p *SulogPlugin) Description() string { return "Coloriser for su(1) logs." }
 
 // parseSulog hand-parses an su log line.
 // Format: ^SU (\d{2}/\d{2} \d{2}:\d{2}) ([+-]) (\S+) ([^-]+)-(.*)$

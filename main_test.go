@@ -8,13 +8,13 @@ import (
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
-	"github.com/wow-look-at-my/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertColorOverride(t *testing.T) {
 	tests := []struct {
-		input	string
-		want	string
+		input string
+		want  string
 	}{
 		{"date=boldcyan", "date bold cyan"},
 		{"error=red", "error red"},

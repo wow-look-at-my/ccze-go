@@ -28,8 +28,8 @@ func NewSuperPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 }
 
 func (p *SuperPlugin) Name() string        { return "super" }
-func (p *SuperPlugin) Type() Type           { return TypeFull }
-func (p *SuperPlugin) Description() string  { return "Coloriser for super(1) logs." }
+func (p *SuperPlugin) Type() Type          { return TypeFull }
+func (p *SuperPlugin) Description() string { return "Coloriser for super(1) logs." }
 
 // parseSuper hand-parses a super log line.
 // Format: ^(\S+)\s(\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+)(\s+)(\S+)\s\(([^\)]+)\)

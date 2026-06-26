@@ -27,8 +27,8 @@ func NewProcmailPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, co
 }
 
 func (p *ProcmailPlugin) Name() string        { return "procmail" }
-func (p *ProcmailPlugin) Type() Type           { return TypeFull }
-func (p *ProcmailPlugin) Description() string  { return "Coloriser for procmail(1) logs." }
+func (p *ProcmailPlugin) Type() Type          { return TypeFull }
+func (p *ProcmailPlugin) Description() string { return "Coloriser for procmail(1) logs." }
 
 // parseProcmail hand-parses a procmail log line.
 // Format: ^(\s*)(>?From|Subject:|Folder:)?\s(\S+)(\s+)?(.*)

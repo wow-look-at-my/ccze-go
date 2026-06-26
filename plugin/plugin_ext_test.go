@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"ccze-go/color"
-	"github.com/wow-look-at-my/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestXferlogPlugin(t *testing.T) {
@@ -243,8 +243,8 @@ func TestSquidPluginNoMatch(t *testing.T) {
 
 func TestProxyAction(t *testing.T) {
 	tests := []struct {
-		action	string
-		want	color.Color
+		action string
+		want   color.Color
 	}{
 		{"ERR_SOMETHING", color.Error},
 		{"TCP_MISS", color.ProxyMiss},
@@ -264,8 +264,8 @@ func TestProxyAction(t *testing.T) {
 
 func TestProxyHierarchy(t *testing.T) {
 	tests := []struct {
-		hierar	string
-		want	color.Color
+		hierar string
+		want   color.Color
 	}{
 		{"NO_DIRECT_FAIL", color.Warning},
 		{"DIRECT", color.ProxyDirect},
@@ -282,8 +282,8 @@ func TestProxyHierarchy(t *testing.T) {
 
 func TestProxyTag(t *testing.T) {
 	tests := []struct {
-		tag	string
-		want	color.Color
+		tag  string
+		want color.Color
 	}{
 		{"CREATE", color.ProxyCreate},
 		{"SWAPIN", color.ProxySwapin},

@@ -27,8 +27,8 @@ func NewDpkgPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convda
 }
 
 func (p *DpkgPlugin) Name() string        { return "dpkg" }
-func (p *DpkgPlugin) Type() Type           { return TypeFull }
-func (p *DpkgPlugin) Description() string  { return "Coloriser for dpkg logs." }
+func (p *DpkgPlugin) Type() Type          { return TypeFull }
+func (p *DpkgPlugin) Description() string { return "Coloriser for dpkg logs." }
 
 // parseDpkgDate extracts the date prefix from a dpkg log line.
 // Format: [-\d]{10}\s[:\d]{8}  (e.g. "2023-10-15 14:30:22")

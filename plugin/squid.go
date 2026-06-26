@@ -31,9 +31,11 @@ func NewSquidPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 	}
 }
 
-func (p *SquidPlugin) Name() string        { return "squid" }
-func (p *SquidPlugin) Type() Type           { return TypeFull }
-func (p *SquidPlugin) Description() string  { return "Coloriser for squid access, store and cache logs." }
+func (p *SquidPlugin) Name() string { return "squid" }
+func (p *SquidPlugin) Type() Type   { return TypeFull }
+func (p *SquidPlugin) Description() string {
+	return "Coloriser for squid access, store and cache logs."
+}
 
 // proxyAction returns the color for a squid proxy action string.
 func proxyAction(action string) color.Color {

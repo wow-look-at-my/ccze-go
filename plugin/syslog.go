@@ -27,8 +27,8 @@ func NewSyslogPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 }
 
 func (p *SyslogPlugin) Name() string        { return "syslog" }
-func (p *SyslogPlugin) Type() Type           { return TypeFull }
-func (p *SyslogPlugin) Description() string  { return "Generic syslog(8) log coloriser." }
+func (p *SyslogPlugin) Type() Type          { return TypeFull }
+func (p *SyslogPlugin) Description() string { return "Generic syslog(8) log coloriser." }
 
 // parseSyslog hand-parses a syslog line.
 // Format: ^(\S*\s{1,2}\d{1,2}\s\d\d:\d\d:\d\d)\s(\S+)\s+((\S+:?)\s(.*))$

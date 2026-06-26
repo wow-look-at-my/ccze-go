@@ -2,16 +2,16 @@ package color
 
 import (
 	"bytes"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"github.com/wow-look-at-my/testify/assert"
-	"github.com/wow-look-at-my/testify/require"
 )
 
 func TestColorConstants(t *testing.T) {
-	assert.Equal(t, 0, Date)
+	assert.Equal(t, Color(0), Date)
 
 	assert.Equal(t, StaticBoldWhite+1, Last)
 
@@ -19,8 +19,8 @@ func TestColorConstants(t *testing.T) {
 
 func TestColorName(t *testing.T) {
 	tests := []struct {
-		c	Color
-		want	string
+		c    Color
+		want string
 	}{
 		{Date, "date"},
 		{Host, "host"},
