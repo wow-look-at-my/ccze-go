@@ -12,8 +12,12 @@ import (
 // log messages. Pattern matching is done with hand-written scanners instead
 // of compiled regular expressions for better throughput on the hot path.
 type Processor struct {
-	ct *color.Table
+	ct  *color.Table
+	ext Extensions
+	ada *adaptive // non-nil only when ext.Adaptive is set
 }
+
+// Extensions, the opt-in highlighters, and their helpers live in extensions.go.
 
 var wordsBad = []string{
 	"warn", "restart", "exit", "stop", "end", "shutting", "down", "close",
@@ -60,8 +64,8 @@ func New(ct *color.Table) *Processor {
 // Character classification helpers
 // ---------------------------------------------------------------------------
 
-func isDigit(c byte) bool     { return c >= '0' && c <= '9' }
-func isHexLower(c byte) bool  { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') }
+func isDigit(c byte) bool      { return c >= '0' && c <= '9' }
+func isHexLower(c byte) bool   { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') }
 func isLowerAlpha(c byte) bool { return c >= 'a' && c <= 'z' }
 func isLowerAlnum(c byte) bool { return isLowerAlpha(c) || isDigit(c) }
 func isWordChar(c byte) bool {
@@ -336,251 +340,6 @@ func matchVer(s string) bool {
 }
 
 // ---------------------------------------------------------------------------
-// Host / IP matching  (replaces regHost and regHostIP)
-// ---------------------------------------------------------------------------
-
-// matchIPv4: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
-func matchIPv4(s string) bool {
-	parts := strings.Split(s, ".")
-	if len(parts) != 4 {
-		return false
-	}
-	for _, p := range parts {
-		if len(p) < 1 || len(p) > 3 || !allDigits(p) {
-			return false
-		}
-	}
-	return true
-}
-
-// matchHostname: ([a-z0-9-_]+\.)+[a-z]{2,3}
-func matchHostname(s string) bool {
-	idx := strings.LastIndex(s, ".")
-	if idx < 1 {
-		return false
-	}
-	tld := s[idx+1:]
-	if len(tld) < 2 || len(tld) > 3 {
-		return false
-	}
-	for i := 0; i < len(tld); i++ {
-		if !isLowerAlpha(tld[i]) {
-			return false
-		}
-	}
-	prefix := s[:idx]
-	parts := strings.Split(prefix, ".")
-	for _, p := range parts {
-		if len(p) < 1 {
-			return false
-		}
-		for i := 0; i < len(p); i++ {
-			c := p[i]
-			if !isLowerAlnum(c) && c != '-' && c != '_' {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-// matchIPv6Like: (\w*::\w+)+
-func matchIPv6Like(s string) bool {
-	if !strings.Contains(s, "::") {
-		return false
-	}
-	i := 0
-	matched := false
-	for i < len(s) {
-		// \w*
-		for i < len(s) && isWordChar(s[i]) {
-			i++
-		}
-		// ::
-		if i+1 >= len(s) || s[i] != ':' || s[i+1] != ':' {
-			return matched && i == len(s)
-		}
-		i += 2
-		// \w+ (at least one)
-		start := i
-		for i < len(s) && isWordChar(s[i]) {
-			i++
-		}
-		if i == start {
-			return false
-		}
-		matched = true
-	}
-	return matched
-}
-
-// matchHostCore checks if s (without port) is a valid host.
-func matchHostCore(s string) bool {
-	if s == "localhost" {
-		return true
-	}
-	return matchIPv4(s) || matchHostname(s) || matchIPv6Like(s)
-}
-
-// matchHost: the full regHost pattern, with optional :port suffix.
-// ^(((IPv4)|(hostname)|(localhost)|(IPv6))(:\d{1,5})?)$
-func matchHost(s string) bool {
-	if len(s) == 0 {
-		return false
-	}
-	if matchHostCore(s) {
-		return true
-	}
-	// Try splitting off a trailing :port
-	idx := strings.LastIndex(s, ":")
-	if idx <= 0 || s[idx-1] == ':' {
-		return false
-	}
-	port := s[idx+1:]
-	if len(port) < 1 || len(port) > 5 || !allDigits(port) {
-		return false
-	}
-	return matchHostCore(s[:idx])
-}
-
-// matchHostIPCore is like matchHostCore but with the looser hostname
-// pattern from regHostIP: ([a-z0-9-_.]+)+ instead of requiring a TLD.
-func matchHostIPCore(s string) bool {
-	if s == "localhost" || matchIPv4(s) || matchIPv6Like(s) {
-		return true
-	}
-	if len(s) == 0 {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' {
-			return false
-		}
-	}
-	return true
-}
-
-// matchHostIP: like regHostIP — host pattern followed by '['.
-func matchHostIP(s string) bool {
-	idx := strings.Index(s, "[")
-	if idx <= 0 {
-		return false
-	}
-	host := s[:idx]
-	if matchHostIPCore(host) {
-		return true
-	}
-	// Try with port
-	cidx := strings.LastIndex(host, ":")
-	if cidx > 0 && host[cidx-1] != ':' {
-		port := host[cidx+1:]
-		if len(port) >= 1 && len(port) <= 5 && allDigits(port) {
-			return matchHostIPCore(host[:cidx])
-		}
-	}
-	return false
-}
-
-// ---------------------------------------------------------------------------
-// Email / MsgID matching  (replaces regEmail, regEmail2, regMsgID)
-// ---------------------------------------------------------------------------
-
-// matchEmail: ^[a-z0-9-_=+]+@([a-z0-9-_.]+)+  (prefix match)
-func matchEmail(s string) bool {
-	atIdx := strings.Index(s, "@")
-	if atIdx < 1 {
-		return false
-	}
-	for i := 0; i < atIdx; i++ {
-		c := s[i]
-		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '=' && c != '+' {
-			return false
-		}
-	}
-	domain := s[atIdx+1:]
-	if len(domain) == 0 {
-		return false
-	}
-	for i := 0; i < len(domain); i++ {
-		c := domain[i]
-		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' {
-			return false
-		}
-	}
-	return true
-}
-
-// matchEmail2: (\.[a-z]{2,4})+$
-func matchEmail2(s string) bool {
-	i := len(s)
-	matched := false
-	for i > 0 {
-		// Scan backwards for .tld segment
-		j := i - 1
-		for j >= 0 && s[j] != '.' {
-			j--
-		}
-		if j < 0 {
-			break
-		}
-		tld := s[j+1 : i]
-		if len(tld) < 2 || len(tld) > 4 {
-			break
-		}
-		ok := true
-		for k := 0; k < len(tld); k++ {
-			if !isLowerAlpha(tld[k]) {
-				ok = false
-				break
-			}
-		}
-		if !ok {
-			break
-		}
-		matched = true
-		i = j
-	}
-	return matched
-}
-
-// matchMsgID: ^[a-z0-9-_.$=+]+@([a-z0-9-_.]+)+(\.[a-z]+)+  (prefix match)
-func matchMsgID(s string) bool {
-	atIdx := strings.Index(s, "@")
-	if atIdx < 1 {
-		return false
-	}
-	for i := 0; i < atIdx; i++ {
-		c := s[i]
-		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' && c != '$' && c != '=' && c != '+' {
-			return false
-		}
-	}
-	domain := s[atIdx+1:]
-	if len(domain) == 0 {
-		return false
-	}
-	for i := 0; i < len(domain); i++ {
-		c := domain[i]
-		if !isLowerAlnum(c) && c != '-' && c != '_' && c != '.' {
-			return false
-		}
-	}
-	// Must contain .[a-z]+ at end
-	lastDot := strings.LastIndex(domain, ".")
-	if lastDot < 0 || lastDot == len(domain)-1 {
-		return false
-	}
-	tld := domain[lastDot+1:]
-	for i := 0; i < len(tld); i++ {
-		if !isLowerAlpha(tld[i]) {
-			return false
-		}
-	}
-	return true
-}
-
-// ---------------------------------------------------------------------------
 // Process / ProcessOne
 // ---------------------------------------------------------------------------
 
@@ -601,6 +360,14 @@ func (p *Processor) Process(w io.Writer, msg string, wcol bool, slookup bool) {
 	if (strings.Contains(msg, "last message repeated") && strings.Contains(msg, "times")) ||
 		strings.Contains(msg, "-- MARK --") {
 		p.ct.WriteColored(w, color.Repeat, msg)
+		return
+	}
+
+	// Adaptive recurring-structure recognition (opt-in). It may colorize the
+	// whole line using learned cross-line structure; if it declines (returns
+	// false) we fall through to the standard per-word path. Either way it only
+	// ever adds color — the visible text is unchanged.
+	if p.ada != nil && p.ada.process(p, w, msg) {
 		return
 	}
 
@@ -633,12 +400,43 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 
 	lword := strings.ToLower(word)
 
-	// Pattern cascade - order matters, first match wins (except hostip)
+	// Opt-in extensions that need multi-color rendering and short-circuit the
+	// cascade. Gated so the default path is byte-for-byte unchanged.
+	if p.ext.any() {
+		// [INFO] / [component] bracket tags: splitPre/splitPost have moved the
+		// brackets into pre/post, so a tag looks like pre ending in '[' and
+		// post starting with ']' around a non-empty inner word.
+		if p.ext.Tags && word != "" &&
+			strings.HasSuffix(pre, "[") && strings.HasPrefix(post, "]") {
+			p.renderTag(w, pre, word, post)
+			return
+		}
+		// slog / logfmt key=value pairs.
+		if p.ext.Slog && p.renderKeyValue(w, pre, word, post) {
+			return
+		}
+	}
+
+	// Pattern cascade - order matters, first match wins (except hostip).
+	// The p.ext.* cases are inert (never evaluated) when their flag is off, so
+	// the default cascade is identical to the C-compatible original.
 	switch {
+	case p.ext.Durations && matchDuration(lword):
+		col = color.GetTime
+	case p.ext.Files && isBareFile(lword):
+		col = color.File
 	case matchHost(lword):
 		col = color.Host
 	case matchMAC(lword):
 		col = color.MAC
+	case p.ext.Files && looksLikePath(lword):
+		// Path (/abs, ./rel, ../rel, ~/, or rel/with/ext): a basename with an
+		// extension is a File, otherwise a Dir.
+		if fileExt(baseName(lword)) != "" {
+			col = color.File
+		} else {
+			col = color.Dir
+		}
 	case len(lword) > 0 && lword[0] == '/':
 		col = color.Dir
 	case matchEmail(lword) && matchEmail2(lword):
@@ -661,12 +459,9 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		col = color.Signal
 	case matchHostIP(lword):
 		// Special handling: split at '[', output host and IP separately.
-		// By this point the splitPost has already stripped any trailing ']',
-		// so the word looks like "hostname[192.168.1.1".
+		// By this point splitPost has stripped any trailing ']' (and following
+		// punctuation) into post, so word looks like "hostname[192.168.1.1".
 		idx := strings.Index(word, "[")
-		if idx < 0 {
-			idx = strings.Index(lword, "[")
-		}
 		if idx >= 0 {
 			host := word[:idx]
 			ip := word[idx+1:]
@@ -674,8 +469,15 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 			p.ct.WriteColored(w, color.Host, host)
 			p.ct.WriteColored(w, color.PIDB, "[")
 			p.ct.WriteColored(w, color.Host, ip)
-			p.ct.WriteColored(w, color.PIDB, "]")
-			p.ct.WriteColored(w, color.Default, post)
+			// The closing ']' lives in post (splitPost moved it there); color it
+			// as a bracket and emit the remainder. Do NOT synthesize a ']' here
+			// — doing so duplicated it (e.g. "sshd[1234]:" -> "sshd[1234]]:").
+			if strings.HasPrefix(post, "]") {
+				p.ct.WriteColored(w, color.PIDB, "]")
+				p.ct.WriteColored(w, color.Default, post[1:])
+			} else {
+				p.ct.WriteColored(w, color.Default, post)
+			}
 			printed = true
 		}
 	default:

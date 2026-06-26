@@ -23,13 +23,14 @@ func main() {
 	rcfile := flag.String("F", "", "config file path (overrides default loading)")
 	listPlugins := flag.Bool("l", false, "list available plugins and exit")
 	_ = flag.Bool("A", false, "ANSI output (default, kept for compat)")
-	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent")
+	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent; modern-log highlighters (opt-in): modern,tags,files,slog,durations,adaptive (and no- variants)")
 	flag.Parse()
 
 	// Parse -o options
 	transparent := true
 	wcol := true
 	slookup := true
+	var ext wordcolor.Extensions
 	if *optionsFlag != "" {
 		for _, opt := range strings.Split(*optionsFlag, ",") {
 			switch strings.TrimSpace(opt) {
@@ -49,6 +50,35 @@ func main() {
 				transparent = true
 			case "notransparent":
 				transparent = false
+
+			// Opt-in "modern log" highlighters (off by default; default output
+			// stays byte-for-byte compatible with C ccze).
+			case "tags":
+				ext.Tags = true
+			case "notags":
+				ext.Tags = false
+			case "files":
+				ext.Files = true
+			case "nofiles":
+				ext.Files = false
+			case "slog":
+				ext.Slog = true
+			case "noslog":
+				ext.Slog = false
+			case "durations":
+				ext.Durations = true
+			case "nodurations":
+				ext.Durations = false
+			case "adaptive":
+				ext.Adaptive = true
+			case "noadaptive":
+				ext.Adaptive = false
+			case "modern":
+				// Umbrella for the four stable highlighters (not adaptive,
+				// which is still experimental and must be opted into by name).
+				ext.Tags, ext.Files, ext.Slog, ext.Durations = true, true, true, true
+			case "nomodern":
+				ext.Tags, ext.Files, ext.Slog, ext.Durations = false, false, false, false
 			}
 		}
 	}
@@ -82,6 +112,7 @@ func main() {
 
 	// Create wordcolor processor
 	wc := wordcolor.New(ct)
+	wc.SetExtensions(ext)
 
 	// Create buffered writer for stdout
 	w := bufio.NewWriter(os.Stdout)
