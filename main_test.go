@@ -32,6 +32,44 @@ func TestConvertColorOverride(t *testing.T) {
 	}
 }
 
+func TestApplyOptions(t *testing.T) {
+	// "modern" umbrella turns on the four stable highlighters, not adaptive.
+	var ext wordcolor.Extensions
+	tr, wc, sl := true, true, true
+	applyOptions("modern", &tr, &wc, &sl, &ext)
+	assert.Equal(t, wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true}, ext)
+
+	// Layering: a CCZE_OPTIONS-style baseline, then a -o-style override that
+	// disables one highlighter and enables adaptive. Later call wins.
+	ext = wordcolor.Extensions{}
+	applyOptions("modern", &tr, &wc, &sl, &ext)          // baseline (env)
+	applyOptions("noslog,adaptive", &tr, &wc, &sl, &ext) // override (-o)
+	assert.True(t, ext.Tags)
+	assert.True(t, ext.Files)
+	assert.False(t, ext.Slog, "noslog must override modern")
+	assert.True(t, ext.Durations)
+	assert.True(t, ext.Adaptive)
+
+	// Base flags and their no- variants, plus whitespace tolerance.
+	ext = wordcolor.Extensions{}
+	tr, wc, sl = true, true, true
+	applyOptions("notransparent, nowordcolor , nolookups", &tr, &wc, &sl, &ext)
+	assert.False(t, tr)
+	assert.False(t, wc)
+	assert.False(t, sl)
+
+	// Empty string and unknown tokens are no-ops.
+	ext = wordcolor.Extensions{Tags: true}
+	applyOptions("", &tr, &wc, &sl, &ext)
+	applyOptions("bogus,unknown", &tr, &wc, &sl, &ext)
+	assert.Equal(t, wordcolor.Extensions{Tags: true}, ext)
+
+	// nomodern clears the four stable flags but leaves adaptive untouched.
+	ext = wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Adaptive: true}
+	applyOptions("nomodern", &tr, &wc, &sl, &ext)
+	assert.Equal(t, wordcolor.Extensions{Adaptive: true}, ext)
+}
+
 func TestRegisterAllPlugins(t *testing.T) {
 	var buf bytes.Buffer
 	w := bufio.NewWriter(&buf)

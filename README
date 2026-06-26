@@ -44,6 +44,18 @@ Example:
     kubectl logs deploy/app | ccze-go -A -o modern
     cat events.csv         | ccze-go -A -o adaptive
 
+Defaults can be set once via the CCZE_OPTIONS environment variable, which
+takes the same comma-separated option string as -o. Set it to make a mode
+the default without typing -o every time:
+
+    export CCZE_OPTIONS=modern        # default to the modern highlighters
+    tail -f app.log | ccze-go -A      # uses modern automatically
+
+-o is applied on top of CCZE_OPTIONS and overrides it, so you can still
+turn individual options off per invocation:
+
+    CCZE_OPTIONS=modern ccze-go -A -o noslog,adaptive < app.log
+
 GUARANTEE: every highlighter only ADDS color. For any input line the
 output with all ANSI escape sequences stripped is byte-for-byte identical
 to the input -- nothing is ever reordered, dropped, truncated, padded, or
