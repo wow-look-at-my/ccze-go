@@ -15,6 +15,27 @@ import (
 	"ccze-go/color"
 )
 
+// The two simplest, opt-in boolean matchers used here (matchDuration and
+// isSlogKey) are compiled from regexes by go-regex-compiler into DFA
+// byte-scanners (duration_match_gen.go, slogkey_match_gen.go) instead of being
+// hand-written, keeping the pattern declarative. They are off the default hot
+// path, so the regex form costs nothing on the C-compatible benchmark. The
+// generated files are committed as vendored source; regenerate them with:
+//
+//	go install github.com/wow-look-at-my/go-regex-compiler/cmd/go-regex-compiler@latest
+//	go-regex-compiler --regex '[+-]?([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+' \
+//	  --func matchDuration --package wordcolor --match full --output wordcolor/duration_match_gen.go
+//	go-regex-compiler --regex '[A-Za-z][A-Za-z0-9_.-]*' \
+//	  --func isSlogKey --package wordcolor --match full --output wordcolor/slogkey_match_gen.go
+//	gofmt -w wordcolor/duration_match_gen.go wordcolor/slogkey_match_gen.go
+//
+// (A //go:generate directive is intentionally NOT used: go-toolchain gates
+// go:generate behind an approval hash and would also need the generator
+// installed in CI. Vendoring the output avoids that CI coupling. The
+// host/IP/email/number/etc. matchers stay hand-written: they are on the hot
+// path and a few need field extraction, which the generator does not do — see
+// matchers.go.)
+
 // Extensions toggles the opt-in "modern log" highlighters. They are all off by
 // default so the standard pipeline stays byte-for-byte compatible with the C
 // ccze it ports (the golden/compat test suite depends on this). They are
@@ -45,58 +66,9 @@ func (p *Processor) SetExtensions(e Extensions) {
 	}
 }
 
-// matchDuration recognizes a Go-style duration such as 30.2s, 1m30s, 100ms,
-// 1.5h, 500us, 300µs, 2h45m, -5m. Grammar (anchored, whole token):
-//
-//	[+-]? ( digits ('.' digits)? unit )+      unit ∈ {ns,us,µs,ms,s,m,h}
-//
-// At least one number+unit group is required, so a bare number never matches.
-func matchDuration(s string) bool {
-	n := len(s)
-	i := 0
-	if i < n && (s[i] == '+' || s[i] == '-') {
-		i++
-	}
-	groups := 0
-	for i < n {
-		start := i
-		for i < n && isDigit(s[i]) {
-			i++
-		}
-		if i < n && s[i] == '.' {
-			i++
-			for i < n && isDigit(s[i]) {
-				i++
-			}
-		}
-		if i == start {
-			return false // a group must begin with a number
-		}
-		// Unit.
-		switch {
-		case i < n && s[i] == 'h':
-			i++
-		case i < n && s[i] == 's':
-			i++
-		case i < n && s[i] == 'm':
-			if i+1 < n && s[i+1] == 's' { // ms
-				i += 2
-			} else { // m
-				i++
-			}
-		case i+1 < n && s[i] == 'n' && s[i+1] == 's': // ns
-			i += 2
-		case i+1 < n && s[i] == 'u' && s[i+1] == 's': // us
-			i += 2
-		case i+2 < n && s[i] == 0xC2 && s[i+1] == 0xB5 && s[i+2] == 's': // µs (UTF-8)
-			i += 3
-		default:
-			return false
-		}
-		groups++
-	}
-	return groups > 0
-}
+// matchDuration (Go-style durations: 30.2s, 1m30s, 100ms, 1.5h, 500us, 300µs,
+// 2h45m, -5m) is generated from its regex into duration_match_gen.go by
+// go-regex-compiler (see the //go:generate directives above).
 
 // fileExtensions is a curated set of unambiguous file extensions used only for
 // BARE names (no slash). It deliberately omits strings that are common domain
@@ -181,26 +153,11 @@ func isBareFile(lword string) bool {
 	return fileExtensions[fileExt(lword)]
 }
 
-// isSlogKey reports whether s is a plausible logfmt/slog key: starts with a
-// letter and consists of [A-Za-z0-9_.-]. Requiring a leading letter keeps CLI
-// flags (--x=y) and numeric junk from being treated as keys.
-func isSlogKey(s string) bool {
-	if s == "" {
-		return false
-	}
-	c := s[0]
-	if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isDigit(c) ||
-			c == '_' || c == '.' || c == '-') {
-			return false
-		}
-	}
-	return true
-}
+// isSlogKey reports whether s is a plausible logfmt/slog key: a leading letter
+// then [A-Za-z0-9_.-] (which keeps CLI flags like --x=y and numeric junk from
+// being treated as keys). It is generated from its regex into
+// slogkey_match_gen.go by go-regex-compiler (see the //go:generate directives
+// above).
 
 // tagColor maps a bracketed tag's inner text to a color. Common log levels get
 // semantic colors; anything else gets the keyword color.
