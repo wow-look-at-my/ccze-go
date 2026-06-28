@@ -46,13 +46,14 @@ type Extensions struct {
 	Files     bool // filenames and relative paths (foo.go, src/app.py, ./x)
 	Slog      bool // logfmt / slog key=value structured pairs
 	Durations bool // Go-style durations: 30.2s, 1m30s, 100ms, 1.5h
+	Unreal    bool // Unreal Engine log lines: [time][frame]Category: Verbosity:
 	Adaptive  bool // adaptive recurring-structure recognition (see adaptive.go)
 }
 
 // any reports whether at least one extension is enabled. When false, ProcessOne
 // takes exactly the same path as the original C-compatible implementation.
 func (e Extensions) any() bool {
-	return e.Tags || e.Files || e.Slog || e.Durations || e.Adaptive
+	return e.Tags || e.Files || e.Slog || e.Durations || e.Unreal || e.Adaptive
 }
 
 // SetExtensions enables the opt-in highlighters on the processor. It (re)builds

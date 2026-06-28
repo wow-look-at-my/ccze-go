@@ -26,7 +26,7 @@ kinds of logs C ccze never targeted (structured/slog output, build and
 application logs, etc.). They are all OFF by default and are enabled via
 the -o option (comma-separated, with "no"-prefixed variants to disable):
 
-    -o modern       turn on all four stable highlighters below at once
+    -o modern       turn on all five stable highlighters below at once
     -o tags         color [INFO]/[WARN]/[ERROR]/[component] bracket tags,
                     with log levels colored by severity
     -o files        color filenames and paths (main.go, src/app.py,
@@ -34,6 +34,9 @@ the -o option (comma-separated, with "no"-prefixed variants to disable):
     -o slog         color logfmt / slog key=value pairs (the key is
                     highlighted and the value is colored by its type)
     -o durations    color Go-style durations (30.2s, 1m30s, 100ms, 1.5h)
+    -o unreal       color Unreal Engine log lines: the [timestamp] and
+                    [frame] prefix, the LogCategory, and the verbosity
+                    (Fatal/Error/Warning/Display/Log/Verbose/VeryVerbose)
     -o adaptive     adaptive recurring-structure recognition: learns the
                     stream's recurring delimited shape (|, comma or TAB
                     columns) and gives columns and recurring keys stable,
