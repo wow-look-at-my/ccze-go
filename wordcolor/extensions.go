@@ -230,6 +230,41 @@ func (p *Processor) renderTag(w io.Writer, pre, inner, post string) {
 	p.ct.WriteColored(w, color.Default, post[1:])
 }
 
+// counterParts reports whether word is a "N/M" counter (e.g. "22/43") and
+// returns its two digit runs. The brackets have already been split into
+// pre/post by the caller, so word is just the inner "N/M" text. Because
+// IndexByte finds the FIRST slash, a second slash (e.g. "22/4/3") lands in b
+// and fails allDigits(b), so multi-slash inputs correctly return false. Uses a
+// manual byte scan (via allDigits) rather than regexp: this is a hot per-word
+// path. allDigits is the existing helper in wordcolor.go.
+func counterParts(word string) (a, b string, ok bool) {
+	slash := strings.IndexByte(word, '/')
+	if slash <= 0 || slash >= len(word)-1 {
+		return "", "", false
+	}
+	a, b = word[:slash], word[slash+1:]
+	if !allDigits(a) || !allDigits(b) {
+		return "", "", false
+	}
+	return a, b, true
+}
+
+// renderCounter emits a bracketed "N/M" counter, mirroring renderTag: the bytes
+// of pre before its trailing '[', then a bracket-colored "[", the numbers-colored
+// first digit run, a bracket-colored "/", the numbers-colored second digit run,
+// a bracket-colored "]", and the bytes of post after its leading ']'. Caller
+// guarantees pre ends with '[' and post starts with ']'. Every input byte is
+// emitted exactly once, so concatenated output text equals pre+a+"/"+b+post.
+func (p *Processor) renderCounter(w io.Writer, pre, a, b, post string) {
+	p.ct.WriteColored(w, color.Default, pre[:len(pre)-1])
+	p.ct.WriteColored(w, color.PIDB, "[")
+	p.ct.WriteColored(w, color.Numbers, a)
+	p.ct.WriteColored(w, color.PIDB, "/")
+	p.ct.WriteColored(w, color.Numbers, b)
+	p.ct.WriteColored(w, color.PIDB, "]")
+	p.ct.WriteColored(w, color.Default, post[1:])
+}
+
 // renderKeyValue handles a slog/logfmt token of the form key=value. It returns
 // false (writing nothing) when the token is not a key=value pair, so the caller
 // can fall through to normal processing. The key is colored as a field, '=' is

@@ -408,6 +408,13 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		// post starting with ']' around a non-empty inner word.
 		if p.ext.Tags && word != "" &&
 			strings.HasSuffix(pre, "[") && strings.HasPrefix(post, "]") {
+			// A bracketed "N/M" counter (e.g. [22/43]) is colored as a counter:
+			// digits in the numbers color, the [ / ] glyphs in the bracket color.
+			// Anything else in brackets stays a level/keyword tag.
+			if a, b, ok := counterParts(word); ok {
+				p.renderCounter(w, pre, a, b, post)
+				return
+			}
 			p.renderTag(w, pre, word, post)
 			return
 		}
