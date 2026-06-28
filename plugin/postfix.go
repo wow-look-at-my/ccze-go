@@ -27,8 +27,8 @@ func NewPostfixPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, con
 }
 
 func (p *PostfixPlugin) Name() string        { return "postfix" }
-func (p *PostfixPlugin) Type() Type           { return TypePartial }
-func (p *PostfixPlugin) Description() string  { return "Coloriser for postfix(1) sub-logs." }
+func (p *PostfixPlugin) Type() Type          { return TypePartial }
+func (p *PostfixPlugin) Description() string { return "Coloriser for postfix(1) sub-logs." }
 
 // postfixProcessOne processes a single field=value segment. Returns true if
 // the segment did not contain '=' (was not a field=value pair).

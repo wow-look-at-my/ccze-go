@@ -7,7 +7,7 @@ import (
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
-	"github.com/wow-look-at-my/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // stripAnsi removes ANSI escape sequences.
@@ -63,8 +63,8 @@ func TestRegistryFilter(t *testing.T) {
 
 func TestHTTPAction(t *testing.T) {
 	tests := []struct {
-		method	string
-		want	color.Color
+		method string
+		want   color.Color
 	}{
 		{"GET", color.HTTPGet},
 		{"get", color.HTTPGet},
@@ -358,7 +358,7 @@ func TestAllPluginsHaveRequiredMethods(t *testing.T) {
 		// All plugins should not match random text
 		buf.Reset()
 		handled, _ := p.Handle("zzz random text that matches nothing zzz")
-		_ = handled	// some plugins with loose regexes may match
+		_ = handled // some plugins with loose regexes may match
 	}
 
 	assert.Equal(t, 20, len(plugins))
@@ -524,4 +524,3 @@ func TestVsftpdPluginNoMatch(t *testing.T) {
 
 	_ = buf
 }
-

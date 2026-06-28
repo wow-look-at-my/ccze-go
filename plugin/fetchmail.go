@@ -28,8 +28,8 @@ func NewFetchmailPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, c
 }
 
 func (p *FetchmailPlugin) Name() string        { return "fetchmail" }
-func (p *FetchmailPlugin) Type() Type           { return TypePartial }
-func (p *FetchmailPlugin) Description() string  { return "Coloriser for fetchmail(1) sub-logs." }
+func (p *FetchmailPlugin) Type() Type          { return TypePartial }
+func (p *FetchmailPlugin) Description() string { return "Coloriser for fetchmail(1) sub-logs." }
 
 // parseFetchmail hand-parses a fetchmail log line.
 // Format: (reading message) ([^@]*@[^:]*):([0-9]*) of ([0-9]*) (.*)

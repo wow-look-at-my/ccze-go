@@ -28,8 +28,8 @@ func NewDistccPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 }
 
 func (p *DistccPlugin) Name() string        { return "distcc" }
-func (p *DistccPlugin) Type() Type           { return TypeFull }
-func (p *DistccPlugin) Description() string  { return "Coloriser for distcc(1) logs." }
+func (p *DistccPlugin) Type() Type          { return TypeFull }
+func (p *DistccPlugin) Description() string { return "Coloriser for distcc(1) logs." }
 
 // parseDistcc hand-parses a distcc log line.
 // Format: ^distccd\[(\d+)\] (\([^\)]+\))? ?(.*)

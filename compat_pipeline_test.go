@@ -11,8 +11,8 @@ import (
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
-	"github.com/wow-look-at-my/testify/assert"
-	"github.com/wow-look-at-my/testify/require"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCompatSyslogExactOutput(t *testing.T) {
@@ -104,13 +104,13 @@ func TestCompatEmptyStringNoOutput(t *testing.T) {
 
 func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 	lines := []struct {
-		name	string
-		input	string
-		check	func(t *testing.T, out string)
+		name  string
+		input string
+		check func(t *testing.T, out string)
 	}{
 		{
-			name:	"syslog_with_pid",
-			input:	"Jan  1 00:00:00 server sshd[99]: Accepted publickey",
+			name:  "syslog_with_pid",
+			input: "Jan  1 00:00:00 server sshd[99]: Accepted publickey",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
 				assert.False(t, !strings.Contains(s, "server") || !strings.Contains(s, "sshd") || !strings.Contains(s, "99") || !strings.Contains(s, "Accepted"))
@@ -118,8 +118,8 @@ func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 			},
 		},
 		{
-			name:	"httpd_access",
-			input:	`10.0.0.1 - - [01/Jan/2024:12:00:00 +0000] "HEAD /health HTTP/1.1" 200 0`,
+			name:  "httpd_access",
+			input: `10.0.0.1 - - [01/Jan/2024:12:00:00 +0000] "HEAD /health HTTP/1.1" 200 0`,
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
 				assert.False(t, !strings.Contains(s, "10.0.0.1") || !strings.Contains(s, "HEAD"))
@@ -127,8 +127,8 @@ func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 			},
 		},
 		{
-			name:	"httpd_error",
-			input:	"[Mon Jan 01 12:00:00 2024] [warn] potential issue",
+			name:  "httpd_error",
+			input: "[Mon Jan 01 12:00:00 2024] [warn] potential issue",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
 				assert.False(t, !strings.Contains(s, "[warn]") || !strings.Contains(s, "potential issue"))
@@ -136,8 +136,8 @@ func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 			},
 		},
 		{
-			name:	"dpkg_status",
-			input:	"2024-01-01 12:00:00 status installed base-files:amd64 12.4",
+			name:  "dpkg_status",
+			input: "2024-01-01 12:00:00 status installed base-files:amd64 12.4",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
 				assert.False(t, !strings.Contains(s, "status") || !strings.Contains(s, "base-files"))
@@ -145,8 +145,8 @@ func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 			},
 		},
 		{
-			name:	"plain_with_keywords",
-			input:	"error connecting to server failed retry starting",
+			name:  "plain_with_keywords",
+			input: "error connecting to server failed retry starting",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
 				assert.False(t, !strings.Contains(s, "error") || !strings.Contains(s, "starting"))
@@ -154,8 +154,8 @@ func TestCompatFullPipelineMultipleFormats(t *testing.T) {
 			},
 		},
 		{
-			name:	"plain_with_ip_and_path",
-			input:	"connection from 192.168.0.1 reading /var/log/syslog",
+			name:  "plain_with_ip_and_path",
+			input: "connection from 192.168.0.1 reading /var/log/syslog",
 			check: func(t *testing.T, out string) {
 				s := stripAnsiCompat(out)
 				assert.False(t, !strings.Contains(s, "192.168.0.1") || !strings.Contains(s, "/var/log/syslog"))
@@ -229,9 +229,9 @@ func TestCompatConfigFileParsing(t *testing.T) {
 
 	// Test all color names parse correctly
 	colorTests := []struct {
-		line	string
-		slot	color.Color
-		want	int
+		line string
+		slot color.Color
+		want int
 	}{
 		{"date bold cyan", color.Date, color.AttrBold | 5},
 		{"host red", color.Host, 1},
@@ -246,7 +246,7 @@ func TestCompatConfigFileParsing(t *testing.T) {
 		{"date green on_red", color.Date, 2 | (1 << 8)},
 		{"host blue on_green", color.Host, 4 | (2 << 8)},
 		// Quoted keyword reference
-		{"host 'date'", color.Host, 2 | (1 << 8)},	// date was set to green on_red above
+		{"host 'date'", color.Host, 2 | (1 << 8)}, // date was set to green on_red above
 	}
 
 	for _, tt := range colorTests {
@@ -263,8 +263,8 @@ func TestCompatConfigFileParsing(t *testing.T) {
 
 func TestCompatFacilityRemoval(t *testing.T) {
 	tests := []struct {
-		input	string
-		want	string
+		input string
+		want  string
 	}{
 		{"<13>Sep 14 11:45:00 host test: msg", "Sep 14 11:45:00 host test: msg"},
 		{"<0>line", "line"},
@@ -290,8 +290,8 @@ func TestCompatFacilityRemoval(t *testing.T) {
 
 func TestCompatConvertColorOverride(t *testing.T) {
 	tests := []struct {
-		input	string
-		want	string
+		input string
+		want  string
 	}{
 		{"date=boldcyan", "date bold cyan"},
 		{"error=red", "error red"},

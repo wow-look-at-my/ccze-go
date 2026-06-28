@@ -9,3 +9,59 @@ configuration. Type "man ccze" in the shell prompt.
 
 Please visit the official CCZE web page for more information. The URL
 is http://bonehunter.rulez.org/CCZE.html.
+
+
+-------------------------------------------------------------------------
+ccze-go
+-------------------------------------------------------------------------
+
+ccze-go is a Go port of CCZE. By default it is byte-for-byte ANSI
+compatible with the C ccze it ports (the test suite enforces this), so
+it drops straight into existing pipelines:
+
+    tail -f /var/log/syslog | ccze-go -A
+
+In addition it offers a set of OPT-IN "modern log" highlighters for the
+kinds of logs C ccze never targeted (structured/slog output, build and
+application logs, etc.). They are all OFF by default and are enabled via
+the -o option (comma-separated, with "no"-prefixed variants to disable):
+
+    -o modern       turn on all four stable highlighters below at once
+    -o tags         color [INFO]/[WARN]/[ERROR]/[component] bracket tags,
+                    with log levels colored by severity
+    -o files        color filenames and paths (main.go, src/app.py,
+                    ./conf.yaml, /var/log/app.log)
+    -o slog         color logfmt / slog key=value pairs (the key is
+                    highlighted and the value is colored by its type)
+    -o durations    color Go-style durations (30.2s, 1m30s, 100ms, 1.5h)
+    -o adaptive     adaptive recurring-structure recognition: learns the
+                    stream's recurring delimited shape (|, comma or TAB
+                    columns) and gives columns and recurring keys stable,
+                    distinct colors so structure pops
+
+Example:
+
+    kubectl logs deploy/app | ccze-go -A -o modern
+    cat events.csv         | ccze-go -A -o adaptive
+
+Defaults can be set once via the CCZE_OPTIONS environment variable, which
+takes the same comma-separated option string as -o. Set it to make a mode
+the default without typing -o every time:
+
+    export CCZE_OPTIONS=modern        # default to the modern highlighters
+    tail -f app.log | ccze-go -A      # uses modern automatically
+
+-o is applied on top of CCZE_OPTIONS and overrides it, so you can still
+turn individual options off per invocation:
+
+    CCZE_OPTIONS=modern ccze-go -A -o noslog,adaptive < app.log
+
+GUARANTEE: every highlighter only ADDS color. For any input line the
+output with all ANSI escape sequences stripped is byte-for-byte identical
+to the input -- nothing is ever reordered, dropped, truncated, padded, or
+realigned. This is verified by the test suite (including the adaptive
+layer) across an adversarial corpus and every flag combination.
+
+Build/test with the go-toolchain:
+
+    go-toolchain

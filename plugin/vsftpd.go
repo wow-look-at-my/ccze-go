@@ -27,8 +27,8 @@ func NewVsftpdPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, conv
 }
 
 func (p *VsftpdPlugin) Name() string        { return "vsftpd" }
-func (p *VsftpdPlugin) Type() Type           { return TypeFull }
-func (p *VsftpdPlugin) Description() string  { return "Coloriser for vsftpd logs." }
+func (p *VsftpdPlugin) Type() Type          { return TypeFull }
+func (p *VsftpdPlugin) Description() string { return "Coloriser for vsftpd logs." }
 
 // parseVsftpd hand-parses a vsftpd log line.
 // Format: ^(\S+\s+\S+\s+\d{1,2}\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\d+)(\s+)\[pid (\d+)\]\s+(\[(\S+)\])?\s*(.*)$

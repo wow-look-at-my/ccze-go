@@ -27,8 +27,8 @@ func NewPHPPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convdat
 }
 
 func (p *PHPPlugin) Name() string        { return "php" }
-func (p *PHPPlugin) Type() Type           { return TypeFull }
-func (p *PHPPlugin) Description() string  { return "Coloriser for PHP logs." }
+func (p *PHPPlugin) Type() Type          { return TypeFull }
+func (p *PHPPlugin) Description() string { return "Coloriser for PHP logs." }
 
 // parsePHP hand-parses a PHP log line.
 // Format: ^(\[\d+-...-\d+ \d+:\d+:\d+\]) PHP (.*)$

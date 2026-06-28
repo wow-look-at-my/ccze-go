@@ -11,11 +11,11 @@ import (
 
 // HTTPDPlugin colorizes generic HTTPD access and error log lines.
 type HTTPDPlugin struct {
-	w         io.Writer
-	ct        *color.Table
-	wc        *wordcolor.Processor
-	convdate  bool
-	reAccess  *regexp.Regexp // kept: complex multi-group Apache combined log format
+	w        io.Writer
+	ct       *color.Table
+	wc       *wordcolor.Processor
+	convdate bool
+	reAccess *regexp.Regexp // kept: complex multi-group Apache combined log format
 }
 
 // NewHTTPDPlugin creates a new HTTPDPlugin.
@@ -29,9 +29,11 @@ func NewHTTPDPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 	}
 }
 
-func (p *HTTPDPlugin) Name() string        { return "httpd" }
-func (p *HTTPDPlugin) Type() Type           { return TypeFull }
-func (p *HTTPDPlugin) Description() string  { return "Coloriser for generic HTTPD access and error logs." }
+func (p *HTTPDPlugin) Name() string { return "httpd" }
+func (p *HTTPDPlugin) Type() Type   { return TypeFull }
+func (p *HTTPDPlugin) Description() string {
+	return "Coloriser for generic HTTPD access and error logs."
+}
 
 // httpdErrorColor returns the color for an HTTP error log level.
 func httpdErrorColor(level string) color.Color {

@@ -28,8 +28,8 @@ func NewUlogdPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convd
 }
 
 func (p *UlogdPlugin) Name() string        { return "ulogd" }
-func (p *UlogdPlugin) Type() Type           { return TypePartial }
-func (p *UlogdPlugin) Description() string  { return "Coloriser for ulogd sub-logs." }
+func (p *UlogdPlugin) Type() Type          { return TypePartial }
+func (p *UlogdPlugin) Description() string { return "Coloriser for ulogd sub-logs." }
 
 // ulogd netfilter keywords that trigger a match.
 var ulogdKeywords = []string{"IN=", "OUT=", "MAC=", "TTL=", "SRC=", "TOS=", "PREC=", "SPT="}

@@ -23,35 +23,19 @@ func main() {
 	rcfile := flag.String("F", "", "config file path (overrides default loading)")
 	listPlugins := flag.Bool("l", false, "list available plugins and exit")
 	_ = flag.Bool("A", false, "ANSI output (default, kept for compat)")
-	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent")
+	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent; modern-log highlighters (opt-in): modern,tags,files,slog,durations,adaptive (and no- variants). Defaults can be set via the CCZE_OPTIONS env var (e.g. CCZE_OPTIONS=modern); -o overrides it.")
 	flag.Parse()
 
-	// Parse -o options
+	// Parse options. CCZE_OPTIONS provides the baseline (so the default mode can
+	// be set once in the environment, e.g. CCZE_OPTIONS=modern); the -o flag is
+	// then applied on top and can override it, including via the "no"-prefixed
+	// variants (e.g. CCZE_OPTIONS=modern with -o noslog).
 	transparent := true
 	wcol := true
 	slookup := true
-	if *optionsFlag != "" {
-		for _, opt := range strings.Split(*optionsFlag, ",") {
-			switch strings.TrimSpace(opt) {
-			case "scroll":
-				// no-op in raw ansi mode
-			case "noscroll":
-				// no-op in raw ansi mode
-			case "wordcolor":
-				wcol = true
-			case "nowordcolor":
-				wcol = false
-			case "lookups":
-				slookup = true
-			case "nolookups":
-				slookup = false
-			case "transparent":
-				transparent = true
-			case "notransparent":
-				transparent = false
-			}
-		}
-	}
+	var ext wordcolor.Extensions
+	applyOptions(os.Getenv("CCZE_OPTIONS"), &transparent, &wcol, &slookup, &ext)
+	applyOptions(*optionsFlag, &transparent, &wcol, &slookup, &ext)
 
 	// Create color table
 	ct := color.NewTable(transparent)
@@ -82,6 +66,7 @@ func main() {
 
 	// Create wordcolor processor
 	wc := wordcolor.New(ct)
+	wc.SetExtensions(ext)
 
 	// Create buffered writer for stdout
 	w := bufio.NewWriter(os.Stdout)
@@ -199,6 +184,66 @@ func convertColorOverride(s string) string {
 		parts = append(parts, bg)
 	}
 	return strings.Join(parts, " ")
+}
+
+// applyOptions parses a comma-separated option string (the same grammar as the
+// -o flag and the CCZE_OPTIONS environment variable) and applies it on top of
+// the current option state. Unknown tokens are ignored. Calling it more than
+// once layers the option sources: later calls override earlier ones, which is
+// how the -o flag overrides CCZE_OPTIONS.
+func applyOptions(opts string, transparent, wcol, slookup *bool, ext *wordcolor.Extensions) {
+	if opts == "" {
+		return
+	}
+	for _, opt := range strings.Split(opts, ",") {
+		switch strings.TrimSpace(opt) {
+		case "scroll":
+			// no-op in raw ansi mode
+		case "noscroll":
+			// no-op in raw ansi mode
+		case "wordcolor":
+			*wcol = true
+		case "nowordcolor":
+			*wcol = false
+		case "lookups":
+			*slookup = true
+		case "nolookups":
+			*slookup = false
+		case "transparent":
+			*transparent = true
+		case "notransparent":
+			*transparent = false
+
+		// Opt-in "modern log" highlighters (off by default; default output
+		// stays byte-for-byte compatible with C ccze).
+		case "tags":
+			ext.Tags = true
+		case "notags":
+			ext.Tags = false
+		case "files":
+			ext.Files = true
+		case "nofiles":
+			ext.Files = false
+		case "slog":
+			ext.Slog = true
+		case "noslog":
+			ext.Slog = false
+		case "durations":
+			ext.Durations = true
+		case "nodurations":
+			ext.Durations = false
+		case "adaptive":
+			ext.Adaptive = true
+		case "noadaptive":
+			ext.Adaptive = false
+		case "modern":
+			// Umbrella for the four stable highlighters (not adaptive, which is
+			// still experimental and must be opted into by name).
+			ext.Tags, ext.Files, ext.Slog, ext.Durations = true, true, true, true
+		case "nomodern":
+			ext.Tags, ext.Files, ext.Slog, ext.Durations = false, false, false, false
+		}
+	}
 }
 
 // registerAllPlugins registers all 20 plugins in alphabetical order,

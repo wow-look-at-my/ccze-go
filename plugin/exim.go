@@ -26,8 +26,8 @@ func NewEximPlugin(w io.Writer, ct *color.Table, wc *wordcolor.Processor, convda
 }
 
 func (p *EximPlugin) Name() string        { return "exim" }
-func (p *EximPlugin) Type() Type           { return TypeFull }
-func (p *EximPlugin) Description() string  { return "Coloriser for exim logs." }
+func (p *EximPlugin) Type() Type          { return TypeFull }
+func (p *EximPlugin) Description() string { return "Coloriser for exim logs." }
 
 // parseEximDate hand-parses the date prefix of an exim log line.
 // Format: ^(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s(.*)$
