@@ -28,7 +28,10 @@ the -o option (comma-separated, with "no"-prefixed variants to disable):
 
     -o modern       turn on all four stable highlighters below at once
     -o tags         color [INFO]/[WARN]/[ERROR]/[component] bracket tags,
-                    with log levels colored by severity
+                    with log levels colored by severity; bracketed [N/M]
+                    counters (e.g. [22/43]) are colored as counters instead
+                    -- the digits in the numbers color, the brackets and
+                    slash in the bracket color
     -o files        color filenames and paths (main.go, src/app.py,
                     ./conf.yaml, /var/log/app.log)
     -o slog         color logfmt / slog key=value pairs (the key is
