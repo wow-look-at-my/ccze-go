@@ -33,11 +33,11 @@ func TestConvertColorOverride(t *testing.T) {
 }
 
 func TestApplyOptions(t *testing.T) {
-	// "modern" umbrella turns on the four stable highlighters, not adaptive.
+	// "modern" umbrella turns on the stable highlighters, not adaptive.
 	var ext wordcolor.Extensions
 	tr, wc, sl := true, true, true
 	applyOptions("modern", &tr, &wc, &sl, &ext)
-	assert.Equal(t, wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true}, ext)
+	assert.Equal(t, wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true}, ext)
 
 	// Layering: a CCZE_OPTIONS-style baseline, then a -o-style override that
 	// disables one highlighter and enables adaptive. Later call wins.
@@ -64,8 +64,8 @@ func TestApplyOptions(t *testing.T) {
 	applyOptions("bogus,unknown", &tr, &wc, &sl, &ext)
 	assert.Equal(t, wordcolor.Extensions{Tags: true}, ext)
 
-	// nomodern clears the four stable flags but leaves adaptive untouched.
-	ext = wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Adaptive: true}
+	// nomodern clears the stable flags but leaves adaptive untouched.
+	ext = wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true, Adaptive: true}
 	applyOptions("nomodern", &tr, &wc, &sl, &ext)
 	assert.Equal(t, wordcolor.Extensions{Adaptive: true}, ext)
 }

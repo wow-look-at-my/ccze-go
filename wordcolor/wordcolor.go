@@ -363,11 +363,27 @@ func (p *Processor) Process(w io.Writer, msg string, wcol bool, slookup bool) {
 		return
 	}
 
+	// Unreal Engine log prefix (opt-in). Color the "[timestamp][frame]
+	// Category: Verbosity:" prefix (whose brackets abut, so the per-word
+	// cascade below cannot tokenize it) and continue with the normal per-word
+	// path for the message body. Checked before adaptive so Unreal lines get
+	// Unreal-aware coloring.
+	handledUnreal := false
+	if p.ext.Unreal {
+		if n := p.renderUnrealPrefix(w, msg); n > 0 {
+			if n >= len(msg) {
+				return
+			}
+			msg = msg[n:]
+			handledUnreal = true
+		}
+	}
+
 	// Adaptive recurring-structure recognition (opt-in). It may colorize the
 	// whole line using learned cross-line structure; if it declines (returns
 	// false) we fall through to the standard per-word path. Either way it only
 	// ever adds color — the visible text is unchanged.
-	if p.ada != nil && p.ada.process(p, w, msg) {
+	if !handledUnreal && p.ada != nil && p.ada.process(p, w, msg) {
 		return
 	}
 
