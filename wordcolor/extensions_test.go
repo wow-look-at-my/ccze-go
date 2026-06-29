@@ -96,6 +96,68 @@ func TestExtTagsWithPunctuation(t *testing.T) {
 	}
 }
 
+// ---------------------------------------------------------------------------
+// Counters ([N/M])
+// ---------------------------------------------------------------------------
+
+func TestExtCounter(t *testing.T) {
+	p, ct := procWith(Extensions{Tags: true})
+
+	numFg := fgSeq(ct, color.Numbers)
+	brkFg := fgSeq(ct, color.PIDB)
+
+	// [22/43]: digits get the numbers color, the [ / ] glyphs the bracket color.
+	out := render(p, "[22/43]")
+	assert.Equal(t, "[22/43]", stripAnsi(out), "counter text must be preserved")
+	assert.Contains(t, out, numFg, "counter digits should use the numbers color")
+	assert.Contains(t, out, brkFg, "counter glyphs should use the bracket color")
+	// Both digit runs and all three glyphs are individually colored: the
+	// numbers fg appears twice (22 and 43) and the bracket fg three times
+	// ([, /, ]).
+	assert.Equal(t, 2, strings.Count(out, numFg), "both digit runs should be numbers-colored")
+	assert.Equal(t, 3, strings.Count(out, brkFg), "[, / and ] should each be bracket-colored")
+
+	// Byte-for-byte invariant for the canonical case.
+	assert.Equal(t, "[22/43]", stripAnsi(render(p, "[22/43]")))
+
+	// Different digit widths.
+	out2 := render(p, "[1/10]")
+	assert.Equal(t, "[1/10]", stripAnsi(out2))
+	assert.Contains(t, out2, numFg)
+	assert.Contains(t, out2, brkFg)
+
+	// Trailing punctuation is preserved.
+	assert.Equal(t, "[22/43]:", stripAnsi(render(p, "[22/43]:")))
+
+	// Non-counter brackets still render as TAGS, not counters. [INFO] keeps its
+	// level color; the multi-slash and empty-half cases fall through to the tag
+	// path (exercising the ok==false branches of counterParts).
+	infoOut := render(p, "[INFO]")
+	assert.Equal(t, "[INFO]", stripAnsi(infoOut))
+	assert.Contains(t, infoOut, fgSeq(ct, color.GoodWord), "[INFO] should stay a level tag")
+	for _, in := range []string{"[22/43/99]", "[22/]", "[/43]", "[a/b]"} {
+		out := render(p, in)
+		assert.Equal(t, in, stripAnsi(out), "non-counter bracket must be preserved: %q", in)
+		// These are tags, not counters: the inner content (digits/slashes) is one
+		// keyword-colored run, so the numbers color must NOT appear.
+		assert.NotContains(t, out, numFg, "%q should render as a tag, not a counter", in)
+	}
+}
+
+func TestCounterParts(t *testing.T) {
+	// Positive case.
+	a, b, ok := counterParts("22/43")
+	assert.True(t, ok)
+	assert.Equal(t, "22", a)
+	assert.Equal(t, "43", b)
+
+	// Negative cases — exercise every false branch of counterParts.
+	for _, in := range []string{"22/", "/43", "a/b", "22/4/3", "2243", "/", ""} {
+		_, _, ok := counterParts(in)
+		assert.False(t, ok, "counterParts(%q) should be false", in)
+	}
+}
+
 // fgSeq returns the foreground SGR sequence WriteColored emits for a color,
 // so tests can assert a specific color was applied.
 func fgSeq(ct *color.Table, c color.Color) string {
