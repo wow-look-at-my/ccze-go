@@ -37,7 +37,7 @@ func TestApplyOptions(t *testing.T) {
 	var ext wordcolor.Extensions
 	tr, wc, sl := true, true, true
 	applyOptions("modern", &tr, &wc, &sl, &ext)
-	assert.Equal(t, wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true}, ext)
+	assert.Equal(t, wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true, Make: true}, ext)
 
 	// Layering: a CCZE_OPTIONS-style baseline, then a -o-style override that
 	// disables one highlighter and enables adaptive. Later call wins.
@@ -65,7 +65,7 @@ func TestApplyOptions(t *testing.T) {
 	assert.Equal(t, wordcolor.Extensions{Tags: true}, ext)
 
 	// nomodern clears the stable flags but leaves adaptive untouched.
-	ext = wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true, Adaptive: true}
+	ext = wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true, Make: true, Adaptive: true}
 	applyOptions("nomodern", &tr, &wc, &sl, &ext)
 	assert.Equal(t, wordcolor.Extensions{Adaptive: true}, ext)
 }

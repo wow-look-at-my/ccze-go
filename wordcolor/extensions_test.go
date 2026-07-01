@@ -276,12 +276,16 @@ var invariantCorpus = []string{
 	"tabs\tand\tstuff", // tabs are not the split delimiter (space is)
 	"[2026.06.28-13.42.12:957][  0]LogCoreRedirects: Verbose: RedirectNameAndValues(/Script/BlueprintGraph.K2Node_CallFunction:bIsPureFunc) replaced by /Script/X",
 	"LogTemp: Warning: something happened with code=5",
+	"make[1]: *** No rule to make target 'folder/file.cpp', needed by 'folder/file.o'.  Stop.",
+	"make[1]: *** Waiting for unfinished jobs....",
+	"make: *** [Makefile:10: all] Error 1",
+	"make[1]: Entering directory '/tmp/ccze/src'",
 }
 
 func TestExtInvariantAllCombos(t *testing.T) {
-	// Exhaustively toggle every extension combination (2^5) and assert the
+	// Exhaustively toggle every extension combination (2^6) and assert the
 	// visible text is never altered for any corpus line.
-	for mask := 0; mask < 64; mask++ {
+	for mask := 0; mask < 128; mask++ {
 		e := Extensions{
 			Tags:      mask&1 != 0,
 			Files:     mask&2 != 0,
@@ -289,12 +293,13 @@ func TestExtInvariantAllCombos(t *testing.T) {
 			Durations: mask&8 != 0,
 			Unreal:    mask&16 != 0,
 			Adaptive:  mask&32 != 0,
+			Make:      mask&64 != 0,
 		}
 		p, _ := procWith(e)
 		for _, line := range invariantCorpus {
 			out := render(p, line)
 			assert.Equal(t, line, stripAnsi(out),
-				"INVARIANT VIOLATED (mask=%06b): input=%q", mask, line)
+				"INVARIANT VIOLATED (mask=%07b): input=%q", mask, line)
 		}
 	}
 }

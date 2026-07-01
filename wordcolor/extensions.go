@@ -1,9 +1,9 @@
 // Package wordcolor — extensions.go.
 //
 // This file holds the opt-in "modern log" highlighters (tags, files, slog
-// key=value, durations) and their plumbing. They are split out from
-// wordcolor.go to keep each file focused (and under the toolchain's file-size
-// limit). Every helper here is reached only when its Extensions flag is set;
+// key=value, durations; the Unreal and make highlighters live in unreal.go and
+// make.go) and their plumbing. They are split out from wordcolor.go to keep
+// each file focused (and under the toolchain's file-size limit). Every helper here is reached only when its Extensions flag is set;
 // the default pipeline never touches them and stays byte-for-byte compatible
 // with C ccze. All of them only ADD color — the visible text is unchanged.
 package wordcolor
@@ -48,12 +48,13 @@ type Extensions struct {
 	Durations bool // Go-style durations: 30.2s, 1m30s, 100ms, 1.5h
 	Unreal    bool // Unreal Engine log lines: [time][frame]Category: Verbosity:
 	Adaptive  bool // adaptive recurring-structure recognition (see adaptive.go)
+	Make      bool // GNU make error/fatal lines: "make[N]: *** ...  Stop." (see make.go)
 }
 
 // any reports whether at least one extension is enabled. When false, ProcessOne
 // takes exactly the same path as the original C-compatible implementation.
 func (e Extensions) any() bool {
-	return e.Tags || e.Files || e.Slog || e.Durations || e.Unreal || e.Adaptive
+	return e.Tags || e.Files || e.Slog || e.Durations || e.Unreal || e.Adaptive || e.Make
 }
 
 // SetExtensions enables the opt-in highlighters on the processor. It (re)builds
