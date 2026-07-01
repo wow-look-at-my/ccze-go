@@ -26,7 +26,7 @@ kinds of logs C ccze never targeted (structured/slog output, build and
 application logs, etc.). They are all OFF by default and are enabled via
 the -o option (comma-separated, with "no"-prefixed variants to disable):
 
-    -o modern       turn on all five stable highlighters below at once
+    -o modern       turn on all six stable highlighters below at once
     -o tags         color [INFO]/[WARN]/[ERROR]/[component] bracket tags,
                     with log levels colored by severity; bracketed [N/M]
                     counters (e.g. [22/43]) are colored as counters instead
@@ -40,6 +40,10 @@ the -o option (comma-separated, with "no"-prefixed variants to disable):
     -o unreal       color Unreal Engine log lines: the [timestamp] and
                     [frame] prefix, the LogCategory, and the verbosity
                     (Fatal/Error/Warning/Display/Log/Verbose/VeryVerbose)
+    -o make         color GNU make error/fatal lines -- any "make[N]: *** ..."
+                    or "make: *** ..." line (e.g. "*** No rule to make target
+                    ...  Stop.", "*** Waiting for unfinished jobs....") is
+                    marked in the error color (bold red)
     -o adaptive     adaptive recurring-structure recognition: learns the
                     stream's recurring delimited shape (|, comma or TAB
                     columns) and gives columns and recurring keys stable,

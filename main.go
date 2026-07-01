@@ -23,7 +23,7 @@ func main() {
 	rcfile := flag.String("F", "", "config file path (overrides default loading)")
 	listPlugins := flag.Bool("l", false, "list available plugins and exit")
 	_ = flag.Bool("A", false, "ANSI output (default, kept for compat)")
-	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent; modern-log highlighters (opt-in): modern,tags,files,slog,durations,unreal,adaptive (and no- variants). Defaults can be set via the CCZE_OPTIONS env var (e.g. CCZE_OPTIONS=modern); -o overrides it.")
+	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent; modern-log highlighters (opt-in): modern,tags,files,slog,durations,unreal,make,adaptive (and no- variants). Defaults can be set via the CCZE_OPTIONS env var (e.g. CCZE_OPTIONS=modern); -o overrides it.")
 	flag.Parse()
 
 	// Parse options. CCZE_OPTIONS provides the baseline (so the default mode can
@@ -240,12 +240,16 @@ func applyOptions(opts string, transparent, wcol, slookup *bool, ext *wordcolor.
 			ext.Adaptive = true
 		case "noadaptive":
 			ext.Adaptive = false
+		case "make":
+			ext.Make = true
+		case "nomake":
+			ext.Make = false
 		case "modern":
 			// Umbrella for the stable highlighters (not adaptive, which is
 			// still experimental and must be opted into by name).
-			ext.Tags, ext.Files, ext.Slog, ext.Durations, ext.Unreal = true, true, true, true, true
+			ext.Tags, ext.Files, ext.Slog, ext.Durations, ext.Unreal, ext.Make = true, true, true, true, true, true
 		case "nomodern":
-			ext.Tags, ext.Files, ext.Slog, ext.Durations, ext.Unreal = false, false, false, false, false
+			ext.Tags, ext.Files, ext.Slog, ext.Durations, ext.Unreal, ext.Make = false, false, false, false, false, false
 		}
 	}
 }
