@@ -42,6 +42,36 @@ var wordsSystem = []string{
 	"bios", "cpu", "fpu", "discharging", "resume",
 }
 
+// kwEntry is one keyword-prefix rule: a word starting with kw gets col.
+type kwEntry struct {
+	kw  string
+	col color.Color
+}
+
+// kwByFirst indexes the bad/good/error/system keyword lists by first byte.
+// The original code ran all four lists in sequence (bad, good, error,
+// system) with a later list's match overriding an earlier one, i.e. the
+// highest-priority list containing any matching keyword wins. A matching
+// keyword necessarily shares the word's first byte, so bucketing by first
+// byte and ordering each bucket by descending priority (system > error >
+// good > bad) lets the first hit win with identical results - while words
+// that match nothing (the common case) scan a handful of candidates
+// instead of all 72.
+var kwByFirst [256][]kwEntry
+
+func init() {
+	add := func(words []string, col color.Color) {
+		for _, w := range words {
+			kwByFirst[w[0]] = append(kwByFirst[w[0]], kwEntry{w, col})
+		}
+	}
+	// Highest priority first within each bucket.
+	add(wordsSystem, color.SystemWord)
+	add(wordsError, color.Error)
+	add(wordsGood, color.GoodWord)
+	add(wordsBad, color.BadWord)
+}
+
 // Signal name lookup table. The regex was ^sig(name...) which is effectively
 // a hash-set lookup after stripping the "sig" prefix.
 var sigNames = map[string]bool{
@@ -387,19 +417,28 @@ func (p *Processor) Process(w io.Writer, msg string, wcol bool, slookup bool) {
 		return
 	}
 
-	words := strings.Split(msg, " ")
-	for i, word := range words {
-		if word == "" {
-			// Preserve spacing: empty words from consecutive spaces
-			if i < len(words)-1 {
-				p.ct.WriteSpace(w)
-			}
-			continue
+	// Iterate space-separated words in place (no strings.Split allocation).
+	// Semantics match the original Split loop: each non-empty word is
+	// processed, and a colored space is written after every word except the
+	// last (empty words from consecutive spaces still yield their space).
+	start := 0
+	for {
+		rel := strings.IndexByte(msg[start:], ' ')
+		last := rel < 0
+		var word string
+		if last {
+			word = msg[start:]
+		} else {
+			word = msg[start : start+rel]
 		}
-		p.ProcessOne(w, word, slookup)
-		if i < len(words)-1 {
-			p.ct.WriteSpace(w)
+		if word != "" {
+			p.ProcessOne(w, word, slookup)
 		}
+		if last {
+			return
+		}
+		p.ct.WriteSpace(w)
+		start += rel + 1
 	}
 }
 
@@ -415,6 +454,27 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 	word, post := splitPost(word)
 
 	lword := strings.ToLower(word)
+
+	// One character-class scan gates the matchers below: each matcher can
+	// only succeed if certain bytes are present (a '.' or ':' for hosts,
+	// '@' for emails, a digit for numbers, ...), so plain words skip most
+	// of the cascade without running the individual scanners. Every gate
+	// is a necessary condition of its matcher - never changes the winner.
+	var hasDigit, hasDot, hasColon, hasAt, hasBracket bool
+	for i := 0; i < len(lword); i++ {
+		switch c := lword[i]; {
+		case c >= '0' && c <= '9':
+			hasDigit = true
+		case c == '.':
+			hasDot = true
+		case c == ':':
+			hasColon = true
+		case c == '@':
+			hasAt = true
+		case c == '[':
+			hasBracket = true
+		}
+	}
 
 	// Opt-in extensions that need multi-color rendering and short-circuit the
 	// cascade. Gated so the default path is byte-for-byte unchanged.
@@ -448,9 +508,9 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		col = color.GetTime
 	case p.ext.Files && isBareFile(lword):
 		col = color.File
-	case matchHost(lword):
+	case (hasDot || hasColon || lword == "localhost") && matchHost(lword):
 		col = color.Host
-	case matchMAC(lword):
+	case hasColon && matchMAC(lword):
 		col = color.MAC
 	case p.ext.Files && looksLikePath(lword):
 		// Path (/abs, ./rel, ../rel, ~/, or rel/with/ext): a basename with an
@@ -462,25 +522,25 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		}
 	case len(lword) > 0 && lword[0] == '/':
 		col = color.Dir
-	case matchEmail(lword) && matchEmail2(lword):
+	case hasAt && matchEmail(lword) && matchEmail2(lword):
 		col = color.Email
-	case matchMsgID(lword):
+	case hasAt && matchMsgID(lword):
 		col = color.Email
-	case matchURI(lword):
+	case hasColon && matchURI(lword):
 		col = color.URI
-	case matchSize(lword):
+	case hasDigit && matchSize(lword):
 		col = color.Size
-	case matchVer(lword):
+	case hasDigit && hasDot && matchVer(lword):
 		col = color.Version
-	case matchTime(lword):
+	case hasDigit && hasColon && matchTime(lword):
 		col = color.Date
-	case matchAddr(lword):
+	case hasDigit && matchAddr(lword):
 		col = color.Address
-	case matchNum(lword):
+	case hasDigit && matchNum(lword):
 		col = color.Numbers
 	case matchSig(lword):
 		col = color.Signal
-	case matchHostIP(lword):
+	case hasBracket && matchHostIP(lword):
 		// Special handling: split at '[', output host and IP separately.
 		// By this point splitPost has stripped any trailing ']' (and following
 		// punctuation) into post, so word looks like "hostname[192.168.1.1".
@@ -507,26 +567,14 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		// Service, protocol, and user lookups (slookup).
 		// These are skipped for now; can be implemented later.
 
-		// Keyword matching: check bad, good, error, system word lists.
-		// The last matching list wins (later lists override earlier ones).
-		for _, kw := range wordsBad {
-			if strings.HasPrefix(lword, kw) {
-				col = color.BadWord
-			}
-		}
-		for _, kw := range wordsGood {
-			if strings.HasPrefix(lword, kw) {
-				col = color.GoodWord
-			}
-		}
-		for _, kw := range wordsError {
-			if strings.HasPrefix(lword, kw) {
-				col = color.Error
-			}
-		}
-		for _, kw := range wordsSystem {
-			if strings.HasPrefix(lword, kw) {
-				col = color.SystemWord
+		// Keyword matching against the bad/good/error/system word lists,
+		// via the first-byte index (see kwByFirst for the priority rules).
+		if lword != "" {
+			for _, e := range kwByFirst[lword[0]] {
+				if strings.HasPrefix(lword, e.kw) {
+					col = e.col
+					break
+				}
 			}
 		}
 	}

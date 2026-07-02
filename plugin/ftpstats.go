@@ -37,6 +37,16 @@ func (p *FtpstatsPlugin) Description() string { return "Coloriser for ftpstats (
 
 // Handle attempts to match and colorize an ftpstats log line.
 func (p *FtpstatsPlugin) Handle(line string) (bool, string) {
+	// Prefilter: the regexp starts ^\d{9,10}\s, so a match needs at least
+	// 9 leading digits. Necessary condition only - never rejects a match.
+	if len(line) < 10 {
+		return false, ""
+	}
+	for i := 0; i < 9; i++ {
+		if line[i] < '0' || line[i] > '9' {
+			return false, ""
+		}
+	}
 	m := ftpstatsRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
