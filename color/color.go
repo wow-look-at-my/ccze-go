@@ -267,6 +267,10 @@ type Table struct {
 	prefixes [Last + 1]string
 	// spaceSeq caches the full escape sequence for a Default-colored space.
 	spaceSeq string
+	// scratch is a reusable buffer for assembling prefix+text+reset into a
+	// single Write call. Tables are used by one goroutine (the pipeline is
+	// single-threaded), matching the rest of the struct's lazy caches.
+	scratch []byte
 }
 
 // NewTable creates a Table with all default colors initialized, matching
@@ -439,15 +443,26 @@ func (t *Table) prefix(col Color) string {
 
 // WriteColored writes text to w wrapped in ANSI escape sequences. The bytes
 // written are identical to the previous fmt-based implementation (and to C
-// ccze's RAW_ANSI output); the escape prefix is simply cached per color slot
-// instead of being re-formatted for every word.
+// ccze's RAW_ANSI output); the escape prefix is cached per color slot and
+// the whole prefix+text+reset sequence is assembled in a reusable scratch
+// buffer so each word costs one Write call instead of three WriteStrings.
 func (t *Table) WriteColored(w io.Writer, col Color, text string) {
 	if text == "" {
 		return
 	}
-	io.WriteString(w, t.prefix(col))
-	io.WriteString(w, text)
-	io.WriteString(w, "\x1b[0m")
+	p := t.prefix(col)
+	if len(text) > 512 {
+		// Long text: skip the scratch-buffer copy.
+		io.WriteString(w, p)
+		io.WriteString(w, text)
+		io.WriteString(w, "\x1b[0m")
+		return
+	}
+	b := append(t.scratch[:0], p...)
+	b = append(b, text...)
+	b = append(b, "\x1b[0m"...)
+	t.scratch = b
+	w.Write(b)
 }
 
 // WriteSpace writes a space character colored with the Default color.
