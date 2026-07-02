@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -101,40 +102,68 @@ func main() {
 	}()
 
 	// Main loop
-	scanner := bufio.NewScanner(os.Stdin)
-	buf := make([]byte, 0, 1024*1024)
-	scanner.Buffer(buf, 1024*1024)
+	processStream(os.Stdin, w, registry, ct, wc, *remfac, wcol, slookup)
+}
 
-	for scanner.Scan() {
-		line := scanner.Text()
+// processStream reads log lines from r, colorizes them through the plugin
+// registry and word colorizer, and writes the result to w.
+//
+// Lines are read with a bufio.Reader instead of a bufio.Scanner: a Scanner
+// has a hard cap on line length (previously 1MB) and silently stops at the
+// first longer line, dropping the entire rest of the input. ReadString has
+// no such cap, matching C ccze's getline behavior.
+//
+// Output is flushed only when the input buffer is drained (the next read
+// would block), so interactive use (e.g. tail -f) still sees every burst of
+// lines immediately, while bulk processing batches writes instead of paying
+// one write syscall per line.
+func processStream(r io.Reader, w *bufio.Writer, registry *plugin.Registry, ct *color.Table, wc *wordcolor.Processor, remfac, wcol, slookup bool) {
+	br := bufio.NewReaderSize(r, 256*1024)
 
-		// Remove facility prefix if requested
-		if *remfac {
-			if len(line) > 0 && line[0] == '<' {
-				if idx := strings.Index(line, ">"); idx >= 0 {
-					line = line[idx+1:]
+	for {
+		line, err := br.ReadString('\n')
+		// Process the line unless this is the final empty read at EOF. A
+		// trailing partial line (no final newline) is still processed.
+		if err == nil || line != "" {
+			// Strip the line terminator like bufio.ScanLines: the trailing
+			// newline plus at most one carriage return (CRLF input).
+			line = strings.TrimSuffix(line, "\n")
+			line = strings.TrimSuffix(line, "\r")
+
+			// Remove facility prefix if requested
+			if remfac {
+				if len(line) > 0 && line[0] == '<' {
+					if idx := strings.Index(line, ">"); idx >= 0 {
+						line = line[idx+1:]
+					}
 				}
 			}
-		}
 
-		handled, rest := registry.Run(line, plugin.TypeFull)
+			handled, rest := registry.Run(line, plugin.TypeFull)
 
-		if rest != "" {
-			handled2, rest2 := registry.Run(rest, plugin.TypePartial)
-			if !handled2 {
-				wc.Process(w, rest, wcol, slookup)
-			} else {
-				wc.Process(w, rest2, wcol, slookup)
+			if rest != "" {
+				handled2, rest2 := registry.Run(rest, plugin.TypePartial)
+				if !handled2 {
+					wc.Process(w, rest, wcol, slookup)
+				} else {
+					wc.Process(w, rest2, wcol, slookup)
+				}
+				ct.WriteNewline(w)
 			}
-			ct.WriteNewline(w)
+
+			if !handled {
+				wc.Process(w, line, wcol, slookup)
+				ct.WriteNewline(w)
+			}
 		}
 
-		if !handled {
-			wc.Process(w, line, wcol, slookup)
-			ct.WriteNewline(w)
+		if err != nil {
+			break
 		}
 
-		w.Flush()
+		if br.Buffered() == 0 {
+			w.Flush()
+		}
 	}
 
 	w.Flush()
