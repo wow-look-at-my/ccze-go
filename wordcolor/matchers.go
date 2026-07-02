@@ -13,22 +13,37 @@ import "strings"
 // ---------------------------------------------------------------------------
 
 // matchIPv4: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
+// Exactly 4 dot-separated groups of 1-3 digits. Scans in place: this runs
+// for every word (via matchHost, the first cascade entry), so it must not
+// allocate like the previous strings.Split version did.
 func matchIPv4(s string) bool {
-	parts := strings.Split(s, ".")
-	if len(parts) != 4 {
-		return false
-	}
-	for _, p := range parts {
-		if len(p) < 1 || len(p) > 3 || !allDigits(p) {
+	parts := 0
+	i := 0
+	n := len(s)
+	for {
+		start := i
+		for i < n && isDigit(s[i]) {
+			i++
+		}
+		if i-start < 1 || i-start > 3 {
 			return false
 		}
+		parts++
+		if i == n {
+			return parts == 4
+		}
+		if s[i] != '.' || parts == 4 {
+			return false
+		}
+		i++
 	}
-	return true
 }
 
 // matchHostname: ([a-z0-9-_]+\.)+[a-z]{2,3}
+// Labels of [a-z0-9-_]+ separated by dots, ending in a 2-3 letter TLD.
+// Scans in place (no strings.Split) - it runs for every word via matchHost.
 func matchHostname(s string) bool {
-	idx := strings.LastIndex(s, ".")
+	idx := strings.LastIndexByte(s, '.')
 	if idx < 1 {
 		return false
 	}
@@ -41,20 +56,22 @@ func matchHostname(s string) bool {
 			return false
 		}
 	}
-	prefix := s[:idx]
-	parts := strings.Split(prefix, ".")
-	for _, p := range parts {
-		if len(p) < 1 {
+	// Dot-separated labels before the TLD: each non-empty, all [a-z0-9-_].
+	labelStart := 0
+	for i := 0; i < idx; i++ {
+		c := s[i]
+		if c == '.' {
+			if i == labelStart {
+				return false // empty label
+			}
+			labelStart = i + 1
+			continue
+		}
+		if !isLowerAlnum(c) && c != '-' && c != '_' {
 			return false
 		}
-		for i := 0; i < len(p); i++ {
-			c := p[i]
-			if !isLowerAlnum(c) && c != '-' && c != '_' {
-				return false
-			}
-		}
 	}
-	return true
+	return labelStart < idx // final label before the TLD dot is non-empty
 }
 
 // matchIPv6Like: (\w*::\w+)+
