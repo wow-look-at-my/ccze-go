@@ -138,15 +138,25 @@ func parseSquidCache(line string) (date, other string, ok bool) {
 }
 
 func (p *SquidPlugin) Handle(line string) (bool, string) {
-	// Prefilter: reAccess starts ^\d{9,10}\. and reStore starts ^[\d\.]+\s,
-	// so both need a digit or '.' as the first byte. parseSquidCache does
-	// its own cheap byte checks. Necessary conditions only.
-	digitStart := digitAt(line, 0)
-	dotOrDigitStart := digitStart || (len(line) > 0 && line[0] == '.')
+	// Prefilters (necessary conditions of the regexps, nothing more):
+	// reAccess starts ^\d{9,10}\. - exactly 9 or 10 leading digits followed
+	// by a dot. reStore starts ^[\d\.]+\s - a leading digit/dot run followed
+	// by whitespace. parseSquidCache does its own cheap byte checks.
+	digits := 0
+	for digits < len(line) && line[digits] >= '0' && line[digits] <= '9' {
+		digits++
+	}
+	accessHint := (digits == 9 || digits == 10) && digits < len(line) && line[digits] == '.'
+
+	run := digits
+	for run < len(line) && (line[run] == '.' || (line[run] >= '0' && line[run] <= '9')) {
+		run++
+	}
+	storeHint := run > 0 && run < len(line) && isRegexpSpace(line[run])
 
 	// Try access log (kept as regex — 13 capture groups)
 	var m []string
-	if digitStart {
+	if accessHint {
 		m = p.reAccess.FindStringSubmatch(line)
 	}
 	if m != nil {
@@ -203,7 +213,7 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 
 	// Try store log (kept as regex — 18 capture groups)
 	m = nil
-	if dotOrDigitStart {
+	if storeHint {
 		m = p.reStore.FindStringSubmatch(line)
 	}
 	if m != nil {

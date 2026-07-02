@@ -96,13 +96,34 @@ func parseHTTPDError(line string) (date, level, msg string, ok bool) {
 	return
 }
 
+// httpdDateBracketHint reports whether line contains "[d/" or "[dd/" (a '['
+// followed by 1-2 digits and a '/'), which reAccess's date group
+// \[\d{1,2}/ requires. Necessary condition only.
+func httpdDateBracketHint(line string) bool {
+	for i := 0; ; {
+		j := strings.IndexByte(line[i:], '[')
+		if j < 0 {
+			return false
+		}
+		i += j + 1
+		if digitAt(line, i) {
+			if i+1 < len(line) && line[i+1] == '/' {
+				return true
+			}
+			if digitAt(line, i+1) && i+2 < len(line) && line[i+2] == '/' {
+				return true
+			}
+		}
+	}
+}
+
 func (p *HTTPDPlugin) Handle(line string) (bool, string) {
-	// Prefilter: reAccess requires a bracketed date (literal '[') and a
-	// double-quoted request (literal '"'). Necessary conditions only; the
-	// nested optional groups in reAccess backtrack heavily on non-matching
-	// lines, so this cheap scan pays off on every miss.
+	// Prefilter: reAccess requires a double-quoted request (literal '"')
+	// and a bracketed date starting \[\d{1,2}/. Necessary conditions only;
+	// the nested optional groups in reAccess backtrack heavily on
+	// non-matching lines, so these cheap scans pay off on every miss.
 	var m []string
-	if strings.IndexByte(line, '"') >= 0 && strings.IndexByte(line, '[') >= 0 {
+	if strings.IndexByte(line, '"') >= 0 && httpdDateBracketHint(line) {
 		m = p.reAccess.FindStringSubmatch(line)
 	}
 

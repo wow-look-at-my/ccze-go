@@ -37,10 +37,18 @@ func (p *XferlogPlugin) Description() string { return "Generic xferlog coloriser
 
 // Handle attempts to match and colorize an xferlog line.
 func (p *XferlogPlugin) Handle(line string) (bool, string) {
-	// Prefilter: the regexp starts ^... ... +, i.e. any 3 bytes, a space,
-	// any 3 bytes, then one or more spaces - so bytes 3 and 7 must both be
-	// spaces. Necessary condition only - never rejects a match.
+	// Prefilter: the regexp starts ^... ... +\d, i.e. any 3 bytes, a space,
+	// any 3 bytes, one or more spaces, then a digit - so bytes 3 and 7 must
+	// be spaces and the first byte after the space run must be a digit.
+	// Necessary conditions only - never rejects a match.
 	if len(line) < 9 || line[3] != ' ' || line[7] != ' ' {
+		return false, ""
+	}
+	i := 8
+	for i < len(line) && line[i] == ' ' {
+		i++
+	}
+	if !digitAt(line, i) {
 		return false, ""
 	}
 	m := xferlogRe.FindStringSubmatch(line)
