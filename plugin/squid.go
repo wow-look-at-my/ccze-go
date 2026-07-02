@@ -138,8 +138,18 @@ func parseSquidCache(line string) (date, other string, ok bool) {
 }
 
 func (p *SquidPlugin) Handle(line string) (bool, string) {
+	// Prefilter: reAccess starts ^\d{9,10}\. and reStore starts ^[\d\.]+\s,
+	// so both need a digit or '.' as the first byte. parseSquidCache does
+	// its own cheap byte checks. Necessary conditions only.
+	digitStart := digitAt(line, 0)
+	dotOrDigitStart := digitStart || (len(line) > 0 && line[0] == '.')
+
 	// Try access log (kept as regex — 13 capture groups)
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	var m []string
+	if digitStart {
+		m = p.reAccess.FindStringSubmatch(line)
+	}
+	if m != nil {
 		date := m[1]
 		espace := m[2]
 		elaps := m[3]
@@ -192,7 +202,11 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try store log (kept as regex — 18 capture groups)
-	if m := p.reStore.FindStringSubmatch(line); m != nil {
+	m = nil
+	if dotOrDigitStart {
+		m = p.reStore.FindStringSubmatch(line)
+	}
+	if m != nil {
 		date := m[1]
 		tag := m[2]
 		swapnum := m[3]

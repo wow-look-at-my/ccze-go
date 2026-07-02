@@ -3,6 +3,7 @@ package plugin
 import (
 	"io"
 	"regexp"
+	"strings"
 
 	"ccze-go/color"
 	"ccze-go/wordcolor"
@@ -36,8 +37,15 @@ func (p *ProFTPDPlugin) Type() Type          { return TypeFull }
 func (p *ProFTPDPlugin) Description() string { return "Coloriser for ProFTPD logs." }
 
 func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
+	// Prefilter: reAccess starts ^\d+\. (leading digit) and reAuth requires
+	// the literal " ftp server [". Necessary conditions only.
+	var m []string
+	if digitAt(line, 0) {
+		m = proftpdReAccess.FindStringSubmatch(line)
+	}
+
 	// Try access log
-	if m := proftpdReAccess.FindStringSubmatch(line); m != nil {
+	if m != nil {
 		host := m[1]
 		user := m[2]
 		auser := m[3]
@@ -76,7 +84,11 @@ func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try auth log
-	if m := proftpdReAuth.FindStringSubmatch(line); m != nil {
+	m = nil
+	if strings.Contains(line, " ftp server [") {
+		m = proftpdReAuth.FindStringSubmatch(line)
+	}
+	if m != nil {
 		servhost := m[1]
 		pid := m[2]
 		remhost := m[3]

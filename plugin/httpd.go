@@ -97,8 +97,17 @@ func parseHTTPDError(line string) (date, level, msg string, ok bool) {
 }
 
 func (p *HTTPDPlugin) Handle(line string) (bool, string) {
+	// Prefilter: reAccess requires a bracketed date (literal '[') and a
+	// double-quoted request (literal '"'). Necessary conditions only; the
+	// nested optional groups in reAccess backtrack heavily on non-matching
+	// lines, so this cheap scan pays off on every miss.
+	var m []string
+	if strings.IndexByte(line, '"') >= 0 && strings.IndexByte(line, '[') >= 0 {
+		m = p.reAccess.FindStringSubmatch(line)
+	}
+
 	// Try access log first (kept as regex — complex multi-group pattern)
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	if m != nil {
 		vhost := m[1]
 		host := m[2]
 		user := m[3]

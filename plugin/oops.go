@@ -37,6 +37,16 @@ func (p *OopsPlugin) Description() string { return "Coloriser for oops proxy log
 
 // Handle attempts to match and colorize an oops log line.
 func (p *OopsPlugin) Handle(line string) (bool, string) {
+	// Prefilter: the regexp starts ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) followed
+	// by a space. Necessary condition only - never rejects a match.
+	if len(line) < 4 || line[3] != ' ' {
+		return false, ""
+	}
+	switch line[:3] {
+	case "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun":
+	default:
+		return false, ""
+	}
 	m := oopsRe.FindStringSubmatch(line)
 	if m == nil {
 		return false, ""
