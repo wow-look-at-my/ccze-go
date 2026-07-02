@@ -455,6 +455,27 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 
 	lword := strings.ToLower(word)
 
+	// One character-class scan gates the matchers below: each matcher can
+	// only succeed if certain bytes are present (a '.' or ':' for hosts,
+	// '@' for emails, a digit for numbers, ...), so plain words skip most
+	// of the cascade without running the individual scanners. Every gate
+	// is a necessary condition of its matcher - never changes the winner.
+	var hasDigit, hasDot, hasColon, hasAt, hasBracket bool
+	for i := 0; i < len(lword); i++ {
+		switch c := lword[i]; {
+		case c >= '0' && c <= '9':
+			hasDigit = true
+		case c == '.':
+			hasDot = true
+		case c == ':':
+			hasColon = true
+		case c == '@':
+			hasAt = true
+		case c == '[':
+			hasBracket = true
+		}
+	}
+
 	// Opt-in extensions that need multi-color rendering and short-circuit the
 	// cascade. Gated so the default path is byte-for-byte unchanged.
 	if p.ext.any() {
@@ -487,9 +508,9 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		col = color.GetTime
 	case p.ext.Files && isBareFile(lword):
 		col = color.File
-	case matchHost(lword):
+	case (hasDot || hasColon || lword == "localhost") && matchHost(lword):
 		col = color.Host
-	case matchMAC(lword):
+	case hasColon && matchMAC(lword):
 		col = color.MAC
 	case p.ext.Files && looksLikePath(lword):
 		// Path (/abs, ./rel, ../rel, ~/, or rel/with/ext): a basename with an
@@ -501,25 +522,25 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		}
 	case len(lword) > 0 && lword[0] == '/':
 		col = color.Dir
-	case matchEmail(lword) && matchEmail2(lword):
+	case hasAt && matchEmail(lword) && matchEmail2(lword):
 		col = color.Email
-	case matchMsgID(lword):
+	case hasAt && matchMsgID(lword):
 		col = color.Email
-	case matchURI(lword):
+	case hasColon && matchURI(lword):
 		col = color.URI
-	case matchSize(lword):
+	case hasDigit && matchSize(lword):
 		col = color.Size
-	case matchVer(lword):
+	case hasDigit && hasDot && matchVer(lword):
 		col = color.Version
-	case matchTime(lword):
+	case hasDigit && hasColon && matchTime(lword):
 		col = color.Date
-	case matchAddr(lword):
+	case hasDigit && matchAddr(lword):
 		col = color.Address
-	case matchNum(lword):
+	case hasDigit && matchNum(lword):
 		col = color.Numbers
 	case matchSig(lword):
 		col = color.Signal
-	case matchHostIP(lword):
+	case hasBracket && matchHostIP(lword):
 		// Special handling: split at '[', output host and IP separately.
 		// By this point splitPost has stripped any trailing ']' (and following
 		// punctuation) into post, so word looks like "hostname[192.168.1.1".
