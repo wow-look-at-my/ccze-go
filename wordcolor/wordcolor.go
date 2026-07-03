@@ -393,6 +393,15 @@ func (p *Processor) Process(w io.Writer, msg string, wcol bool, slookup bool) {
 		return
 	}
 
+	// GNU make error/fatal lines (opt-in). Color the whole line as an error —
+	// the most severe level — while emitting the bytes verbatim. Checked before
+	// the Unreal/adaptive handlers so a make failure line short-circuits cleanly
+	// (it is a self-contained fatal line, not a prefix to color further).
+	if p.ext.Make && isMakeError(msg) {
+		p.ct.WriteColored(w, color.Error, msg)
+		return
+	}
+
 	// Unreal Engine log prefix (opt-in). Color the "[timestamp][frame]
 	// Category: Verbosity:" prefix (whose brackets abut, so the per-word
 	// cascade below cannot tokenize it) and continue with the normal per-word
