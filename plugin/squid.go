@@ -138,8 +138,28 @@ func parseSquidCache(line string) (date, other string, ok bool) {
 }
 
 func (p *SquidPlugin) Handle(line string) (bool, string) {
+	// Prefilters (necessary conditions of the regexps, nothing more):
+	// reAccess starts ^\d{9,10}\. - exactly 9 or 10 leading digits followed
+	// by a dot. reStore starts ^[\d\.]+\s - a leading digit/dot run followed
+	// by whitespace. parseSquidCache does its own cheap byte checks.
+	digits := 0
+	for digits < len(line) && line[digits] >= '0' && line[digits] <= '9' {
+		digits++
+	}
+	accessHint := (digits == 9 || digits == 10) && digits < len(line) && line[digits] == '.'
+
+	run := digits
+	for run < len(line) && (line[run] == '.' || (line[run] >= '0' && line[run] <= '9')) {
+		run++
+	}
+	storeHint := run > 0 && run < len(line) && isRegexpSpace(line[run])
+
 	// Try access log (kept as regex — 13 capture groups)
-	if m := p.reAccess.FindStringSubmatch(line); m != nil {
+	var m []string
+	if accessHint {
+		m = p.reAccess.FindStringSubmatch(line)
+	}
+	if m != nil {
 		date := m[1]
 		espace := m[2]
 		elaps := m[3]
@@ -192,7 +212,11 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 	}
 
 	// Try store log (kept as regex — 18 capture groups)
-	if m := p.reStore.FindStringSubmatch(line); m != nil {
+	m = nil
+	if storeHint {
+		m = p.reStore.FindStringSubmatch(line)
+	}
+	if m != nil {
 		date := m[1]
 		tag := m[2]
 		swapnum := m[3]

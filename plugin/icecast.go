@@ -43,6 +43,12 @@ func (p *IcecastPlugin) Description() string { return "Coloriser for Icecast(8) 
 // Handle attempts to match and colorize an Icecast log line.
 // It tries the usage pattern first, then the general pattern.
 func (p *IcecastPlugin) Handle(line string) (bool, string) {
+	// Prefilter: both regexps start ^\[\d+/, so a match needs "[" then a
+	// digit. Necessary condition only - never rejects a match.
+	if len(line) < 2 || line[0] != '[' || line[1] < '0' || line[1] > '9' {
+		return false, ""
+	}
+
 	// Try usage pattern first
 	if m := icecastReUsage.FindStringSubmatch(line); m != nil {
 		return p.handleUsage(m), ""

@@ -3,13 +3,63 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"strings"
 	"testing"
 
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// runStream pipes input through processStream with the full default pipeline
+// and returns the raw ANSI output.
+func runStream(t *testing.T, input string, remfac bool) string {
+	t.Helper()
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	ct := color.NewTable(true)
+	wc := wordcolor.New(ct)
+	r := plugin.NewRegistry()
+	registerAllPlugins(r, w, ct, wc, false)
+	processStream(strings.NewReader(input), w, r, ct, wc, remfac, true, false)
+	return buf.String()
+}
+
+func TestProcessStreamLongLine(t *testing.T) {
+	// Regression: the old bufio.Scanner-based loop had a 1MB cap on line
+	// length; the first longer line made it stop silently, dropping that
+	// line AND the entire rest of the input.
+	long := strings.Repeat("x", 2*1024*1024)
+	input := "before the long line\n" + long + "\nafter the long line\n"
+
+	out := stripAnsiCompat(runStream(t, input, false))
+
+	lines := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	require.Len(t, lines, 3)
+	assert.Equal(t, "before the long line", lines[0])
+	assert.Equal(t, long, lines[1])
+	assert.Equal(t, "after the long line", lines[2])
+}
+
+func TestProcessStreamCRLFAndPartialLastLine(t *testing.T) {
+	// CRLF terminators are stripped like bufio.ScanLines (at most one \r
+	// before the \n), and a final line without a trailing newline is still
+	// emitted.
+	out := stripAnsiCompat(runStream(t, "alpha beta\r\nno trailing newline", false))
+	assert.Equal(t, "alpha beta\nno trailing newline\n", out)
+}
+
+func TestProcessStreamEmptyLinesPreserved(t *testing.T) {
+	out := stripAnsiCompat(runStream(t, "one\n\n\ntwo\n", false))
+	assert.Equal(t, "one\n\n\ntwo\n", out)
+}
+
+func TestProcessStreamRemfac(t *testing.T) {
+	out := stripAnsiCompat(runStream(t, "<13>plain message here\n", true))
+	assert.Equal(t, "plain message here\n", out)
+}
 
 func TestConvertColorOverride(t *testing.T) {
 	tests := []struct {

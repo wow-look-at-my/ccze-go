@@ -80,6 +80,24 @@ func (r *Registry) Filter(names map[string]bool) {
 	r.plugins = filtered
 }
 
+// digitAt reports whether line has a decimal digit at index i.
+// Used by cheap byte-level prefilters that reject lines before running an
+// expensive regexp; every prefilter condition is a necessary condition of
+// the regexp it guards, so match behavior is unchanged.
+func digitAt(line string, i int) bool {
+	return i < len(line) && line[i] >= '0' && line[i] <= '9'
+}
+
+// isRegexpSpace reports whether c is matched by the regexp class \s
+// ([\t\n\f\r ]). Used by the same prefilters as digitAt.
+func isRegexpSpace(c byte) bool {
+	switch c {
+	case ' ', '\t', '\n', '\f', '\r':
+		return true
+	}
+	return false
+}
+
 // HTTPAction maps an HTTP method string to its corresponding color.
 func HTTPAction(method string) color.Color {
 	switch strings.ToUpper(method) {
