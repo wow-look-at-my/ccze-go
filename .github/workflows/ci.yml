@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # mint OIDC token for buildhost auth
-      contents: read    # read repo for the build
+      contents: write   # read repo for the build + dependency submission
       actions: read     # download build artifact for buildhost-publish
+      checks: read      # all-builds guard scans this run's checks
     steps:
       - uses: actions/checkout@v4
 
