@@ -1,10 +1,10 @@
 module ccze-go
 
-go 1.24.7
+go 1.26
 
 require (
 	github.com/stretchr/testify v1.11.1
-	github.com/wow-look-at-my/go-regex-compiler v0.0.0-20260520105527-317d2038d915
+	github.com/wow-look-at-my/go-regex-compiler v0.0.0
 )
 
 require (
