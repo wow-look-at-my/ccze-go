@@ -48,8 +48,7 @@ func TestMatchDuration(t *testing.T) {
 func TestExtDurations(t *testing.T) {
 	p, ct := procWith(Extensions{Durations: true})
 	out := render(p, "took 30.2s and 100ms")
-	// GetTime is bold (1m) + the GetTime color. Just assert the token survived
-	// and that a non-default color escape surrounds it.
+	// GetTime is bold.
 	assert.Contains(t, stripAnsi(out), "30.2s")
 	assert.Contains(t, stripAnsi(out), "100ms")
 	// With durations OFF, 30.2s should not be GetTime-colored.
@@ -106,14 +105,10 @@ func TestExtCounter(t *testing.T) {
 	numFg := fgSeq(ct, color.Numbers)
 	brkFg := fgSeq(ct, color.PIDB)
 
-	// [22/43]: digits get the numbers color, the [ / ] glyphs the bracket color.
 	out := render(p, "[22/43]")
 	assert.Equal(t, "[22/43]", stripAnsi(out), "counter text must be preserved")
 	assert.Contains(t, out, numFg, "counter digits should use the numbers color")
 	assert.Contains(t, out, brkFg, "counter glyphs should use the bracket color")
-	// Both digit runs and all three glyphs are individually colored: the
-	// numbers fg appears twice (22 and 43) and the bracket fg three times
-	// ([, /, ]).
 	assert.Equal(t, 2, strings.Count(out, numFg), "both digit runs should be numbers-colored")
 	assert.Equal(t, 3, strings.Count(out, brkFg), "[, / and ] should each be bracket-colored")
 
@@ -129,17 +124,14 @@ func TestExtCounter(t *testing.T) {
 	// Trailing punctuation is preserved.
 	assert.Equal(t, "[22/43]:", stripAnsi(render(p, "[22/43]:")))
 
-	// Non-counter brackets still render as TAGS, not counters. [INFO] keeps its
-	// level color; the multi-slash and empty-half cases fall through to the tag
-	// path (exercising the ok==false branches of counterParts).
+	// Non-counter brackets still render as TAGS, not counters.
 	infoOut := render(p, "[INFO]")
 	assert.Equal(t, "[INFO]", stripAnsi(infoOut))
 	assert.Contains(t, infoOut, fgSeq(ct, color.GoodWord), "[INFO] should stay a level tag")
 	for _, in := range []string{"[22/43/99]", "[22/]", "[/43]", "[a/b]"} {
 		out := render(p, in)
 		assert.Equal(t, in, stripAnsi(out), "non-counter bracket must be preserved: %q", in)
-		// These are tags, not counters: the inner content (digits/slashes) is one
-		// keyword-colored run, so the numbers color must NOT appear.
+		// These are tags, not counters: the inner content (digits/slashes) is one keyword-colored run.
 		assert.NotContains(t, out, numFg, "%q should render as a tag, not a counter", in)
 	}
 }
@@ -273,7 +265,7 @@ var invariantCorpus = []string{
 	"key=\"value with no closing and a [ bracket",
 	strings.Repeat("k=v ", 200),
 	strings.Repeat("verylongtokenwithoutspaces", 500),
-	"tabs\tand\tstuff", // tabs are not the split delimiter (space is)
+	"tabs\tand\tstuff", // tabs are not the split delimiter (space.
 	"[2026.06.28-13.42.12:957][  0]LogCoreRedirects: Verbose: RedirectNameAndValues(/Script/BlueprintGraph.K2Node_CallFunction:bIsPureFunc) replaced by /Script/X",
 	"LogTemp: Warning: something happened with code=5",
 	"make[1]: *** No rule to make target 'folder/file.cpp', needed by 'folder/file.o'.  Stop.",
@@ -283,8 +275,6 @@ var invariantCorpus = []string{
 }
 
 func TestExtInvariantAllCombos(t *testing.T) {
-	// Exhaustively toggle every extension combination (2^6) and assert the
-	// visible text is never altered for any corpus line.
 	for mask := 0; mask < 128; mask++ {
 		e := Extensions{
 			Tags:      mask&1 != 0,
@@ -304,7 +294,7 @@ func TestExtInvariantAllCombos(t *testing.T) {
 	}
 }
 
-// TestExtDisabledIdenticalToBaseline proves that with all extensions off, the
+// TestExtDisabledIdenticalToBaseline proves that with all extensions off. The
 // output is byte-for-byte identical to a processor that never had extensions
 // configured — i.e. the C-compatible path is untouched.
 func TestExtDisabledIdenticalToBaseline(t *testing.T) {

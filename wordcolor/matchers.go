@@ -1,21 +1,16 @@
 // Package wordcolor — matchers.go.
 //
 // Hand-written scanners for host/IP and email/message-id tokens, split out of
-// wordcolor.go to keep files focused and under the toolchain's size limit.
-// These replace the original C regexes (regHost, regHostIP, regEmail,
-// regEmail2, regMsgID) and are part of the default C-compatible pipeline.
+// wordcolor.go to keep files. Those files are focused and under the
+// toolchain's size limit. These replace the original C regexes (regHost,
+// regHostIP, regEmail, regEmail2, regMsgID) and are part of the default
+// C-compatible pipeline.
 package wordcolor
 
 import "strings"
 
-// ---------------------------------------------------------------------------
-// Host / IP matching  (replaces regHost and regHostIP)
-// ---------------------------------------------------------------------------
+// Host / IP matching (replaces regHost and regHostIP)
 
-// matchIPv4: \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
-// Exactly 4 dot-separated groups of 1-3 digits. Scans in place: this runs
-// for every word (via matchHost, the first cascade entry), so it must not
-// allocate like the previous strings.Split version did.
 func matchIPv4(s string) bool {
 	parts := 0
 	i := 0
@@ -39,8 +34,6 @@ func matchIPv4(s string) bool {
 	}
 }
 
-// matchHostname: ([a-z0-9-_]+\.)+[a-z]{2,3}
-// Labels of [a-z0-9-_]+ separated by dots, ending in a 2-3 letter TLD.
 // Scans in place (no strings.Split) - it runs for every word via matchHost.
 func matchHostname(s string) bool {
 	idx := strings.LastIndexByte(s, '.')
@@ -56,7 +49,6 @@ func matchHostname(s string) bool {
 			return false
 		}
 	}
-	// Dot-separated labels before the TLD: each non-empty, all [a-z0-9-_].
 	labelStart := 0
 	for i := 0; i < idx; i++ {
 		c := s[i]
@@ -86,7 +78,6 @@ func matchIPv6Like(s string) bool {
 		for i < len(s) && isWordChar(s[i]) {
 			i++
 		}
-		// ::
 		if i+1 >= len(s) || s[i] != ':' || s[i+1] != ':' {
 			return matched && i == len(s)
 		}
@@ -112,8 +103,6 @@ func matchHostCore(s string) bool {
 	return matchIPv4(s) || matchHostname(s) || matchIPv6Like(s)
 }
 
-// matchHost: the full regHost pattern, with optional :port suffix.
-// ^(((IPv4)|(hostname)|(localhost)|(IPv6))(:\d{1,5})?)$
 func matchHost(s string) bool {
 	if len(s) == 0 {
 		return false
@@ -133,8 +122,6 @@ func matchHost(s string) bool {
 	return matchHostCore(s[:idx])
 }
 
-// matchHostIPCore is like matchHostCore but with the looser hostname
-// pattern from regHostIP: ([a-z0-9-_.]+)+ instead of requiring a TLD.
 func matchHostIPCore(s string) bool {
 	if s == "localhost" || matchIPv4(s) || matchIPv6Like(s) {
 		return true
@@ -173,10 +160,9 @@ func matchHostIP(s string) bool {
 }
 
 // ---------------------------------------------------------------------------
-// Email / MsgID matching  (replaces regEmail, regEmail2, regMsgID)
+// Email / MsgID matching (replaces regEmail, regEmail2, regMsgID)
 // ---------------------------------------------------------------------------
 
-// matchEmail: ^[a-z0-9-_=+]+@([a-z0-9-_.]+)+  (prefix match)
 func matchEmail(s string) bool {
 	atIdx := strings.Index(s, "@")
 	if atIdx < 1 {
@@ -201,7 +187,6 @@ func matchEmail(s string) bool {
 	return true
 }
 
-// matchEmail2: (\.[a-z]{2,4})+$
 func matchEmail2(s string) bool {
 	i := len(s)
 	matched := false
@@ -234,7 +219,6 @@ func matchEmail2(s string) bool {
 	return matched
 }
 
-// matchMsgID: ^[a-z0-9-_.$=+]+@([a-z0-9-_.]+)+(\.[a-z]+)+  (prefix match)
 func matchMsgID(s string) bool {
 	atIdx := strings.Index(s, "@")
 	if atIdx < 1 {

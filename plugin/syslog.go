@@ -31,7 +31,6 @@ func (p *SyslogPlugin) Type() Type          { return TypeFull }
 func (p *SyslogPlugin) Description() string { return "Generic syslog(8) log coloriser." }
 
 // parseSyslog hand-parses a syslog line.
-// Format: ^(\S*\s{1,2}\d{1,2}\s\d\d:\d\d:\d\d)\s(\S+)\s+((\S+:?)\s(.*))$
 func parseSyslog(line string) (date, host, send, process, msg string, ok bool) {
 	n := len(line)
 
@@ -44,7 +43,6 @@ func parseSyslog(line string) (date, host, send, process, msg string, ok bool) {
 		return
 	}
 
-	// 1-2 spaces: \s{1,2}
 	spStart := i
 	for i < n && line[i] == ' ' {
 		i++
@@ -53,7 +51,6 @@ func parseSyslog(line string) (date, host, send, process, msg string, ok bool) {
 		return
 	}
 
-	// Day: \d{1,2}
 	dStart := i
 	for i < n && line[i] >= '0' && line[i] <= '9' {
 		i++
@@ -68,7 +65,7 @@ func parseSyslog(line string) (date, host, send, process, msg string, ok bool) {
 	}
 	i++
 
-	// HH:MM:SS — exactly dd:dd:dd (8 chars)
+	// HH:MM:SS — exactly dd:dd:dd (chars)
 	if i+8 > n {
 		return
 	}

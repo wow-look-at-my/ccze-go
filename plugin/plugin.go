@@ -30,8 +30,7 @@ type Plugin interface {
 	Type() Type
 	// Description returns a human-readable description of the plugin.
 	Description() string
-	// Handle attempts to colorize a log line. It returns whether the line
-	// was handled and any remaining unprocessed text.
+	// Handle attempts to colorize a log line. It returns whether the line was handled and any remaining unprocessed text.
 	Handle(line string) (handled bool, rest string)
 }
 
@@ -81,9 +80,6 @@ func (r *Registry) Filter(names map[string]bool) {
 }
 
 // digitAt reports whether line has a decimal digit at index i.
-// Used by cheap byte-level prefilters that reject lines before running an
-// expensive regexp; every prefilter condition is a necessary condition of
-// the regexp it guards, so match behavior is unchanged.
 func digitAt(line string, i int) bool {
 	return i < len(line) && line[i] >= '0' && line[i] <= '9'
 }

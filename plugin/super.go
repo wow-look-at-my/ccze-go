@@ -8,8 +8,7 @@ import (
 	"ccze-go/wordcolor"
 )
 
-// SuperPlugin is a FULL plugin.
-// Coloriser for super(1) logs.
+// SuperPlugin is a FULL plugin. Coloriser for super(1) logs.
 type SuperPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -42,9 +41,7 @@ func parseSuper(line string) (email, date, space, suptag, other string, ok bool)
 	email = line[:spIdx]
 	rest := line[spIdx+1:]
 
-	// Date: "Mon Oct 15 14:30:22 2023" — word spaces word spaces digits spaces time spaces year
-	// The date has the format: \w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d+
-	// We need to consume 5 space-delimited tokens (day-of-week, month, day, time, year)
+	// Date: "Mon Oct 15 14:30:22 2023" — word spaces word spaces digits spaces time spaces year The date has the format.
 	dateStart := 0
 	s := rest
 	for tok := 0; tok < 5; tok++ {
@@ -75,7 +72,6 @@ func parseSuper(line string) (email, date, space, suptag, other string, ok bool)
 	for spaceStart < len(rest) && rest[spaceStart] == ' ' {
 		spaceStart++
 	}
-	// Actually the space is from after dateStr to where s starts, minus 1 we already consumed
 	space = rest[len(dateStr):spaceStart]
 	rest = rest[spaceStart:]
 

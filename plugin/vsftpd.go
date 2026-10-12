@@ -31,11 +31,8 @@ func (p *VsftpdPlugin) Type() Type          { return TypeFull }
 func (p *VsftpdPlugin) Description() string { return "Coloriser for vsftpd logs." }
 
 // parseVsftpd hand-parses a vsftpd log line.
-// Format: ^(\S+\s+\S+\s+\d{1,2}\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\d+)(\s+)\[pid (\d+)\]\s+(\[(\S+)\])?\s*(.*)$
 func parseVsftpd(line string) (date, sspace, pid, user, other string, ok bool) {
-	// Date format: "Mon Oct 15 14:30:22 2023"
-	// We need to find: word space(s) word space(s) digits space(s) time space(s) year
-	// Then space(s) "[pid " digits "]"
+	// Date format: "Mon Oct 15 14:30:22 2023".
 
 	// Find "[pid " marker
 	pidIdx := strings.Index(line, "[pid ")
@@ -43,8 +40,7 @@ func parseVsftpd(line string) (date, sspace, pid, user, other string, ok bool) {
 		return
 	}
 
-	// Everything before "[pid " is date + spacing
-	// Trim trailing spaces to separate date from spacing
+	// Everything before "[pid " is date + spacing Trim trailing spaces to separate date from spacing
 	dateEnd := pidIdx
 	for dateEnd > 0 && line[dateEnd-1] == ' ' {
 		dateEnd--

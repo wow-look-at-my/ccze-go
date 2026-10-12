@@ -1,12 +1,7 @@
 package main
 
-// compat_test.go verifies that ccze-go produces the same ANSI output as the
-// C version of ccze. The golden reference strings were captured from ccze
-// 0.2.1-8 running with -A (ANSI mode) and default colors on a transparent
-// terminal.
-//
-// When the C binary is available on the system, TestCompatAgainstCBinary runs
-// live comparisons by piping lines through both implementations and diffing.
+// compat_test.go verifies that ccze-go produces the same ANSI output as the C
+// version of ccze.
 
 import (
 	"bufio"
@@ -65,25 +60,20 @@ func TestCompatSyslogGolden(t *testing.T) {
 	out := processLine(line)
 
 	// Verify structural elements are present with correct ANSI codes.
-	// Date: bold (1m) + cyan (36m) — color.Date = AttrBold|5, ansiColor[5]=36
 	assert.Contains(t, out, "\x1b[1m")
 
 	assert.Contains(t, out, "\x1b[36m")
 
 	assert.Contains(t, out, "Sep 14 11:45:00")
 
-	// Host: bold (1m) + blue (34m) — color.Host = AttrBold|4, ansiColor[4]=34
 	assert.Contains(t, out, "\x1b[34m")
 
 	assert.Contains(t, out, "myhost")
 
-	// Process: green (32m) — color.Proc = 2, ansiColor[2]=32
 	assert.Contains(t, out, "\x1b[32m")
 
 	assert.Contains(t, out, "sshd")
 
-	// PID bracket: bold green — color.PIDB = AttrBold|2
-	// PID number: bold white (37m) — color.PID = AttrBold|7
 	assert.Contains(t, out, "1234")
 
 	// Rest word "Connection" should appear
@@ -118,7 +108,6 @@ func TestCompatSyslogMark(t *testing.T) {
 	stripped := stripAnsiCompat(out)
 	assert.Contains(t, stripped, "-- MARK --")
 
-	// Repeat color: 7 (white, 37m) — no bold
 	assert.Contains(t, out, "\x1b[37m")
 
 }
@@ -140,7 +129,6 @@ func TestCompatHTTPDAccess(t *testing.T) {
 	// Host should be colored with Host color (bold blue)
 	assert.Contains(t, out, "192.168.1.1")
 
-	// User "frank" should use User color: bold yellow (AttrBold|3, 33m)
 	assert.Contains(t, out, "frank")
 
 	assert.Contains(t, out, "\x1b[33m")
@@ -151,7 +139,6 @@ func TestCompatHTTPDAccess(t *testing.T) {
 	// HTTP code "200" should use HTTPCodes: bold white (37m)
 	assert.Contains(t, out, "200")
 
-	// Size "2326" should use GetSize: magenta (ansiColor[6]=35m)
 	assert.Contains(t, out, "2326")
 
 	assert.Contains(t, out, "\x1b[35m")
@@ -166,7 +153,6 @@ func TestCompatHTTPDError(t *testing.T) {
 	// Date portion
 	assert.Contains(t, out, "[Sun Oct 12 15:30:00 2003]")
 
-	// Error level should use Error color: bold red (AttrBold|1, 31m)
 	assert.Contains(t, out, "\x1b[31m")
 
 	assert.Contains(t, out, "[error]")
@@ -177,7 +163,7 @@ func TestCompatHTTPDError(t *testing.T) {
 func TestCompatHTTPDPost(t *testing.T) {
 	line := `192.168.1.1 - admin [10/Oct/2000:13:55:36 -0700] "POST /api/submit HTTP/1.1" 201 512`
 	out := processLine(line)
-	// POST should use HTTPPost: bold green (AttrBold|2, bold+32m)
+	// POST should use HTTPPost: bold green (AttrBold|bold+32m)
 	stripped := stripAnsiCompat(out)
 	assert.Contains(t, stripped, "POST /api/submit HTTP/1.1")
 
@@ -239,7 +225,7 @@ func TestCompatWordColorBadWord(t *testing.T) {
 	line := "something failed with error"
 	out := processLine(line)
 
-	// "error" should be colored with Error: bold red (AttrBold|1, bold+31m)
+	// "error" should be colored with Error: bold red (AttrBold|bold+31m)
 	assert.Contains(t, out, "\x1b[1m")
 
 	assert.Contains(t, out, "\x1b[31m")
@@ -251,7 +237,6 @@ func TestCompatWordColorGoodWord(t *testing.T) {
 	line := "service started successfully"
 	out := processLine(line)
 
-	// "started" should use GoodWord: bold green (AttrBold|2)
 	stripped := stripAnsiCompat(out)
 	assert.Contains(t, stripped, "started")
 
@@ -298,7 +283,6 @@ func TestCompatWordColorVersion(t *testing.T) {
 func TestCompatWordColorDirectory(t *testing.T) {
 	line := "reading /etc/passwd done"
 	out := processLine(line)
-	// Dir color: bold cyan (AttrBold|5, 36m)
 	assert.Contains(t, out, "/etc/passwd")
 
 	assert.Contains(t, out, "\x1b[36m")
@@ -309,7 +293,6 @@ func TestCompatWordColorDirectory(t *testing.T) {
 func TestCompatWordColorSignal(t *testing.T) {
 	line := "received sigterm shutting down"
 	out := processLine(line)
-	// Signal color: bold yellow (AttrBold|3, 33m)
 	assert.Contains(t, out, "sigterm")
 
 }
@@ -318,7 +301,6 @@ func TestCompatWordColorSignal(t *testing.T) {
 func TestCompatWordColorMAC(t *testing.T) {
 	line := "device aa:bb:cc:dd:ee:ff connected"
 	out := processLine(line)
-	// MAC color: bold white (AttrBold|7, 37m)
 	assert.Contains(t, out, "aa:bb:cc:dd:ee:ff")
 
 }
@@ -343,7 +325,6 @@ func TestCompatWordColorSize(t *testing.T) {
 func TestCompatWordColorSystemWord(t *testing.T) {
 	line := "linux kernel booting"
 	out := processLine(line)
-	// SystemWord color: bold cyan (AttrBold|5, 36m)
 	stripped := stripAnsiCompat(out)
 	assert.Contains(t, stripped, "linux")
 
@@ -425,29 +406,22 @@ func TestCompatColorDefaults(t *testing.T) {
 	}
 }
 
-// TestCompatAnsiColorSwap verifies the cyan/magenta swap at indices 5-6
-// matches the C code. This is a deliberate quirk in the original C ccze.
+// This is a deliberate quirk in the original C ccze.
 func TestCompatAnsiColorSwap(t *testing.T) {
 	ct := color.NewTable(true)
 
-	// Color 5 (cyan) should produce ANSI code 36
-	// Color 6 (magenta) should produce ANSI code 35
-	// Verify by looking at the actual output:
-
 	var buf bytes.Buffer
-	// Date is AttrBold|5 (cyan), should produce \x1b[36m
 	ct.WriteColored(&buf, color.Date, "X")
 	assert.Contains(t, buf.String(), "\x1b[36m")
 
 	buf.Reset()
-	// GetSize is 6 (magenta), should produce \x1b[35m
 	ct.WriteColored(&buf, color.GetSize, "X")
 	assert.Contains(t, buf.String(), "\x1b[35m")
 
 }
 
-// TestCompatAttrSGRSwap verifies that AttrReverse emits SGR 5 (blink) and
-// AttrBlink emits SGR 7 (reverse), matching the C code's peculiar behavior.
+// TestCompatAttrSGRSwap verifies that AttrReverse emits a later SGR (blink)
+// and AttrBlink emits a later SGR (reverse), matching the C code's peculiar behavior.
 func TestCompatAttrSGRSwap(t *testing.T) {
 	ct := color.NewTable(true)
 
@@ -483,7 +457,6 @@ func TestCompatNonTransparentBackground(t *testing.T) {
 	ct := color.NewTable(false)
 	var buf bytes.Buffer
 	ct.WriteColored(&buf, color.Default, "X")
-	// bg=0 (black) in non-transparent -> ANSI 30+10 = 40
 	assert.Contains(t, buf.String(), "\x1b[40m")
 
 }

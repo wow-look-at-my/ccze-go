@@ -8,9 +8,8 @@ import (
 	"ccze-go/color"
 )
 
-// Processor holds a color table for performing word-level colorization of
-// log messages. Pattern matching is done with hand-written scanners instead
-// of compiled regular expressions for better throughput on the hot path.
+// Processor holds a color table for performing word-level colorization of log
+// messages.
 type Processor struct {
 	ct  *color.Table
 	ext Extensions
@@ -49,14 +48,6 @@ type kwEntry struct {
 }
 
 // kwByFirst indexes the bad/good/error/system keyword lists by first byte.
-// The original code ran all four lists in sequence (bad, good, error,
-// system) with a later list's match overriding an earlier one, i.e. the
-// highest-priority list containing any matching keyword wins. A matching
-// keyword necessarily shares the word's first byte, so bucketing by first
-// byte and ordering each bucket by descending priority (system > error >
-// good > bad) lets the first hit win with identical results - while words
-// that match nothing (the common case) scan a handful of candidates
-// instead of all 72.
 var kwByFirst [256][]kwEntry
 
 func init() {
@@ -111,9 +102,7 @@ func allDigits(s string) bool {
 	return len(s) > 0
 }
 
-// ---------------------------------------------------------------------------
-// Punctuation stripping  (replaces regPre / regPost)
-// ---------------------------------------------------------------------------
+// Punctuation stripping (replaces regPre / regPost)
 
 func isPunctPre(c byte) bool {
 	switch c {
@@ -157,10 +146,6 @@ func splitPost(word string) (body, post string) {
 	return word[:i], word[i:]
 }
 
-// ---------------------------------------------------------------------------
-// Pattern matchers (replace the 13 content regexes)
-// ---------------------------------------------------------------------------
-
 // matchNum: ^[+-]?\d+$
 func matchNum(s string) bool {
 	if len(s) == 0 {
@@ -194,8 +179,6 @@ func matchAddr(s string) bool {
 	return true
 }
 
-// matchMAC: ^([0-9a-f]{2}:){5}[0-9a-f]{2}$
-// A MAC address is exactly 17 characters: aa:bb:cc:dd:ee:ff
 func matchMAC(s string) bool {
 	if len(s) != 17 {
 		return false
@@ -221,7 +204,7 @@ func matchSig(s string) bool {
 		return false
 	}
 	rest := s[3:]
-	// Signal names range from 2 to 6 characters. Try each prefix length.
+	// Try each prefix length.
 	for end := 2; end <= 6 && end <= len(rest); end++ {
 		if sigNames[rest[:end]] {
 			return true
@@ -230,7 +213,7 @@ func matchSig(s string) bool {
 	return false
 }
 
-// matchTime: \d{1,2}:\d{1,2}(:\d{1,2})?  (unanchored — matches anywhere)
+// (unanchored — matches anywhere)
 func matchTime(s string) bool {
 	n := len(s)
 	for i := 0; i < n; i++ {
@@ -253,13 +236,11 @@ func matchTime(s string) bool {
 		if j < n && isDigit(s[j]) {
 			j++
 		}
-		// Matched d{1,2}:d{1,2}
 		return true
 	}
 	return false
 }
 
-// matchURI: ^\w{2,}://(\S+/?)+$
 func matchURI(s string) bool {
 	idx := strings.Index(s, "://")
 	if idx < 2 {
@@ -282,7 +263,7 @@ func matchURI(s string) bool {
 	return true
 }
 
-// matchSize: ^\d+(\.\d+)?[kmgt]i?b?(ytes?)?  (prefix match, no $ anchor)
+// (prefix match, no $ anchor)
 func matchSize(s string) bool {
 	i := 0
 	n := len(s)
@@ -330,7 +311,6 @@ func matchSize(s string) bool {
 	return true
 }
 
-// matchVer: ^v?(\d+\.){1}((\d|[a-z])+\.)*(\d|[a-z])+$
 func matchVer(s string) bool {
 	if len(s) == 0 {
 		return false
@@ -349,7 +329,6 @@ func matchVer(s string) bool {
 	}
 	i++ // skip dot
 
-	// Remaining groups: one or more [a-z0-9] chars, separated by dots.
 	// The last group must NOT end with a dot.
 	for {
 		start = i
@@ -394,19 +373,13 @@ func (p *Processor) Process(w io.Writer, msg string, wcol bool, slookup bool) {
 	}
 
 	// GNU make error/fatal lines (opt-in). Color the whole line as an error —
-	// the most severe level — while emitting the bytes verbatim. Checked before
-	// the Unreal/adaptive handlers so a make failure line short-circuits cleanly
-	// (it is a self-contained fatal line, not a prefix to color further).
+	// the most severe level — while emitting the bytes verbatim.
 	if p.ext.Make && isMakeError(msg) {
 		p.ct.WriteColored(w, color.Error, msg)
 		return
 	}
 
-	// Unreal Engine log prefix (opt-in). Color the "[timestamp][frame]
-	// Category: Verbosity:" prefix (whose brackets abut, so the per-word
-	// cascade below cannot tokenize it) and continue with the normal per-word
-	// path for the message body. Checked before adaptive so Unreal lines get
-	// Unreal-aware coloring.
+	// Unreal Engine log prefix (opt-in).
 	handledUnreal := false
 	if p.ext.Unreal {
 		if n := p.renderUnrealPrefix(w, msg); n > 0 {
@@ -418,18 +391,12 @@ func (p *Processor) Process(w io.Writer, msg string, wcol bool, slookup bool) {
 		}
 	}
 
-	// Adaptive recurring-structure recognition (opt-in). It may colorize the
-	// whole line using learned cross-line structure; if it declines (returns
-	// false) we fall through to the standard per-word path. Either way it only
-	// ever adds color — the visible text is unchanged.
+	// Adaptive recurring-structure recognition (opt-in).
 	if !handledUnreal && p.ada != nil && p.ada.process(p, w, msg) {
 		return
 	}
 
 	// Iterate space-separated words in place (no strings.Split allocation).
-	// Semantics match the original Split loop: each non-empty word is
-	// processed, and a colored space is written after every word except the
-	// last (empty words from consecutive spaces still yield their space).
 	start := 0
 	for {
 		rel := strings.IndexByte(msg[start:], ' ')
@@ -464,11 +431,7 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 
 	lword := strings.ToLower(word)
 
-	// One character-class scan gates the matchers below: each matcher can
-	// only succeed if certain bytes are present (a '.' or ':' for hosts,
-	// '@' for emails, a digit for numbers, ...), so plain words skip most
-	// of the cascade without running the individual scanners. Every gate
-	// is a necessary condition of its matcher - never changes the winner.
+	// One character-class scan gates the matchers below: each matcher can only succeed if certain bytes are present (a '.' or ':' for hosts, '@' for emails, a digit for numbers, ...).
 	var hasDigit, hasDot, hasColon, hasAt, hasBracket bool
 	for i := 0; i < len(lword); i++ {
 		switch c := lword[i]; {
@@ -489,13 +452,10 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 	// cascade. Gated so the default path is byte-for-byte unchanged.
 	if p.ext.any() {
 		// [INFO] / [component] bracket tags: splitPre/splitPost have moved the
-		// brackets into pre/post, so a tag looks like pre ending in '[' and
-		// post starting with ']' around a non-empty inner word.
+		// brackets into pre/post. A tag looks like pre ending in '[' and post
+		// starting with ']' around a non-empty inner word.
 		if p.ext.Tags && word != "" &&
 			strings.HasSuffix(pre, "[") && strings.HasPrefix(post, "]") {
-			// A bracketed "N/M" counter (e.g. [22/43]) is colored as a counter:
-			// digits in the numbers color, the [ / ] glyphs in the bracket color.
-			// Anything else in brackets stays a level/keyword tag.
 			if a, b, ok := counterParts(word); ok {
 				p.renderCounter(w, pre, a, b, post)
 				return
@@ -551,8 +511,6 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 		col = color.Signal
 	case hasBracket && matchHostIP(lword):
 		// Special handling: split at '[', output host and IP separately.
-		// By this point splitPost has stripped any trailing ']' (and following
-		// punctuation) into post, so word looks like "hostname[192.168.1.1".
 		idx := strings.Index(word, "[")
 		if idx >= 0 {
 			host := word[:idx]
@@ -561,9 +519,8 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 			p.ct.WriteColored(w, color.Host, host)
 			p.ct.WriteColored(w, color.PIDB, "[")
 			p.ct.WriteColored(w, color.Host, ip)
-			// The closing ']' lives in post (splitPost moved it there); color it
-			// as a bracket and emit the remainder. Do NOT synthesize a ']' here
-			// — doing so duplicated it (e.g. "sshd[1234]:" -> "sshd[1234]]:").
+			// The closing ']' lives in post (splitPost moved it there); color it as a
+			// bracket and emit the remainder.
 			if strings.HasPrefix(post, "]") {
 				p.ct.WriteColored(w, color.PIDB, "]")
 				p.ct.WriteColored(w, color.Default, post[1:])
@@ -573,8 +530,8 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 			printed = true
 		}
 	default:
-		// Service, protocol, and user lookups (slookup).
-		// These are skipped for now; can be implemented later.
+		// Service, protocol, and user lookups (slookup). These are skipped; can be
+		// implemented later.
 
 		// Keyword matching against the bad/good/error/system word lists,
 		// via the first-byte index (see kwByFirst for the priority rules).

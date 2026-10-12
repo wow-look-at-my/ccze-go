@@ -1,11 +1,9 @@
 // Package wordcolor — extensions.go.
 //
-// This file holds the opt-in "modern log" highlighters (tags, files, slog
-// key=value, durations; the Unreal and make highlighters live in unreal.go and
-// make.go) and their plumbing. They are split out from wordcolor.go to keep
-// each file focused (and under the toolchain's file-size limit). Every helper here is reached only when its Extensions flag is set;
-// the default pipeline never touches them and stays byte-for-byte compatible
-// with C ccze. All of them only ADD color — the visible text is unchanged.
+// This file holds the opt-in "modern log" highlighters (tags, files, slog key=value, durations; the Unreal and make highlighters
+// live in unreal.go and make.go) and their plumbing. They are split out from wordcolor.go to keep each file focused (and under the
+// toolchain's file-size limit). Every helper here is reached only when its Extensions flag is set. The default pipeline never
+// touches them and stays byte-for-byte compatible with C ccze. All of them only ADD color — the visible text is unchanged.
 package wordcolor
 
 import (
@@ -15,32 +13,10 @@ import (
 	"ccze-go/color"
 )
 
-// The two simplest, opt-in boolean matchers used here (matchDuration and
-// isSlogKey) are compiled from regexes by go-regex-compiler into DFA
-// byte-scanners (duration_match_gen.go, slogkey_match_gen.go) instead of being
-// hand-written, keeping the pattern declarative. They are off the default hot
-// path, so the regex form costs nothing on the C-compatible benchmark. The
-// generated files are committed as vendored source; regenerate them with:
-//
-//	go install github.com/wow-look-at-my/go-regex-compiler/cmd/go-regex-compiler@latest
-//	go-regex-compiler --regex '[+-]?([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+' \
-//	  --func matchDuration --package wordcolor --match full --output wordcolor/duration_match_gen.go
-//	go-regex-compiler --regex '[A-Za-z][A-Za-z0-9_.-]*' \
-//	  --func isSlogKey --package wordcolor --match full --output wordcolor/slogkey_match_gen.go
-//	gofmt -w wordcolor/duration_match_gen.go wordcolor/slogkey_match_gen.go
-//
-// (A //go:generate directive is intentionally NOT used: go-toolchain gates
-// go:generate behind an approval hash and would also need the generator
-// installed in CI. Vendoring the output avoids that CI coupling. The
-// host/IP/email/number/etc. matchers stay hand-written: they are on the hot
-// path and a few need field extraction, which the generator does not do — see
-// matchers.go.)
+// Both simplest, opt-in boolean matchers used here (matchDuration and
+// isSlogKey) are compiled from regexes by go-regex-compiler.
 
-// Extensions toggles the opt-in "modern log" highlighters. They are all off by
-// default so the standard pipeline stays byte-for-byte compatible with the C
-// ccze it ports (the golden/compat test suite depends on this). They are
-// enabled via the -o CLI option (see main.go) and only ever ADD color: every
-// input byte is still emitted verbatim, just wrapped in extra ANSI.
+// Extensions toggles the opt-in "modern log" highlighters.
 type Extensions struct {
 	Tags      bool // [INFO]/[component] bracket tags, level-aware coloring
 	Files     bool // filenames and relative paths (foo.go, src/app.py, ./x)
@@ -51,14 +27,12 @@ type Extensions struct {
 	Make      bool // GNU make error/fatal lines: "make[N]: *** ...  Stop." (see make.go)
 }
 
-// any reports whether at least one extension is enabled. When false, ProcessOne
-// takes exactly the same path as the original C-compatible implementation.
+// any reports whether at least one extension is enabled.
 func (e Extensions) any() bool {
 	return e.Tags || e.Files || e.Slog || e.Durations || e.Unreal || e.Adaptive || e.Make
 }
 
-// SetExtensions enables the opt-in highlighters on the processor. It (re)builds
-// any per-extension state, so it is safe to call once after construction.
+// SetExtensions enables the opt-in highlighters on the processor.
 func (p *Processor) SetExtensions(e Extensions) {
 	p.ext = e
 	if e.Adaptive {
@@ -105,9 +79,7 @@ func baseName(s string) string {
 }
 
 // fileExt returns the (lowercase) extension of a basename when it has a
-// plausible one — a '.' that is neither the first nor the last byte, followed
-// by 1-8 [a-z0-9] characters — otherwise "". This is the loose check used for
-// slash-bearing paths, where the slash already signals "this is a path".
+// plausible one — a '.'
 func fileExt(base string) string {
 	dot := strings.LastIndexByte(base, '.')
 	if dot <= 0 || dot == len(base)-1 {
@@ -125,8 +97,8 @@ func fileExt(base string) string {
 	return ext
 }
 
-// looksLikePath reports whether s is clearly a filesystem path: it starts with
-// /, ./, ../ or ~/, or it is a relative path (contains a slash) whose basename
+// looksLikePath reports whether s is a filesystem path: it starts with /, ./,
+// ../ or ~/, or it is a relative path (contains a slash) whose basename
 // carries a plausible extension. This avoids treating tokens like "and/or" as
 // paths while still catching "src/app/main.go".
 func looksLikePath(s string) bool {
@@ -146,8 +118,7 @@ func looksLikePath(s string) bool {
 }
 
 // isBareFile reports whether lword is a bare filename (no slash) whose
-// extension is in the curated unambiguous set. Used to color e.g. main.go or
-// config.yaml as a file before the host matcher would claim them.
+// extension is in the curated unambiguous set.
 func isBareFile(lword string) bool {
 	if lword == "" || strings.IndexByte(lword, '/') >= 0 {
 		return false
@@ -155,11 +126,8 @@ func isBareFile(lword string) bool {
 	return fileExtensions[fileExt(lword)]
 }
 
-// isSlogKey reports whether s is a plausible logfmt/slog key: a leading letter
-// then [A-Za-z0-9_.-] (which keeps CLI flags like --x=y and numeric junk from
-// being treated as keys). It is generated from its regex into
-// slogkey_match_gen.go by go-regex-compiler (see the //go:generate directives
-// above).
+// It is generated from its regex into slogkey_match_gen.go by
+// go-regex-compiler (see the //go:generate directives above).
 
 // tagColor maps a bracketed tag's inner text to a color. Common log levels get
 // semantic colors; anything else gets the keyword color.
@@ -189,8 +157,7 @@ func (p *Processor) classifyValue(lword string) color.Color {
 	case p.ext.Durations && matchDuration(lword):
 		return color.GetTime
 	case p.ext.Files && isBareFile(lword):
-		// e.g. file=main.go — prefer File over the hostname syntax it also
-		// matches. Gated on Files so it only applies when that extension is on.
+		// e.g. file=main.go — prefer File over the hostname syntax it also matches.
 		return color.File
 	case matchHost(lword):
 		return color.Host
@@ -220,10 +187,8 @@ func (p *Processor) classifyValue(lword string) color.Color {
 	}
 }
 
-// renderTag emits a bracketed tag: the bytes of pre before its trailing '[',
-// then a colored "[", the level-colored inner text, a colored "]", and the
-// bytes of post after its leading ']'. Caller guarantees pre ends with '[' and
-// post starts with ']'. Concatenated output text equals pre+inner+post.
+// renderTag emits a bracketed tag: the bytes of pre. This happens before its trailing '[', then a colored "[", the level-colored inner text, a colored "]", and the bytes of post after its leading ']'. Caller guarantees pre ends with '[' and post starts with ']'.
+// Concatenated output text equals pre+inner+post.
 func (p *Processor) renderTag(w io.Writer, pre, inner, post string) {
 	p.ct.WriteColored(w, color.Default, pre[:len(pre)-1])
 	p.ct.WriteColored(w, color.PIDB, "[")
@@ -233,12 +198,8 @@ func (p *Processor) renderTag(w io.Writer, pre, inner, post string) {
 }
 
 // counterParts reports whether word is a "N/M" counter (e.g. "22/43") and
-// returns its two digit runs. The brackets have already been split into
-// pre/post by the caller, so word is just the inner "N/M" text. Because
-// IndexByte finds the FIRST slash, a second slash (e.g. "22/4/3") lands in b
-// and fails allDigits(b), so multi-slash inputs correctly return false. Uses a
-// manual byte scan (via allDigits) rather than regexp: this is a hot per-word
-// path. allDigits is the existing helper in wordcolor.go.
+// returns its digit runs. The brackets have already been split into
+// pre/post by the caller, so word is the inner "N/M" text.
 func counterParts(word string) (a, b string, ok bool) {
 	slash := strings.IndexByte(word, '/')
 	if slash <= 0 || slash >= len(word)-1 {
@@ -251,12 +212,12 @@ func counterParts(word string) (a, b string, ok bool) {
 	return a, b, true
 }
 
-// renderCounter emits a bracketed "N/M" counter, mirroring renderTag: the bytes
-// of pre before its trailing '[', then a bracket-colored "[", the numbers-colored
-// first digit run, a bracket-colored "/", the numbers-colored second digit run,
-// a bracket-colored "]", and the bytes of post after its leading ']'. Caller
-// guarantees pre ends with '[' and post starts with ']'. Every input byte is
-// emitted exactly once, so concatenated output text equals pre+a+"/"+b+post.
+// renderCounter emits a bracketed "N/M" counter, mirroring renderTag: the
+// bytes of pre. This happens before its trailing '[', then a bracket-colored
+// "[", the numbers-colored first digit run, a bracket-colored "/", the
+// numbers-colored second digit run, a bracket-colored "]", and the bytes of
+// post after its leading ']'. Caller guarantees pre ends with '[' and post
+// starts with ']'.
 func (p *Processor) renderCounter(w io.Writer, pre, a, b, post string) {
 	p.ct.WriteColored(w, color.Default, pre[:len(pre)-1])
 	p.ct.WriteColored(w, color.PIDB, "[")

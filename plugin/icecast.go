@@ -17,8 +17,7 @@ var (
 	)
 )
 
-// IcecastPlugin is a FULL plugin.
-// Coloriser for Icecast(8) logs.
+// IcecastPlugin is a FULL plugin. Coloriser for Icecast(8) logs.
 type IcecastPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -110,7 +109,6 @@ func (p *IcecastPlugin) handleUsage(m []string) bool {
 func (p *IcecastPlugin) handleGeneral(m []string) string {
 	date := m[1]
 	admin := m[2]
-	// m[3] is the full bracket group including brackets
 	threadno := m[4]
 	thread := m[5]
 	rest := m[6]

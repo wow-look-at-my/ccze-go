@@ -97,7 +97,6 @@ func TestPrintDateConversion(t *testing.T) {
 	var buf bytes.Buffer
 	PrintDate(&buf, ct, "1000000000", true)
 	out := stripAnsi(buf.String())
-	// Format is "Jan  2 15:04:05" — 1000000000 = Sep  9 01:46:40 UTC
 	assert.False(t, !strings.Contains(out, "Sep") || !strings.Contains(out, "01:46:40"))
 
 }

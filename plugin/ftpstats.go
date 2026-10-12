@@ -12,8 +12,7 @@ var ftpstatsRe = regexp.MustCompile(
 	`^(\d{9,10})\s([\da-f]+\.[\da-f]+)\s([^\s]+)\s([^\s]+)\s(U|D)\s(\d+)\s(\d+)\s(.*)$`,
 )
 
-// FtpstatsPlugin is a FULL plugin.
-// Coloriser for ftpstats (pure-ftpd) logs.
+// FtpstatsPlugin is a FULL plugin. Coloriser for ftpstats (pure-ftpd) logs.
 type FtpstatsPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -37,8 +36,7 @@ func (p *FtpstatsPlugin) Description() string { return "Coloriser for ftpstats (
 
 // Handle attempts to match and colorize an ftpstats log line.
 func (p *FtpstatsPlugin) Handle(line string) (bool, string) {
-	// Prefilter: the regexp starts ^\d{9,10}\s, so a match needs at least
-	// 9 leading digits. Necessary condition only - never rejects a match.
+	// Necessary condition only - never rejects a match.
 	if len(line) < 10 {
 		return false, ""
 	}

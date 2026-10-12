@@ -15,8 +15,8 @@ type SquidPlugin struct {
 	ct       *color.Table
 	wc       *wordcolor.Processor
 	convdate bool
-	reAccess *regexp.Regexp // kept: 13 capture groups, complex
-	reStore  *regexp.Regexp // kept: 18 capture groups, complex
+	reAccess *regexp.Regexp
+	reStore  *regexp.Regexp
 }
 
 // NewSquidPlugin creates a new SquidPlugin.
@@ -98,10 +98,8 @@ func proxyTag(tag string) color.Color {
 }
 
 // parseSquidCache hand-parses a squid cache log line.
-// Format: ^(\d{4}/\d{2}/\d{2}\s(\d{2}:){2}\d{2}\|)\s(.*)$
-// e.g. "2023/10/15 14:30:22| Starting Squid Cache"
 func parseSquidCache(line string) (date, other string, ok bool) {
-	// Minimum: "YYYY/MM/DD HH:MM:SS| X"  = 21 chars
+	// Minimum: "YYYY/MM/DD HH:MM:SS| X" = 21 chars
 	if len(line) < 21 {
 		return
 	}
@@ -123,7 +121,6 @@ func parseSquidCache(line string) (date, other string, ok bool) {
 		t[6] >= '0' && t[6] <= '9' && t[7] >= '0' && t[7] <= '9') {
 		return
 	}
-	// |
 	if line[19] != '|' {
 		return
 	}
@@ -138,10 +135,7 @@ func parseSquidCache(line string) (date, other string, ok bool) {
 }
 
 func (p *SquidPlugin) Handle(line string) (bool, string) {
-	// Prefilters (necessary conditions of the regexps, nothing more):
-	// reAccess starts ^\d{9,10}\. - exactly 9 or 10 leading digits followed
-	// by a dot. reStore starts ^[\d\.]+\s - a leading digit/dot run followed
-	// by whitespace. parseSquidCache does its own cheap byte checks.
+	// Prefilters (necessary conditions of the regexps, nothing more).
 	digits := 0
 	for digits < len(line) && line[digits] >= '0' && line[digits] <= '9' {
 		digits++
@@ -154,7 +148,6 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 	}
 	storeHint := run > 0 && run < len(line) && isRegexpSpace(line[run])
 
-	// Try access log (kept as regex — 13 capture groups)
 	var m []string
 	if accessHint {
 		m = p.reAccess.FindStringSubmatch(line)
@@ -211,7 +204,6 @@ func (p *SquidPlugin) Handle(line string) (bool, string) {
 		return true, ""
 	}
 
-	// Try store log (kept as regex — 18 capture groups)
 	m = nil
 	if storeHint {
 		m = p.reStore.FindStringSubmatch(line)
