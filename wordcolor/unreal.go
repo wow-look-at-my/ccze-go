@@ -14,19 +14,18 @@ import (
 	"strings"
 
 	"ccze-go/color"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 // unrealVerbosities is the set of Unreal Engine verbosity levels
 // (lowercased).
-var unrealVerbosities = map[string]bool{
-	"fatal":       true,
-	"error":       true,
-	"warning":     true,
-	"display":     true,
-	"log":         true,
-	"verbose":     true,
-	"veryverbose": true,
-}
+var unrealVerbosities = set.Of[string]("fatal",
+	"error",
+	"warning",
+	"display",
+	"log",
+	"verbose",
+	"veryverbose")
 
 // unrealVerbosityColor maps an Unreal verbosity word (any case) to a color,
 // brightest for the most severe levels and dim for the debug levels.
@@ -127,7 +126,7 @@ func matchUnrealVerbosity(s string) int {
 	if i == start || i >= len(s) || s[i] != ':' {
 		return 0
 	}
-	if !unrealVerbosities[strings.ToLower(s[start:i])] {
+	if !unrealVerbosities.Contains(strings.ToLower(s[start:i])) {
 		return 0
 	}
 	return i + 1

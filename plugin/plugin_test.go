@@ -8,6 +8,7 @@ import (
 	"ccze-go/color"
 	"ccze-go/wordcolor"
 	"github.com/stretchr/testify/assert"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 // stripAnsi removes ANSI escape sequences.
@@ -344,13 +345,12 @@ func TestAllPluginsHaveRequiredMethods(t *testing.T) {
 		NewUlogdPlugin(buf, ct, wc, false),
 	}
 
-	names := make(map[string]bool)
+	names := set.New[string]()
 	for _, p := range plugins {
 		assert.NotEqual(t, "", p.Name())
 
-		assert.False(t, names[p.Name()])
-
-		names[p.Name()] = true
+		assert.False(t, names.Contains(p.Name()))
+		names.Add(p.Name())
 
 		assert.NotEqual(t, "", p.Description())
 

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"ccze-go/color"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 // Both simplest, opt-in boolean matchers used here (matchDuration and
@@ -50,25 +51,23 @@ func (p *Processor) SetExtensions(e Extensions) {
 // BARE names (no slash). It deliberately omits strings that are common domain
 // TLDs (com, org, net, io, co, dev, ...) so that hostnames are not mistaken for
 // files. Paths that contain a slash use the looser fileExt check instead.
-var fileExtensions = map[string]bool{
-	"go": true, "mod": true, "sum": true, "txt": true, "log": true, "json": true,
-	"yaml": true, "yml": true, "toml": true, "ini": true, "conf": true, "cfg": true,
-	"md": true, "rst": true, "csv": true, "tsv": true, "xml": true, "html": true,
-	"htm": true, "css": true, "scss": true, "js": true, "jsx": true, "ts": true,
-	"tsx": true, "py": true, "rb": true, "rs": true, "c": true, "cc": true,
-	"cpp": true, "cxx": true, "h": true, "hpp": true, "java": true, "kt": true,
-	"php": true, "pl": true, "lua": true, "sql": true, "sh": true, "bash": true,
-	"zsh": true, "fish": true, "pem": true, "crt": true, "cert": true, "cer": true,
-	"der": true, "csr": true, "pub": true, "key": true, "p12": true, "pfx": true,
-	"jks": true, "pid": true, "sock": true, "lock": true, "gz": true, "bz2": true,
-	"xz": true, "zst": true, "tar": true, "tgz": true, "zip": true, "7z": true,
-	"rar": true, "png": true, "jpg": true, "jpeg": true, "gif": true, "svg": true,
-	"ico": true, "webp": true, "bmp": true, "pdf": true, "db": true, "sqlite": true,
-	"sqlite3": true, "bak": true, "tmp": true, "swp": true, "out": true, "err": true,
-	"o": true, "a": true, "so": true, "dll": true, "exe": true, "bin": true,
-	"deb": true, "rpm": true, "apk": true, "properties": true, "env": true,
-	"service": true, "socket": true, "target": true, "tf": true, "tfvars": true,
-}
+var fileExtensions = set.Of[string]("go", "mod", "sum", "txt", "log", "json",
+	"yaml", "yml", "toml", "ini", "conf", "cfg",
+	"md", "rst", "csv", "tsv", "xml", "html",
+	"htm", "css", "scss", "js", "jsx", "ts",
+	"tsx", "py", "rb", "rs", "c", "cc",
+	"cpp", "cxx", "h", "hpp", "java", "kt",
+	"php", "pl", "lua", "sql", "sh", "bash",
+	"zsh", "fish", "pem", "crt", "cert", "cer",
+	"der", "csr", "pub", "key", "p12", "pfx",
+	"jks", "pid", "sock", "lock", "gz", "bz2",
+	"xz", "zst", "tar", "tgz", "zip", "7z",
+	"rar", "png", "jpg", "jpeg", "gif", "svg",
+	"ico", "webp", "bmp", "pdf", "db", "sqlite",
+	"sqlite3", "bak", "tmp", "swp", "out", "err",
+	"o", "a", "so", "dll", "exe", "bin",
+	"deb", "rpm", "apk", "properties", "env",
+	"service", "socket", "target", "tf", "tfvars")
 
 // baseName returns the final path component of s.
 func baseName(s string) string {
@@ -123,7 +122,7 @@ func isBareFile(lword string) bool {
 	if lword == "" || strings.IndexByte(lword, '/') >= 0 {
 		return false
 	}
-	return fileExtensions[fileExt(lword)]
+	return fileExtensions.Contains(fileExt(lword))
 }
 
 // It is generated from its regex into slogkey_match_gen.go by

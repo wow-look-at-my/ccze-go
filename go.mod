@@ -4,6 +4,7 @@ go 1.26
 
 require (
 	github.com/stretchr/testify v1.11.1
+	github.com/wow-look-at-my/go-containers v0.0.0
 	github.com/wow-look-at-my/go-regex-compiler v0.0.0
 )
 

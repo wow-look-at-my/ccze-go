@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"ccze-go/color"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 // Processor holds a color table for performing word-level colorization of log
@@ -65,16 +66,14 @@ func init() {
 
 // Signal name lookup table. The regex was ^sig(name...) which is effectively
 // a hash-set lookup after stripping the "sig" prefix.
-var sigNames = map[string]bool{
-	"hup": true, "int": true, "quit": true, "ill": true, "abrt": true,
-	"fpe": true, "kill": true, "segv": true, "pipe": true, "alrm": true,
-	"term": true, "usr1": true, "usr2": true, "chld": true, "cont": true,
-	"stop": true, "tstp": true, "tin": true, "tout": true, "bus": true,
-	"poll": true, "prof": true, "sys": true, "trap": true, "urg": true,
-	"vtalrm": true, "xcpu": true, "xfsz": true, "iot": true, "emt": true,
-	"stkflt": true, "io": true, "cld": true, "pwr": true, "info": true,
-	"lost": true, "winch": true, "unused": true,
-}
+var sigNames = set.Of[string]("hup", "int", "quit", "ill", "abrt",
+	"fpe", "kill", "segv", "pipe", "alrm",
+	"term", "usr1", "usr2", "chld", "cont",
+	"stop", "tstp", "tin", "tout", "bus",
+	"poll", "prof", "sys", "trap", "urg",
+	"vtalrm", "xcpu", "xfsz", "iot", "emt",
+	"stkflt", "io", "cld", "pwr", "info",
+	"lost", "winch", "unused")
 
 // New creates a new Processor with the given color table.
 func New(ct *color.Table) *Processor {
@@ -206,7 +205,7 @@ func matchSig(s string) bool {
 	rest := s[3:]
 	// Try each prefix length.
 	for end := 2; end <= 6 && end <= len(rest); end++ {
-		if sigNames[rest[:end]] {
+		if sigNames.Contains(rest[:end]) {
 			return true
 		}
 	}
