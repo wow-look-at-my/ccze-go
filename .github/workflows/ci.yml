@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.repository.visibility == 'public' && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       id-token: write   # mint OIDC token for buildhost auth
       contents: write   # read repo for the build + dependency submission
@@ -27,7 +27,7 @@ jobs:
           autorelease: 'true'
 
   benchmark:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.repository.visibility == 'public' && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
 
