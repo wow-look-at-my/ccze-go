@@ -36,6 +36,12 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # go.mod tracks the org modules by branch (v0.0.0), which stock Go cannot resolve.
+      - name: Pin the org modules to their master heads for stock Go
+        run: |
+          go mod edit -droprequire=github.com/wow-look-at-my/go-containers -droprequire=github.com/wow-look-at-my/go-regex-compiler
+          go get github.com/wow-look-at-my/go-containers@master github.com/wow-look-at-my/go-regex-compiler@master
+
       - name: Install C ccze build dependencies
         run: |
           sudo apt-get update

@@ -87,9 +87,9 @@ func (a *adaptive) process(p *Processor, w io.Writer, msg string) bool {
 	return true
 }
 
-// observe advances the recurring-shape state. Machine with the shape detected
-// on the current line and reports whether the current line should be treated as
-// a member of a confirmed recurring shape.
+// observe advances the recurring-shape state machine with the shape detected
+// on the current line. It reports whether the current line is a member of a
+// confirmed recurring shape.
 func (a *adaptive) observe(delim byte, fields int) bool {
 	switch {
 	case delim != 0 && delim == a.curDelim && fields == a.curFields:
@@ -159,9 +159,9 @@ func isAdaptiveKeyStart(c byte) bool {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
 }
 
-// splitFieldKey reports whether field has the shape key<sep>value (sep ∈ {=,:})
-// with an identifier-like key of bounded length and a non-empty value, and if so
-// returns the key.
+// splitFieldKey reports whether field has the shape key<sep>value (sep ∈ {=,:}).
+// The key must be identifier-like and of bounded length, and the value must not
+// be empty. On a match it returns the key.
 func splitFieldKey(field string) (key string, ok bool) {
 	n := len(field)
 	if n < minKeyLen+2 {

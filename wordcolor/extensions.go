@@ -211,12 +211,11 @@ func counterParts(word string) (a, b string, ok bool) {
 	return a, b, true
 }
 
-// renderCounter emits a bracketed "N/M" counter, mirroring renderTag: the
-// bytes of pre. This happens before its trailing '[', then a bracket-colored
-// "[", the numbers-colored first digit run, a bracket-colored "/", the
-// numbers-colored second digit run, a bracket-colored "]", and the bytes of
-// post after its leading ']'. Caller guarantees pre ends with '[' and post
-// starts with ']'.
+// renderCounter emits a bracketed "N/M" counter, mirroring renderTag. It
+// writes the bytes of pre before its trailing '[', then a bracket-colored
+// "[". Next come the numbers-colored first digit run, a bracket-colored "/"
+// and the numbers-colored second digit run. Last come a bracket-colored "]"
+// and the bytes of post after its leading ']'.
 func (p *Processor) renderCounter(w io.Writer, pre, a, b, post string) {
 	p.ct.WriteColored(w, color.Default, pre[:len(pre)-1])
 	p.ct.WriteColored(w, color.PIDB, "[")
