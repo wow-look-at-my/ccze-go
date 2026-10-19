@@ -22,9 +22,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build and test
-        uses: wow-look-at-my/go-toolchain@master
+        uses: wow-look-at-my/go-toolchain@lkgb
         with:
           autorelease: 'true'
+          # The org-pinned modules push the matrix build past the action's 10-minute default, so give it room to finish.
+          timeout: 30
 
   benchmark:
     runs-on: ${{ github.event.repository.visibility == 'public' && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
