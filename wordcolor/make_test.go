@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestExtMakeFatal verifies the opt-in GNU make error/fatal highlighter: make
+// TestExtMakeFatal verifies the opt-in GNU make error/fatal highlighter. Make
 // failure lines (prefixed "make[N]: " / "make: " and marked with "*** ") are
 // colored entirely as color.Error, while benign make lines and non-make lines
 // are left alone. As with every extension, stripped(output) must equal input.
@@ -28,8 +28,7 @@ func TestExtMakeFatal(t *testing.T) {
 	}
 
 	// Lines that MUST NOT be flagged: a benign make line (no "*** " marker), and
-	// a non-make line that merely ends in "Stop." (no make prefix). These guard
-	// against false positives.
+	// a non-make line that merely ends in "Stop." (no make prefix).
 	benign := []string{
 		`make[1]: Entering directory '/tmp/ccze/src'`,
 		`Please press Stop.`,
@@ -40,8 +39,7 @@ func TestExtMakeFatal(t *testing.T) {
 		assert.NotContains(t, out, errFg, "%q must not be flagged as a make error", in)
 	}
 
-	// With the Make extension OFF, even a genuine make error line is not
-	// whole-line Error-colored (it falls through to the default per-word path).
+	// With the Make extension OFF, even a genuine make error line is not whole-line Error-colored.
 	p2, ct2 := procWith(Extensions{})
 	out2 := render(p2, `make[1]: *** No rule to make target 'folder/file.cpp', needed by 'folder/file.o'.  Stop.`)
 	assert.NotContains(t, out2, fgSeq(ct2, color.Error), "Make-off must not flag make errors")

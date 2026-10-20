@@ -8,8 +8,7 @@ import (
 	"ccze-go/wordcolor"
 )
 
-// UlogdPlugin is a PARTIAL plugin.
-// Coloriser for ulogd sub-logs.
+// UlogdPlugin is a PARTIAL plugin. Coloriser for ulogd sub-logs.
 type UlogdPlugin struct {
 	w        io.Writer
 	ct       *color.Table

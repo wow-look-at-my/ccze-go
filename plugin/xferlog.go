@@ -12,8 +12,7 @@ var xferlogRe = regexp.MustCompile(
 	`^(... ... +\d{1,2} +\d{1,2}:\d{1,2}:\d{1,2} \d+) (\d+) ([^ ]+) (\d+) (\S+) (a|b) (C|U|T|_) (o|i) (a|g|r) ([^ ]+) ([^ ]+) (0|1) ([^ ]+) (c|i)`,
 )
 
-// XferlogPlugin is a FULL plugin.
-// Coloriser for xferlog(5) logs.
+// XferlogPlugin is a FULL plugin. Coloriser for xferlog(5) logs.
 type XferlogPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -37,10 +36,6 @@ func (p *XferlogPlugin) Description() string { return "Generic xferlog coloriser
 
 // Handle attempts to match and colorize an xferlog line.
 func (p *XferlogPlugin) Handle(line string) (bool, string) {
-	// Prefilter: the regexp starts ^... ... +\d, i.e. any 3 bytes, a space,
-	// any 3 bytes, one or more spaces, then a digit - so bytes 3 and 7 must
-	// be spaces and the first byte after the space run must be a digit.
-	// Necessary conditions only - never rejects a match.
 	if len(line) < 9 || line[3] != ' ' || line[7] != ' ' {
 		return false, ""
 	}

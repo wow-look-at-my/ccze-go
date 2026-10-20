@@ -100,7 +100,6 @@ func TestWriteColored(t *testing.T) {
 
 	assert.Contains(t, out, "\x1b[")
 
-	// Bold should be present for Date (AttrBold|5)
 	assert.Contains(t, out, "\x1b[1m")
 
 	assert.True(t, strings.HasSuffix(out, "\x1b[0m"))
@@ -134,14 +133,14 @@ func TestWriteColoredAttributes(t *testing.T) {
 	out := buf.String()
 	assert.Contains(t, out, "\x1b[4m")
 
-	// Set with reverse (emits SGR 5)
+	// Set with reverse (emits a later SGR)
 	ct.Set(Date, AttrReverse|3)
 	buf.Reset()
 	ct.WriteColored(&buf, Date, "x")
 	out = buf.String()
 	assert.Contains(t, out, "\x1b[5m")
 
-	// Set with blink (emits SGR 7)
+	// Set with blink (emits a later SGR)
 	ct.Set(Date, AttrBlink|4)
 	buf.Reset()
 	ct.WriteColored(&buf, Date, "x")
@@ -157,7 +156,6 @@ func TestWriteColoredBackground(t *testing.T) {
 	var buf bytes.Buffer
 	ct.WriteColored(&buf, Date, "test")
 	out := buf.String()
-	// Should contain background code (ansiColor[1]+10 = 31+10 = 41)
 	assert.Contains(t, out, "\x1b[41m")
 
 }

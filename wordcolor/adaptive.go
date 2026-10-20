@@ -1,38 +1,6 @@
 // Package wordcolor — adaptive.go.
 //
 // Adaptive recurring-structure recognition (opt-in, enabled by -o adaptive).
-//
-// This recognizer learns the recurring shape of the log stream and colorizes a
-// line ONLY when that line participates in a confirmed recurring delimited
-// structure (a stable number of fields separated by a single-byte delimiter
-// such as '|', ',' or TAB — CSV-ish / piped / fixed-field logs). For such a
-// line it paints each positional column a stable color so columns line up
-// visually by color across the whole stream, gives recurring key names
-// (key=value / key:value fields) a stable per-key color so the same key is
-// always the same color, and keeps recognizable tokens (IPs, numbers, error
-// words, ...) in their usual semantic color. For every other line it declines
-// (process returns false) and the caller falls back to the standard per-word
-// pipeline.
-//
-// Why "only confirmed recurring shapes": a single one-off line carries no
-// recurring structure to learn, and the standard cascade (plus the other -o
-// highlighters, e.g. slog key=value) already color such lines well. Taking over
-// a line only once its shape has recurred is what makes this "adaptive" and
-// keeps it from fighting the other highlighters.
-//
-// INVARIANT (hard requirement): adaptive processing may ONLY add ANSI color.
-// For any input line, the output with all escape sequences stripped equals the
-// input byte-for-byte. Every emission below routes the ORIGINAL substrings
-// through color.Table.WriteColored, which copies its text argument through
-// unchanged; the concatenation of the substrings emitted for a line is exactly
-// the line. See adaptive_test.go for the invariant proofs (subsequence + non-
-// escape-equality) across an adversarial corpus, including inputs that already
-// contain ANSI escapes.
-//
-// State is strictly bounded, so it is safe on an unbounded stream: a per-key
-// color map capped at maxKeys (with a generational reset on overflow) plus a
-// handful of integer counters for shape confirmation. Nothing buffers the
-// stream.
 package wordcolor
 
 import (
@@ -42,10 +10,9 @@ import (
 )
 
 // adaptivePalette is the ordered set of color slots the adaptive layer paints
-// with. They are the high, visually distinct static slots from the color enum,
-// which the normal cascade never uses, so adaptive coloring is unambiguous to
-// the eye and cannot be confused with a semantic color. Order is chosen so
-// adjacent columns / hash buckets are easy to tell apart.
+// with. They are the high, visually distinct static slots from the color
+// enum, which the normal cascade never uses. Adaptive coloring is unambiguous
+// to the eye and cannot be confused with a semantic color.
 var adaptivePalette = [...]color.Color{
 	color.StaticBoldCyan,
 	color.StaticBoldYellow,
@@ -63,41 +30,30 @@ var adaptivePalette = [...]color.Color{
 
 // Tuning constants. All cross-line state is bounded by these.
 const (
-	// maxKeys caps the number of distinct key->color bindings retained. On
-	// overflow the map is cleared (a cheap generational reset) rather than
-	// growing without bound: memory is O(maxKeys) regardless of stream length.
+	// maxKeys caps the number of distinct key->color bindings retained.
 	maxKeys = 256
 
 	// minKeyLen / maxKeyLen bound what counts as a "key" name.
 	minKeyLen = 1
 	maxKeyLen = 40
 
-	// fieldConfirmCount is how many consecutive lines must share the same
-	// (delimiter, field-count) shape before the shape is considered recurring
-	// and its lines are colorized. This prevents a single coincidental line
-	// (one stray line containing a few pipes) from triggering column coloring.
+	// fieldConfirmCount is how many consecutive lines must share the same.
 	fieldConfirmCount = 3
 
-	// minFields / maxFields bound a delimited shape worth coloring. Two fields
-	// (one delimiter) is the minimum interesting structure; the upper bound
-	// keeps the per-line walk cheap and bounded.
+	// minFields / maxFields bound a delimited shape worth coloring.
 	minFields = 2
 	maxFields = 64
 )
 
-// fieldDelims are the single-byte delimiters considered for positional-field
-// structure, in priority order. TAB and '|' are strong structure signals; ','
-// is common in CSV-ish logs.
+// fieldDelims are the single-byte delimiters considered for positional-field structure, in priority order.
 var fieldDelims = [...]byte{'\t', '|', ','}
 
-// adaptive holds bounded cross-line state for recurring-structure recognition.
-// It is NOT safe for concurrent use; the colorizer pipeline is single-threaded
-// per stream, matching how Processor is used elsewhere.
+// adaptive holds bounded cross-line state for recurring-structure
+// recognition.
 type adaptive struct {
 	// keyColor binds a key name to a palette index. Capped at maxKeys entries.
 	keyColor map[string]int
-	// nextSlot is the round-robin cursor for assigning a NEW key its slot, so
-	// distinct keys seen early get distinct colors instead of hash collisions.
+	// nextSlot is the round-robin cursor for assigning a NEW key its slot.
 	nextSlot int
 
 	// recurring-shape detection (bounded integer state):
@@ -114,11 +70,7 @@ func newAdaptive() *adaptive {
 
 // process attempts to colorize an entire message using learned structure. It
 // returns true if it fully handled the line (wrote every byte of msg to w,
-// colorized). A false return means "not handled": the caller falls back to the
-// normal per-word path and msg has NOT been written.
-//
-// It handles a line iff that line participates in a CONFIRMED recurring
-// delimited shape (see the package doc).
+// colorized).
 func (a *adaptive) process(p *Processor, w io.Writer, msg string) bool {
 	if msg == "" {
 		return false
@@ -127,7 +79,6 @@ func (a *adaptive) process(p *Processor, w io.Writer, msg string) bool {
 	delim, fields := detectShape(msg)
 	if !a.observe(delim, fields) {
 		// Either no delimited shape, or the shape has not recurred enough yet.
-		// Decline so the standard pipeline (and other -o highlighters) runs.
 		return false
 	}
 
@@ -136,9 +87,9 @@ func (a *adaptive) process(p *Processor, w io.Writer, msg string) bool {
 	return true
 }
 
-// observe advances the recurring-shape state machine with the shape detected on
-// the current line and reports whether the current line should be treated as a
-// member of a confirmed recurring shape.
+// observe advances the recurring-shape state machine with the shape detected
+// on the current line. It reports whether the current line is a member of a
+// confirmed recurring shape.
 func (a *adaptive) observe(delim byte, fields int) bool {
 	switch {
 	case delim != 0 && delim == a.curDelim && fields == a.curFields:
@@ -165,12 +116,10 @@ func (a *adaptive) observe(delim byte, fields int) bool {
 	return a.active && delim != 0 && delim == a.curDelim && fields == a.curFields
 }
 
-// ---------------------------------------------------------------------------
 // Shape detection
-// ---------------------------------------------------------------------------
 
 // countDelims counts occurrences of d in msg, capped so a pathological line
-// cannot blow the bound. Field count is delimiters+1.
+// cannot blow the bound.
 func countDelims(msg string, d byte) int {
 	count := 0
 	for i := 0; i < len(msg); i++ {
@@ -186,7 +135,7 @@ func countDelims(msg string, d byte) int {
 
 // detectShape picks the best delimited shape for msg: the first delimiter (in
 // fieldDelims priority order) whose field count lands within [minFields,
-// maxFields]. Returns delim=0 if none qualifies.
+// maxFields].
 func detectShape(msg string) (delim byte, fields int) {
 	for _, d := range fieldDelims {
 		f := countDelims(msg, d) + 1
@@ -197,9 +146,7 @@ func detectShape(msg string) (delim byte, fields int) {
 	return 0, 0
 }
 
-// ---------------------------------------------------------------------------
 // Key color assignment (stable across the whole stream)
-// ---------------------------------------------------------------------------
 
 // isAdaptiveKeyByte reports whether c is allowed inside a key name. Keys are
 // identifier-like: letters, digits, '_', '-', '.'.
@@ -212,10 +159,9 @@ func isAdaptiveKeyStart(c byte) bool {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
 }
 
-// splitFieldKey reports whether field has the shape key<sep>value (sep ∈ {=,:})
-// with an identifier-like key of bounded length and a non-empty value, and if
-// so returns the key. The separator and value are recovered by the caller as
-// field[len(key)] and field[len(key)+1:], so no bytes are lost.
+// splitFieldKey reports whether field has the shape key<sep>value (sep ∈ {=,:}).
+// The key must be identifier-like and of bounded length, and the value must not
+// be empty. On a match it returns the key.
 func splitFieldKey(field string) (key string, ok bool) {
 	n := len(field)
 	if n < minKeyLen+2 {
@@ -294,13 +240,9 @@ func fieldSlot(col int) int {
 // ---------------------------------------------------------------------------
 
 // emitColumns writes msg split on delimiter d, coloring each field by column
-// (or by a stable per-key color when the field is key=value, or by its semantic
-// color when the field is a recognizable token), and the delimiters in Default.
-//
-// Byte preservation: the loop walks msg once, emitting, for each column, the
-// field substring followed by the single delimiter byte; the final field has no
-// trailing delimiter. The concatenation of every substring written is exactly
-// msg. Every write goes through ct.WriteColored, which never alters text.
+// (or by a stable per-key color when the field is key=value, or by its
+// semantic color when the field is a recognizable token), and the delimiters
+// in Default.
 func (a *adaptive) emitColumns(p *Processor, w io.Writer, msg string, d byte) {
 	ct := p.ct
 	col := 0
@@ -318,8 +260,8 @@ func (a *adaptive) emitColumns(p *Processor, w io.Writer, msg string, d byte) {
 
 // emitField colors one field. Empty fields write nothing (WriteColored
 // short-circuits on ""). Priority: a key=value field gets its key painted a
-// stable per-key color and its value sub-colored; else a field that classifies
-// as a semantic token keeps that color; else the stable per-column color. None
+// stable per-key color and its value sub-colored. Else a field that classifies
+// as a semantic token keeps that color. Else the stable per-column color. None
 // of these change the bytes.
 func (a *adaptive) emitField(p *Processor, w io.Writer, field string, col int) {
 	if field == "" {

@@ -8,8 +8,7 @@ import (
 	"ccze-go/wordcolor"
 )
 
-// ApmPlugin is a PARTIAL plugin.
-// Coloriser for APM sub-logs.
+// ApmPlugin is a PARTIAL plugin. Coloriser for APM sub-logs.
 type ApmPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -52,7 +51,6 @@ func parseApm(line string) (battery, charge, rate, stuff1, elapsed, remain, stuf
 	battery = s[:i]
 	s = s[i:]
 
-	// "%, "
 	if !strings.HasPrefix(s, "%, ") {
 		return
 	}
@@ -66,7 +64,6 @@ func parseApm(line string) (battery, charge, rate, stuff1, elapsed, remain, stuf
 	charge = s[:chgIdx+8] // includes "charging"
 	s = s[chgIdx+8:]
 
-	// " ("
 	if !strings.HasPrefix(s, " (") {
 		return
 	}
@@ -83,7 +80,6 @@ func parseApm(line string) (battery, charge, rate, stuff1, elapsed, remain, stuf
 	rate = s[:i]
 	s = s[i:]
 
-	// "% "
 	if !strings.HasPrefix(s, "% ") {
 		return
 	}
@@ -105,7 +101,6 @@ func parseApm(line string) (battery, charge, rate, stuff1, elapsed, remain, stuf
 	elapsed = s[:spIdx]
 	s = s[spIdx:]
 
-	// "), "
 	if !strings.HasPrefix(s, "), ") {
 		return
 	}

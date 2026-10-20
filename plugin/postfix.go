@@ -97,7 +97,6 @@ func (p *PostfixPlugin) Handle(line string) (bool, string) {
 		notField := p.postfixProcessOne(part)
 		if notField {
 			p.ct.WriteColored(p.w, color.Default, part)
-			// C code breaks out of loop when process_one returns 1
 			break
 		}
 		if i < len(parts)-1 {

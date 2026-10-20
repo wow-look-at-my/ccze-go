@@ -99,8 +99,8 @@ const (
 const (
 	AttrBold      = 0x1000
 	AttrUnderline = 0x2000
-	AttrReverse   = 0x4000 // C code emits SGR 5 (blink) for this - preserved
-	AttrBlink     = 0x8000 // C code emits SGR 7 (reverse) for this - preserved
+	AttrReverse   = 0x4000 // C code emits a later SGR (blink) for this - preserved
+	AttrBlink     = 0x8000 // C code emits a later SGR (reverse) for this - preserved
 )
 
 // keywordMap maps Color values to their config file keyword strings.
@@ -227,11 +227,8 @@ func settableKeywordLookup(name string) (Color, bool) {
 	return c, ok
 }
 
-// ansiColor maps internal color index (0-7) to ANSI SGR color codes.
-// Note: cyan (index 5) and magenta (index 6) are swapped, matching the C code.
 var ansiColor = [8]int{30, 31, 32, 33, 34, 36, 35, 37}
 
-// colorNameValues maps color name strings to their numeric values (0-7).
 var colorNameValues = map[string]int{
 	"black":   0,
 	"red":     1,
@@ -243,7 +240,6 @@ var colorNameValues = map[string]int{
 	"white":   7,
 }
 
-// bgColorNameValues maps background color name strings to numeric values (0-7).
 var bgColorNameValues = map[string]int{
 	"on_black":   0,
 	"on_red":     1,
@@ -260,16 +256,11 @@ type Table struct {
 	colors      [Last + 1]int
 	transparent bool
 
-	// prefixes caches the ANSI escape prefix emitted before text for each
-	// color slot ("" = not built yet). A slot's prefix depends only on its
-	// color value and the transparent flag, so it is built lazily on first
-	// use and invalidated whenever the slot's color changes.
+	// prefixes caches the ANSI escape prefix emitted before text for each color slot ("" = not built yet).
 	prefixes [Last + 1]string
 	// spaceSeq caches the full escape sequence for a Default-colored space.
 	spaceSeq string
-	// scratch is a reusable buffer for assembling prefix+text+reset into a
-	// single Write call. Tables are used by one goroutine (the pipeline is
-	// single-threaded), matching the rest of the struct's lazy caches.
+	// scratch is a reusable buffer for assembling prefix+text+reset into a single Write call.
 	scratch []byte
 }
 
@@ -381,8 +372,8 @@ func (t *Table) Transparent() bool {
 
 // buildPrefix constructs the ANSI escape prefix for a color slot, matching
 // the C ccze_addstr_internal for RAW_ANSI mode exactly. The escape sequence
-// generation preserves the C code's swap where AttrReverse emits SGR 5
-// (blink) and AttrBlink emits SGR 7 (reverse).
+// generation preserves the C code's swap where AttrReverse emits a later
+// SGR (blink) and AttrBlink emits a later SGR (reverse).
 func (t *Table) buildPrefix(col Color) string {
 	c := t.colors[col]
 
@@ -401,12 +392,12 @@ func (t *Table) buildPrefix(col Color) string {
 		buf = append(buf, "\x1b[4m"...)
 	}
 
-	// Reverse flag -> SGR 5 (blink) - preserving the C behavior
+	// Reverse flag -> a later SGR (blink) - preserving the C behavior
 	if c&AttrReverse != 0 {
 		buf = append(buf, "\x1b[5m"...)
 	}
 
-	// Blink flag -> SGR 7 (reverse) - preserving the C behavior
+	// Blink flag -> a later SGR (reverse) - preserving the C behavior
 	if c&AttrBlink != 0 {
 		buf = append(buf, "\x1b[7m"...)
 	}
@@ -441,11 +432,7 @@ func (t *Table) prefix(col Color) string {
 	return p
 }
 
-// WriteColored writes text to w wrapped in ANSI escape sequences. The bytes
-// written are identical to the previous fmt-based implementation (and to C
-// ccze's RAW_ANSI output); the escape prefix is cached per color slot and
-// the whole prefix+text+reset sequence is assembled in a reusable scratch
-// buffer so each word costs one Write call instead of three WriteStrings.
+// WriteColored writes text to w wrapped in ANSI escape sequences.
 func (t *Table) WriteColored(w io.Writer, col Color, text string) {
 	if text == "" {
 		return
@@ -478,9 +465,9 @@ func (t *Table) WriteNewline(w io.Writer) {
 	io.WriteString(w, "\n")
 }
 
-// LoadFile reads a config file and parses each line for color settings.
-// If the file does not exist or cannot be read, the error is silently ignored
-// (matching C behavior which just returns on fopen failure).
+// LoadFile reads a config file and parses each line for color settings. If
+// the file does not exist or cannot be read, the error is silently ignored
+// (matching C behavior which returns on fopen failure).
 func (t *Table) LoadFile(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -601,10 +588,10 @@ func (t *Table) ParseLine(line string) {
 	t.Set(nkeyword, rcolor)
 }
 
-// lookupColorName resolves a color name string to its numeric value.
-// If the name is a single-quoted keyword like 'date', it resolves to the
+// lookupColorName resolves a color name string to its numeric value. If
+// the name is a single-quoted keyword like 'date', it resolves to the
 // current color value of that keyword in the table. Otherwise it looks up
-// the name in the standard color name map. Returns -1 on failure.
+// the name in the standard color name map.
 func (t *Table) lookupColorName(name string) int {
 	if len(name) > 2 && name[0] == '\'' && name[len(name)-1] == '\'' {
 		inner := name[1 : len(name)-1]

@@ -52,7 +52,6 @@ func httpdErrorColor(level string) color.Color {
 }
 
 // parseHTTPDError hand-parses an HTTPD error log line.
-// Format: ^(\[\w{3}\s\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}\])\s(\[\w*\])\s(.*)$
 func parseHTTPDError(line string) (date, level, msg string, ok bool) {
 	if len(line) == 0 || line[0] != '[' {
 		return
@@ -65,13 +64,10 @@ func parseHTTPDError(line string) (date, level, msg string, ok bool) {
 	}
 	dateContent := line[1:closeBracket]
 
-	// Validate date format: \w{3}\s\w{3}\s{1,2}\d{1,2}\s\d{2}:\d{2}:\d{2}\s\d{4}
-	// e.g. "Sun Oct 12 15:30:00 2003"
-	// Quick validation: must contain a time-like pattern and end with 4 digits (year)
 	if len(dateContent) < 20 {
 		return
 	}
-	// Check year at end (4 digits)
+	// Check year at end (digits)
 	year := dateContent[len(dateContent)-4:]
 	for i := 0; i < 4; i++ {
 		if year[i] < '0' || year[i] > '9' {
@@ -96,9 +92,7 @@ func parseHTTPDError(line string) (date, level, msg string, ok bool) {
 	return
 }
 
-// httpdDateBracketHint reports whether line contains "[d/" or "[dd/" (a '['
-// followed by 1-2 digits and a '/'), which reAccess's date group
-// \[\d{1,2}/ requires. Necessary condition only.
+// Necessary condition only.
 func httpdDateBracketHint(line string) bool {
 	for i := 0; ; {
 		j := strings.IndexByte(line[i:], '[')
@@ -118,10 +112,6 @@ func httpdDateBracketHint(line string) bool {
 }
 
 func (p *HTTPDPlugin) Handle(line string) (bool, string) {
-	// Prefilter: reAccess requires a double-quoted request (literal '"')
-	// and a bracketed date starting \[\d{1,2}/. Necessary conditions only;
-	// the nested optional groups in reAccess backtrack heavily on
-	// non-matching lines, so these cheap scans pay off on every miss.
 	var m []string
 	if strings.IndexByte(line, '"') >= 0 && httpdDateBracketHint(line) {
 		m = p.reAccess.FindStringSubmatch(line)

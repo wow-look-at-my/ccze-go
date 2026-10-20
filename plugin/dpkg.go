@@ -31,10 +31,7 @@ func (p *DpkgPlugin) Type() Type          { return TypeFull }
 func (p *DpkgPlugin) Description() string { return "Coloriser for dpkg logs." }
 
 // parseDpkgDate extracts the date prefix from a dpkg log line.
-// Format: [-\d]{10}\s[:\d]{8}  (e.g. "2023-10-15 14:30:22")
-// Returns the date, the remainder after the space, and whether parsing succeeded.
 func parseDpkgDate(line string) (date, rest string, ok bool) {
-	// Need at least 20 chars: 10 (date) + 1 (space) + 8 (time) + 1 (space)
 	if len(line) < 20 {
 		return
 	}

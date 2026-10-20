@@ -8,8 +8,7 @@ import (
 	"ccze-go/wordcolor"
 )
 
-// FetchmailPlugin is a PARTIAL plugin.
-// Coloriser for fetchmail(1) sub-logs.
+// FetchmailPlugin is a PARTIAL plugin. Coloriser for fetchmail(1) sub-logs.
 type FetchmailPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -32,7 +31,6 @@ func (p *FetchmailPlugin) Type() Type          { return TypePartial }
 func (p *FetchmailPlugin) Description() string { return "Coloriser for fetchmail(1) sub-logs." }
 
 // parseFetchmail hand-parses a fetchmail log line.
-// Format: (reading message) ([^@]*@[^:]*):([0-9]*) of ([0-9]*) (.*)
 func parseFetchmail(line string) (addy, current, full, rest string, ok bool) {
 	// Find "reading message " anywhere in the line
 	idx := strings.Index(line, "reading message ")
@@ -53,7 +51,6 @@ func parseFetchmail(line string) (addy, current, full, rest string, ok bool) {
 	}
 	s = s[colonIdx+1:]
 
-	// current: [0-9]*
 	numEnd := 0
 	for numEnd < len(s) && s[numEnd] >= '0' && s[numEnd] <= '9' {
 		numEnd++
@@ -67,7 +64,6 @@ func parseFetchmail(line string) (addy, current, full, rest string, ok bool) {
 	}
 	s = s[4:]
 
-	// full: [0-9]*
 	numEnd = 0
 	for numEnd < len(s) && s[numEnd] >= '0' && s[numEnd] <= '9' {
 		numEnd++

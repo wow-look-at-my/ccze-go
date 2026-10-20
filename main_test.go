@@ -28,9 +28,7 @@ func runStream(t *testing.T, input string, remfac bool) string {
 }
 
 func TestProcessStreamLongLine(t *testing.T) {
-	// Regression: the old bufio.Scanner-based loop had a 1MB cap on line
-	// length; the first longer line made it stop silently, dropping that
-	// line AND the entire rest of the input.
+	// Regression: the bufio.Scanner-based loop had a 1MB cap on line length.
 	long := strings.Repeat("x", 2*1024*1024)
 	input := "before the long line\n" + long + "\nafter the long line\n"
 
@@ -44,9 +42,7 @@ func TestProcessStreamLongLine(t *testing.T) {
 }
 
 func TestProcessStreamCRLFAndPartialLastLine(t *testing.T) {
-	// CRLF terminators are stripped like bufio.ScanLines (at most one \r
-	// before the \n), and a final line without a trailing newline is still
-	// emitted.
+	// CRLF terminators are stripped like bufio.ScanLines (at most one \r before the \n).
 	out := stripAnsiCompat(runStream(t, "alpha beta\r\nno trailing newline", false))
 	assert.Equal(t, "alpha beta\nno trailing newline\n", out)
 }
@@ -89,8 +85,7 @@ func TestApplyOptions(t *testing.T) {
 	applyOptions("modern", &tr, &wc, &sl, &ext)
 	assert.Equal(t, wordcolor.Extensions{Tags: true, Files: true, Slog: true, Durations: true, Unreal: true, Make: true}, ext)
 
-	// Layering: a CCZE_OPTIONS-style baseline, then a -o-style override that
-	// disables one highlighter and enables adaptive. Later call wins.
+	// Layering.
 	ext = wordcolor.Extensions{}
 	applyOptions("modern", &tr, &wc, &sl, &ext)          // baseline (env)
 	applyOptions("noslog,adaptive", &tr, &wc, &sl, &ext) // override (-o)
@@ -158,7 +153,6 @@ func TestListAllPlugins(t *testing.T) {
 
 	registerAllPlugins(r, w, ct, wc, false)
 
-	// listAllPlugins writes to stdout; just verify it doesn't panic
-	// We can't easily capture stdout in a test, but at least exercise the code
+	// listAllPlugins writes to stdout; verify it doesn't panic We can't easily capture stdout in a test.
 	listAllPlugins(r)
 }

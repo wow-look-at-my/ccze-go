@@ -17,7 +17,7 @@ func procAdaptive() (*Processor, *color.Table) {
 // (b) THE INVARIANT: adaptive processing may ONLY add ANSI; visible bytes are
 // preserved exactly.
 //
-// Two complementary, unambiguous checks express this (see assertColorOnly):
+// Complementary, unambiguous checks express this (see assertColorOnly):
 //   - isSubsequence(in, out): no input byte is dropped, reordered, or altered.
 //   - stripAnsi(in) == stripAnsi(out): the non-escape content is identical.
 // Together they prove "output == input plus inserted ANSI escapes, nothing
@@ -38,11 +38,9 @@ var adaptivePlainCorpus = []string{
 	" ",
 	"   ",
 	"a  b   c    d",
-	// key=value lines (declined by adaptive unless they form a recurring
-	// delimited shape; handled by the standard/slog path) -- still byte-safe
+	// key=value lines (declined by adaptive unless they form a recurring delimited shape; handled by the standard/slog path).
 	"user=admin pid=1234 status=ok",
 	"user=root pid=5678 status=error",
-	// recurring pipe-delimited block (3+ lines -> confirmed -> colorized)
 	"alpha|beta|gamma|delta",
 	"one|two|three|four",
 	"x|y|z|w",
@@ -74,7 +72,7 @@ var adaptivePlainCorpus = []string{
 	"2024-01-01|10.0.0.1|150mb|error",
 	"2024-01-02|10.0.0.2|2gb|ok",
 	"2024-01-03|10.0.0.3|42kb|warn",
-	// very long delimited line within a recurring block
+	// Long delimited line within a recurring block
 	strings.Repeat("f|", 4000) + "end",
 	strings.Repeat("f|", 4000) + "end",
 	strings.Repeat("f|", 4000) + "end",
@@ -85,10 +83,7 @@ var adaptivePlainCorpus = []string{
 	"g|h|i",
 }
 
-// isSubsequence reports whether every byte of in appears in out in order. This
-// proves the colorizer never drops, reorders, or replaces any input byte; it
-// can only INSERT bytes (always ANSI escapes). Unambiguous even when in
-// contains ESC bytes, since it never classifies output bytes.
+// isSubsequence reports whether every byte of in appears in out in order.
 func isSubsequence(in, out string) bool {
 	i := 0
 	for j := 0; i < len(in) && j < len(out); j++ {
@@ -99,12 +94,6 @@ func isSubsequence(in, out string) bool {
 	return i == len(in)
 }
 
-// assertColorOnly proves the strong invariant with two unambiguous checks that
-// together mean "output is the input plus inserted ANSI escapes, nothing else":
-// (1) isSubsequence(in,out) -- nothing dropped/reordered; (2)
-// stripAnsi(in)==stripAnsi(out) -- non-escape content identical. There is no
-// greedy-match hazard because neither check disambiguates an input ESC from an
-// added ESC.
 func assertColorOnly(t *testing.T, in, out string) {
 	t.Helper()
 	assert.True(t, isSubsequence(in, out),
@@ -153,8 +142,6 @@ func TestAdaptiveInvariantHighCardinalityKeys(t *testing.T) {
 	var sb strings.Builder
 	for line := 0; line < 10; line++ {
 		sb.Reset()
-		// 200 pipe-separated key=value fields; same field-count each line so the
-		// shape is recurring and the adaptive path engages.
 		for i := 0; i < 200; i++ {
 			if i > 0 {
 				sb.WriteByte('|')
@@ -199,9 +186,8 @@ func TestAdaptiveInvariantMatchesPlainBytes(t *testing.T) {
 // (a) THE FEATURE: it highlights useful recurring structure.
 // ---------------------------------------------------------------------------
 
-// fgCodeOf returns the ANSI foreground SGR code (30-37) wrapping the first
-// occurrence of token in out, or -1 if none precedes it. Lets tests assert
-// color stability/distinctness without hard-coding palette slots.
+// Lets tests assert color stability/distinctness without hard-coding
+// palette slots.
 func fgCodeOf(out, token string) int {
 	idx := strings.Index(out, token)
 	if idx < 0 {
@@ -253,7 +239,7 @@ func TestAdaptiveColumnsColoredAfterConfirm(t *testing.T) {
 	p, _ := procAdaptive()
 	// Warm up: first (fieldConfirmCount-1) lines are not yet confirmed.
 	feedConfirm(p, "alpha|beta|gamma", "delta|epsilon|zeta")
-	out := render(p, "eta|theta|iota") // 3rd line -> confirmed
+	out := render(p, "eta|theta|iota")
 
 	assert.True(t, p.ada.active, "shape should be active by the 3rd line")
 	// Each plain column is wrapped in a foreground color now.
@@ -270,7 +256,7 @@ func TestAdaptiveColumnColorIsStableByPosition(t *testing.T) {
 	feedConfirm(p, "a1|b1|c1", "a2|b2|c2")
 	o3 := render(p, "a3|b3|c3")
 	o4 := render(p, "a4|b4|c4")
-	// Column 0 keeps one color, column 1 another, etc., across lines.
+	// One column keeps one color, one column another, etc., across lines.
 	assert.Equal(t, fgCodeOf(o3, "a3"), fgCodeOf(o4, "a4"), "column 0 color must be stable")
 	assert.Equal(t, fgCodeOf(o3, "b3"), fgCodeOf(o4, "b4"), "column 1 color must be stable")
 	assert.NotEqual(t, fgCodeOf(o3, "a3"), fgCodeOf(o3, "b3"), "columns 0 and 1 must differ")
@@ -303,8 +289,7 @@ func TestAdaptiveFieldKeepsSemanticColor(t *testing.T) {
 
 func TestAdaptiveDeclinesUntilConfirmed(t *testing.T) {
 	p, _ := procAdaptive()
-	// A single pipe-line is NOT yet a recurring shape -> adaptive declines, so
-	// the output equals the plain (no-extension) processor's output exactly.
+	// A single pipe-line is NOT yet a recurring shape -> adaptive declines, so the output equals the plain.
 	plain, _ := procWith(Extensions{})
 	const line = "alpha|beta|gamma"
 	assert.Equal(t, render(plain, line), render(p, line),
@@ -324,8 +309,7 @@ func TestAdaptiveDeclinesFreeFormLine(t *testing.T) {
 }
 
 func TestAdaptiveDisabledIsNoOp(t *testing.T) {
-	// With adaptive OFF (default), a would-be recurring block is colored exactly
-	// as the plain processor colors it -- the feature adds nothing when off.
+	// With adaptive OFF (default), a would-be recurring block is colored exactly as the plain processor colors it.
 	plain, _ := procWith(Extensions{})
 	off, _ := procWith(Extensions{})
 	lines := []string{"a|b|c", "d|e|f", "g|h|i", "j|k|l"}

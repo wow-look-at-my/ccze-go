@@ -40,7 +40,7 @@ echo "## Benchmark Results" >> "$OUT"
 echo "" >> "$OUT"
 
 # System info
-CPULINE=$(go test -bench='BenchmarkColorTableInit' -benchtime=100ms -count=1 2>&1 | grep '^cpu:' | sed 's/^cpu: //')
+CPULINE=$(go test -bench='BenchmarkColorTableInit' -benchtime=100ms -count=1 2>&1 | sed -n 's/^cpu: //p')
 if [ -n "$CPULINE" ]; then
   echo "> **CPU:** ${CPULINE}" >> "$OUT"
   echo "" >> "$OUT"

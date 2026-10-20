@@ -12,8 +12,7 @@ var oopsRe = regexp.MustCompile(
 	`^((Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+ \d+:\d+:\d+ \d+)(\s+)\[([\dxa-fA-F]+)\]statistics\(\): ([\S]+)(\s*): (\d+)(.*)`,
 )
 
-// OopsPlugin is a FULL plugin.
-// Coloriser for oops/proxy logs.
+// OopsPlugin is a FULL plugin. Coloriser for oops/proxy logs.
 type OopsPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -53,8 +52,6 @@ func (p *OopsPlugin) Handle(line string) (bool, string) {
 	}
 
 	date := m[1]
-	// m[2] = day of week (part of date group)
-	// m[3] = month (part of date group)
 	sp1 := m[4]
 	id := m[5]
 	field := m[6]
