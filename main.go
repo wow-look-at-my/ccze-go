@@ -27,10 +27,7 @@ func main() {
 	optionsFlag := flag.String("o", "", "comma-separated options: scroll,noscroll,wordcolor,nowordcolor,lookups,nolookups,transparent,notransparent; modern-log highlighters (opt-in): modern,tags,files,slog,durations,unreal,make,adaptive (and no- variants). Defaults can be set via the CCZE_OPTIONS env var (e.g. CCZE_OPTIONS=modern); -o overrides it.")
 	flag.Parse()
 
-	// Parse options. CCZE_OPTIONS provides the baseline (so the default mode can
-	// be set once in the environment, e.g. CCZE_OPTIONS=modern); the -o flag is
-	// then applied on top and can override it, including via the "no"-prefixed
-	// variants (e.g. CCZE_OPTIONS=modern with -o noslog).
+	// Parse options.
 	transparent := true
 	wcol := true
 	slookup := true
@@ -108,13 +105,13 @@ func main() {
 // processStream reads log lines from r, colorizes them through the plugin
 // registry and word colorizer, and writes the result to w.
 //
-// Lines are read with a bufio.Reader instead of a bufio.Scanner: a Scanner
-// has a hard cap on line length (previously 1MB) and silently stops at the
-// first longer line, dropping the entire rest of the input. ReadString has
-// no such cap, matching C ccze's getline behavior.
+// Lines are read with a bufio.Reader instead of a bufio.Scanner. A Scanner
+// has a hard cap on line length (1MB) and silently stops at the first longer
+// line, dropping the entire rest of the input. ReadString has no such cap,
+// matching C ccze's getline behavior.
 //
 // Output is flushed only when the input buffer is drained (the next read
-// would block), so interactive use (e.g. tail -f) still sees every burst of
+// would block). Interactive use (e.g. tail -f) still sees every burst of
 // lines immediately, while bulk processing batches writes instead of paying
 // one write syscall per line.
 func processStream(r io.Reader, w *bufio.Writer, registry *plugin.Registry, ct *color.Table, wc *wordcolor.Processor, remfac, wcol, slookup bool) {
@@ -125,8 +122,7 @@ func processStream(r io.Reader, w *bufio.Writer, registry *plugin.Registry, ct *
 		// Process the line unless this is the final empty read at EOF. A
 		// trailing partial line (no final newline) is still processed.
 		if err == nil || line != "" {
-			// Strip the line terminator like bufio.ScanLines: the trailing
-			// newline plus at most one carriage return (CRLF input).
+			// Strip the line terminator like bufio.ScanLines.
 			line = strings.TrimSuffix(line, "\n")
 			line = strings.TrimSuffix(line, "\r")
 
@@ -274,8 +270,7 @@ func applyOptions(opts string, transparent, wcol, slookup *bool, ext *wordcolor.
 		case "nomake":
 			ext.Make = false
 		case "modern":
-			// Umbrella for the stable highlighters (not adaptive, which is
-			// still experimental and must be opted into by name).
+			// Umbrella for the stable highlighters (not adaptive, which is still experimental and must be opted into by name).
 			ext.Tags, ext.Files, ext.Slog, ext.Durations, ext.Unreal, ext.Make = true, true, true, true, true, true
 		case "nomodern":
 			ext.Tags, ext.Files, ext.Slog, ext.Durations, ext.Unreal, ext.Make = false, false, false, false, false, false
@@ -283,7 +278,7 @@ func applyOptions(opts string, transparent, wcol, slookup *bool, ext *wordcolor.
 	}
 }
 
-// registerAllPlugins registers all 20 plugins in alphabetical order,
+// registerAllPlugins registers all plugins in alphabetical order,
 // matching the C ccze's scandir/alphasort plugin loading behavior.
 func registerAllPlugins(r *plugin.Registry, w *bufio.Writer, ct *color.Table, wc *wordcolor.Processor, convdate bool) {
 	r.Register(plugin.NewApmPlugin(w, ct, wc, convdate))

@@ -28,17 +28,7 @@ func TestCompatSyslogExactOutput(t *testing.T) {
 
 	out := buf.String()
 
-	// Expected sequence (captured from C ccze):
-	// [22m[1m[36mSep 14 11:45:00[0m  <- date: bold cyan
-	// [22m[36m [0m                    <- space: default (cyan)
-	// [22m[1m[34mmyhost[0m            <- host: bold blue
-	// [22m[36m [0m                    <- space
-	// [22m[32msshd[0m                 <- process: green
-	// [22m[1m[32m[[0m                 <- PID bracket: bold green
-	// [22m[1m[37m1234[0m              <- PID: bold white
-	// [22m[1m[32m][0m                 <- PID bracket: bold green
-	// [22m[32m:[0m                    <- colon: process green
-	// [22m[36m [0m                    <- space
+	// Expected sequence (captured from C ccze).
 
 	// Verify date: bold cyan
 	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[36mSep 14 11:45:00\x1b[0m"))
@@ -84,7 +74,6 @@ func TestCompatHTTPDAccessExactOutput(t *testing.T) {
 	// HTTP code: bold white
 	assert.True(t, containsSequence(out, "\x1b[22m\x1b[1m\x1b[37m200\x1b[0m"))
 
-	// Get size: magenta (6, ansiColor[6]=35)
 	assert.True(t, containsSequence(out, "\x1b[22m\x1b[35m2326\x1b[0m"))
 
 }
@@ -206,11 +195,6 @@ func TestCompatAgainstCBinary(t *testing.T) {
 			// Get Go output
 			goOutput := processLine(line)
 
-			// Normalize known cosmetic differences between C and Go:
-			// 1. C emits ANSI escapes for empty strings; Go skips them
-			// 2. C appends a trailing default-colored space after the last word
-			// 3. C appends a final \x1b[0m reset after the newline
-			// None of these affect the visible terminal rendering.
 			cStr := normalizeAnsiOutput(string(cOutput))
 			gStr := normalizeAnsiOutput(goOutput)
 
@@ -338,8 +322,7 @@ func containsSequence(haystack, needle string) bool {
 	return strings.Contains(haystack, needle)
 }
 
-// reEmptyAnsi matches ANSI escape sequences that wrap no visible text,
-// e.g., \x1b[22m\x1b[1m\x1b[34m\x1b[0m (bold blue empty string).
+// reEmptyAnsi matches ANSI escape sequences that wrap no visible text, e.g.
 var reEmptyAnsi = regexp.MustCompile(`\x1b\[22m(\x1b\[\d+m)*\x1b\[0m`)
 
 // reTrailingAnsi matches trailing ANSI sequences with no text after them.

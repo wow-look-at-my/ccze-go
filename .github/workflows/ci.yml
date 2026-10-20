@@ -2,6 +2,11 @@ name: CI
 
 on:
   push:
+    branches: ['**']
+
+concurrency:
+  group: gha_${{ github.repository }}_${{ github.workflow }}_${{ github.ref != 'refs/heads/master' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
   build:
@@ -11,13 +16,17 @@ jobs:
       contents: write   # read repo for the build + dependency submission
       actions: read     # download build artifact for buildhost-publish
       checks: read      # all-builds guard scans this run's checks
+      deployments: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Build and test
-        uses: wow-look-at-my/go-toolchain@v1
+        uses: wow-look-at-my/go-toolchain@lkgb
         with:
           autorelease: 'true'
+          # The org-pinned modules push the matrix build past the action's 10-minute default, so give it room to finish.
+          timeout: 30
 
   benchmark:
     runs-on: ${{ github.event.repository.visibility == 'public' && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -29,10 +38,16 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # go.mod tracks the org modules by branch (v0.0.0), which stock Go cannot resolve.
+      - name: Pin the org modules to their master heads for stock Go
+        run: |
+          go mod edit -droprequire=github.com/wow-look-at-my/go-containers -droprequire=github.com/wow-look-at-my/go-regex-compiler
+          go get github.com/wow-look-at-my/go-containers@master github.com/wow-look-at-my/go-regex-compiler@master
+
       - name: Install C ccze build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libncurses-dev libpcre3-dev hyperfine valgrind
+          sudo apt-get install -y build-essential libncurses-dev libpcre3-dev hyperfine valgrind
 
       - name: Build C ccze from source
         run: |
@@ -71,10 +86,4 @@ jobs:
           callgrind_annotate callgrind.out | head -60 | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload profiles
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpu-profiles
-          path: |
-            cpu.prof
-            callgrind.out
+      # The job summary above carries the profiles, so nothing is uploaded as an artifact.

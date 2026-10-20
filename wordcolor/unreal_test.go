@@ -28,7 +28,6 @@ func TestExtUnrealFullLine(t *testing.T) {
 }
 
 func TestExtUnrealNoTimestamp(t *testing.T) {
-	// LogTimes=None style: category at the very start, no [time]/[frame].
 	p, ct := procWith(Extensions{Unreal: true})
 	line := "LogTemp: Warning: disk almost full"
 	out := render(p, line)
@@ -57,8 +56,7 @@ func TestExtUnrealVerbosityColors(t *testing.T) {
 }
 
 func TestExtUnrealNotAVerbosity(t *testing.T) {
-	// A "Word:" after the category that is NOT a known verbosity must be left
-	// to the message body (not consumed/recolored as a verbosity).
+	// A "Word:" after the category that is NOT a known verbosity must be left to the message body.
 	p, _ := procWith(Extensions{Unreal: true})
 	line := "[  3]LogActor: SpawnActor failed: reason"
 	out := render(p, line)

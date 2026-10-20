@@ -37,8 +37,7 @@ func (p *ProFTPDPlugin) Type() Type          { return TypeFull }
 func (p *ProFTPDPlugin) Description() string { return "Coloriser for ProFTPD logs." }
 
 func (p *ProFTPDPlugin) Handle(line string) (bool, string) {
-	// Prefilter: reAccess starts ^\d+\. (leading digit) and reAuth requires
-	// the literal " ftp server [". Necessary conditions only.
+	// Prefilter: reAccess starts ^\d+\. (leading digit) and reAuth requires the literal " ftp server [".
 	var m []string
 	if digitAt(line, 0) {
 		m = proftpdReAccess.FindStringSubmatch(line)

@@ -8,6 +8,7 @@ import (
 	"ccze-go/color"
 	"ccze-go/wordcolor"
 	"github.com/stretchr/testify/assert"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 // stripAnsi removes ANSI escape sequences.
@@ -97,7 +98,6 @@ func TestPrintDateConversion(t *testing.T) {
 	var buf bytes.Buffer
 	PrintDate(&buf, ct, "1000000000", true)
 	out := stripAnsi(buf.String())
-	// Format is "Jan  2 15:04:05" — 1000000000 = Sep  9 01:46:40 UTC
 	assert.False(t, !strings.Contains(out, "Sep") || !strings.Contains(out, "01:46:40"))
 
 }
@@ -345,13 +345,12 @@ func TestAllPluginsHaveRequiredMethods(t *testing.T) {
 		NewUlogdPlugin(buf, ct, wc, false),
 	}
 
-	names := make(map[string]bool)
+	names := set.New[string]()
 	for _, p := range plugins {
 		assert.NotEqual(t, "", p.Name())
 
-		assert.False(t, names[p.Name()])
-
-		names[p.Name()] = true
+		assert.False(t, names.Contains(p.Name()))
+		names.Add(p.Name())
 
 		assert.NotEqual(t, "", p.Description())
 

@@ -8,8 +8,7 @@ import (
 	"ccze-go/wordcolor"
 )
 
-// DistccPlugin is a FULL plugin.
-// Coloriser for distcc(1) logs.
+// DistccPlugin is a FULL plugin. Coloriser for distcc(1) logs.
 type DistccPlugin struct {
 	w        io.Writer
 	ct       *color.Table

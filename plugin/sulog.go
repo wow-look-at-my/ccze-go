@@ -8,8 +8,7 @@ import (
 	"ccze-go/wordcolor"
 )
 
-// SulogPlugin is a FULL plugin.
-// Coloriser for su(1) logs.
+// SulogPlugin is a FULL plugin. Coloriser for su(1) logs.
 type SulogPlugin struct {
 	w        io.Writer
 	ct       *color.Table
@@ -32,14 +31,13 @@ func (p *SulogPlugin) Type() Type          { return TypeFull }
 func (p *SulogPlugin) Description() string { return "Coloriser for su(1) logs." }
 
 // parseSulog hand-parses an su log line.
-// Format: ^SU (\d{2}/\d{2} \d{2}:\d{2}) ([+-]) (\S+) ([^-]+)-(.*)$
 func parseSulog(line string) (date, islogin, tty, fromuser, touser string, ok bool) {
 	if !strings.HasPrefix(line, "SU ") {
 		return
 	}
 	s := line[3:]
 
-	// Date: dd/dd dd:dd (11 chars)
+	// Date: dd/dd dd:dd (chars)
 	if len(s) < 12 {
 		return
 	}

@@ -2,12 +2,6 @@ package main
 
 // benchmark_test.go contains Go benchmarks for ccze-go components and a
 // throughput comparison against the C ccze binary (when available).
-//
-// Run benchmarks:
-//   go test -bench=. -benchmem
-//
-// Run only C comparison:
-//   go test -bench=BenchmarkVsC -benchtime=3s
 
 import (
 	"bufio"
@@ -25,9 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// --------------------------------------------------------------------------
 // Component benchmarks
-// --------------------------------------------------------------------------
 
 func BenchmarkColorTableInit(b *testing.B) {
 	for i := 0; i < b.N; i++ {

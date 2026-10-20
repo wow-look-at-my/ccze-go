@@ -30,7 +30,6 @@ func (p *EximPlugin) Type() Type          { return TypeFull }
 func (p *EximPlugin) Description() string { return "Coloriser for exim logs." }
 
 // parseEximDate hand-parses the date prefix of an exim log line.
-// Format: ^(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})\s(.*)$
 func parseEximDate(line string) (date, rest string, ok bool) {
 	// "YYYY-MM-DD HH:MM:SS " = 20 chars minimum
 	if len(line) < 20 {
@@ -64,9 +63,8 @@ func parseEximDate(line string) (date, rest string, ok bool) {
 }
 
 // parseEximActionType tries to parse "UNIQUEID ACTION REST" from msgfull.
-// Format: ^(\S{16})\s([<=*][=>*])\s(\S+.*)$
 func parseEximActionType(msgfull string) (uniqn, action, rest string, ok bool) {
-	if len(msgfull) < 19 { // 16 + space + 2 + space minimum
+	if len(msgfull) < 19 {
 		return
 	}
 	// 16-char unique ID: all non-space
@@ -80,7 +78,7 @@ func parseEximActionType(msgfull string) (uniqn, action, rest string, ok bool) {
 	}
 	uniqn = msgfull[:16]
 
-	// Action: two chars from [<=*][=>*]
+	// Action: chars from [<=*][=>*]
 	a := msgfull[17:19]
 	if !((a[0] == '<' || a[0] == '=' || a[0] == '*') && (a[1] == '=' || a[1] == '>' || a[1] == '*')) {
 		return
@@ -100,9 +98,8 @@ func parseEximActionType(msgfull string) (uniqn, action, rest string, ok bool) {
 }
 
 // parseEximUniqn tries to parse "UNIQUEID REST" from msgfull.
-// Format: ^(\S{16})\s(.*)$
 func parseEximUniqn(msgfull string) (uniqn, rest string, ok bool) {
-	if len(msgfull) < 18 { // 16 + space + at least 1
+	if len(msgfull) < 18 {
 		return
 	}
 	for i := 0; i < 16; i++ {
