@@ -86,10 +86,4 @@ jobs:
           callgrind_annotate callgrind.out | head -60 | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload profiles
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpu-profiles
-          path: |
-            cpu.prof
-            callgrind.out
+      # The job summary above carries the profiles, so nothing is uploaded as an artifact.
