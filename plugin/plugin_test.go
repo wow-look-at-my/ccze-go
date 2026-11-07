@@ -52,7 +52,7 @@ func TestRegistryFilter(t *testing.T) {
 	r.Register(NewHTTPDPlugin(buf, ct, wc, false))
 	r.Register(NewDpkgPlugin(buf, ct, wc, false))
 
-	r.Filter(map[string]bool{"syslog": true, "dpkg": true})
+	r.Filter(set.Of("syslog", "dpkg"))
 	plugins := r.Plugins()
 	assert.Equal(t, 2, len(plugins))
 

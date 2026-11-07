@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"ccze-go/color"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 // Type represents the type of a plugin.
@@ -69,10 +70,10 @@ func (r *Registry) Plugins() []Plugin {
 }
 
 // Filter removes plugins whose names are not in the given set.
-func (r *Registry) Filter(names map[string]bool) {
+func (r *Registry) Filter(names set.Set[string]) {
 	var filtered []Plugin
 	for _, p := range r.plugins {
-		if names[p.Name()] {
+		if names.Contains(p.Name()) {
 			filtered = append(filtered, p)
 		}
 	}

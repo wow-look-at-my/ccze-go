@@ -15,6 +15,7 @@ import (
 	"ccze-go/color"
 	"ccze-go/plugin"
 	"ccze-go/wordcolor"
+	"github.com/wow-look-at-my/go-containers/set"
 )
 
 func main() {
@@ -307,11 +308,7 @@ func registerAllPlugins(r *plugin.Registry, w *bufio.Writer, ct *color.Table, wc
 
 // filterPlugins removes plugins not in the given name list from the registry.
 func filterPlugins(r *plugin.Registry, names []string) {
-	nameSet := make(map[string]bool, len(names))
-	for _, n := range names {
-		nameSet[n] = true
-	}
-	r.Filter(nameSet)
+	r.Filter(set.Of(names...))
 }
 
 // listAllPlugins prints available plugins in the C-compatible format.
