@@ -1,3 +1,5 @@
+// fetchmail.go holds FetchmailPlugin.
+
 package plugin
 
 import (

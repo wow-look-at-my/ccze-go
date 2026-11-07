@@ -1,3 +1,5 @@
+// dpkg.go holds DpkgPlugin.
+
 package plugin
 
 import (

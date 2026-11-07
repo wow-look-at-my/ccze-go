@@ -1,3 +1,5 @@
+// main.go holds processStream.
+
 package main
 
 import (

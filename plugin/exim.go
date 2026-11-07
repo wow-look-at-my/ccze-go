@@ -1,3 +1,5 @@
+// exim.go holds EximPlugin.
+
 package plugin
 
 import (

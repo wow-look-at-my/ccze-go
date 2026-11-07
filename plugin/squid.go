@@ -1,3 +1,5 @@
+// squid.go holds SquidPlugin.
+
 package plugin
 
 import (

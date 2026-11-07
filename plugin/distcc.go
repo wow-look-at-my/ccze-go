@@ -1,3 +1,5 @@
+// distcc.go holds DistccPlugin.
+
 package plugin
 
 import (

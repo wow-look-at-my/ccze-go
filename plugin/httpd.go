@@ -1,3 +1,5 @@
+// httpd.go holds HTTPDPlugin.
+
 package plugin
 
 import (

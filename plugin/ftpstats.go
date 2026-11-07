@@ -1,3 +1,5 @@
+// ftpstats.go holds FtpstatsPlugin.
+
 package plugin
 
 import (

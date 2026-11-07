@@ -1,3 +1,5 @@
+// icecast.go holds IcecastPlugin.
+
 package plugin
 
 import (

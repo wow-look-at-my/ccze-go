@@ -1,3 +1,5 @@
+// php.go holds PHPPlugin.
+
 package plugin
 
 import (

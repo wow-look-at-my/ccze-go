@@ -1,3 +1,5 @@
+// procmail.go holds ProcmailPlugin.
+
 package plugin
 
 import (

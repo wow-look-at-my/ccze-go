@@ -1,3 +1,5 @@
+// proftpd.go holds ProFTPDPlugin.
+
 package plugin
 
 import (

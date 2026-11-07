@@ -1,3 +1,5 @@
+// ulogd.go holds UlogdPlugin.
+
 package plugin
 
 import (
