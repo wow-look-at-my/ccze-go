@@ -1,3 +1,5 @@
+// sulog.go holds SulogPlugin.
+
 package plugin
 
 import (

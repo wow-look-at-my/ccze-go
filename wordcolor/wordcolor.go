@@ -481,8 +481,6 @@ func (p *Processor) ProcessOne(w io.Writer, word string, slookup bool) {
 	case hasColon && matchMAC(lword):
 		col = color.MAC
 	case p.ext.Files && looksLikePath(lword):
-		// Path (/abs, ./rel, ../rel, ~/, or rel/with/ext): a basename with an
-		// extension is a File, otherwise a Dir.
 		if fileExt(baseName(lword)) != "" {
 			col = color.File
 		} else {

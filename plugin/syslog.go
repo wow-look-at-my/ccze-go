@@ -1,3 +1,5 @@
+// syslog.go holds SyslogPlugin.
+
 package plugin
 
 import (

@@ -1,3 +1,5 @@
+// super.go holds SuperPlugin.
+
 package plugin
 
 import (

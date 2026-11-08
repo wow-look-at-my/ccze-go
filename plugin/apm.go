@@ -1,3 +1,5 @@
+// apm.go holds ApmPlugin.
+
 package plugin
 
 import (

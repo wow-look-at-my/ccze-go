@@ -29,7 +29,8 @@ jobs:
           timeout: 30
 
   benchmark:
-    runs-on: ${{ github.event.repository.visibility == 'public' && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    # The C ccze built here needs the PCRE1 headers, and Ubuntu 26.04 (today's ubuntu-latest) no longer ships libpcre3-dev, so this job pins 24.04.
+    runs-on: ${{ github.event.repository.visibility == 'public' && 'ubuntu-24.04' || vars.CI_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
 

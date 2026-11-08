@@ -1,3 +1,5 @@
+// xferlog.go holds XferlogPlugin.
+
 package plugin
 
 import (

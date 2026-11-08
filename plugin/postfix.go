@@ -1,3 +1,5 @@
+// postfix.go holds PostfixPlugin.
+
 package plugin
 
 import (

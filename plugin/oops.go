@@ -1,3 +1,5 @@
+// oops.go holds OopsPlugin.
+
 package plugin
 
 import (

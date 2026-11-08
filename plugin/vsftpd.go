@@ -1,3 +1,5 @@
+// vsftpd.go holds VsftpdPlugin.
+
 package plugin
 
 import (
